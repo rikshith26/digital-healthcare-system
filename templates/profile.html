@@ -1,0 +1,149 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="logo" style="margin-bottom: 2rem;">HealthLab <span style="font-weight: 300;">AI</span></div>
+        <a href="{{ url_for('dashboard') }}" class="sidebar-item">
+            <i data-lucide="layout-grid"></i> Dashboard
+        </a>
+        <a href="{{ url_for('profile') }}" class="sidebar-item active">
+            <i data-lucide="user"></i> My Profile
+        </a>
+        <a href="{{ url_for('history') }}" class="sidebar-item">
+            <i data-lucide="history"></i> Medical History
+        </a>
+        <a href="{{ url_for('book_test_page') }}" class="sidebar-item">
+            <i data-lucide="microscope"></i> Book a Test
+        </a>
+        <a href="#" class="sidebar-item">
+            <i data-lucide="settings"></i> Settings
+        </a>
+        <a href="#" class="sidebar-item">
+            <i data-lucide="message-square"></i> Feedback
+        </a>
+        <a href="{{ url_for('logout') }}" class="sidebar-item" style="color: var(--accent);">
+            <i data-lucide="log-out"></i> Sign Out
+        </a>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header style="margin-bottom: 2rem;">
+            <h1 style="font-size: 2rem; margin: 0;">{{ user.full_name or user.username }}'s Profile</h1>
+            <p style="color: var(--text-muted);">Please complete your profile to access all healthcare services.</p>
+        </header>
+
+        <div class="frosted-card" id="profile-view"
+            style="{{ 'display: none;' if not user.is_profile_complete else '' }}">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem;">
+                <h3 style="margin: 0;">Verified Information</h3>
+                <button onclick="toggleEdit()" class="btn-modern"
+                    style="padding: 0.5rem 1rem; font-size: 0.8rem;">Update Profile</button>
+            </div>
+
+            <div class="grid-2">
+                <div>
+                    <small
+                        style="color: var(--text-muted); font-weight: 700; text-transform: uppercase; font-size: 0.7rem;">Full
+                        Name</small>
+                    <p style="margin: 0.25rem 0 1.5rem; font-weight: 600;">{{ user.full_name }}</p>
+                </div>
+                <div>
+                    <small
+                        style="color: var(--text-muted); font-weight: 700; text-transform: uppercase; font-size: 0.7rem;">Phone
+                        Number</small>
+                    <p style="margin: 0.25rem 0 1.5rem; font-weight: 600;">{{ user.phone }}</p>
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div>
+                    <small
+                        style="color: var(--text-muted); font-weight: 700; text-transform: uppercase; font-size: 0.7rem;">Date
+                        of Birth</small>
+                    <p style="margin: 0.25rem 0 1.5rem; font-weight: 600;">{{ user.dob }}</p>
+                </div>
+                <div>
+                    <small
+                        style="color: var(--text-muted); font-weight: 700; text-transform: uppercase; font-size: 0.7rem;">Gender</small>
+                    <p style="margin: 0.25rem 0 1.5rem; font-weight: 600;">{{ user.gender }}</p>
+                </div>
+            </div>
+
+            <div>
+                <small
+                    style="color: var(--text-muted); font-weight: 700; text-transform: uppercase; font-size: 0.7rem;">Verified
+                    Address</small>
+                <p style="margin: 0.25rem 0 1.5rem; font-weight: 600; line-height: 1.6;">{{ user.address }}</p>
+            </div>
+        </div>
+
+        <div class="frosted-card" id="profile-edit"
+            style="{{ 'display: block;' if not user.is_profile_complete else 'display: none;' }}">
+            <h3 style="margin-bottom: 2rem;">{{ 'Complete Your Profile' if not user.is_profile_complete else 'Update
+                Profile Details' }}</h3>
+            <form method="POST">
+                <div class="grid-2">
+                    <div>
+                        <label style="font-size: 0.85rem; font-weight: 600;">Full Name</label>
+                        <input type="text" name="full_name" class="input-field" required
+                            value="{{ user.full_name or '' }}" placeholder="Enter your legal name">
+                    </div>
+                    <div>
+                        <label style="font-size: 0.85rem; font-weight: 600;">Phone Number</label>
+                        <input type="tel" name="phone" class="input-field" required value="{{ user.phone or '' }}"
+                            placeholder="+91 00000 00000">
+                    </div>
+                </div>
+
+                <div class="grid-2" style="margin-top: 1.5rem;">
+                    <div>
+                        <label style="font-size: 0.85rem; font-weight: 600;">Date of Birth</label>
+                        <input type="date" name="dob" class="input-field" required value="{{ user.dob or '' }}">
+                    </div>
+                    <div>
+                        <label style="font-size: 0.85rem; font-weight: 600;">Gender</label>
+                        <select name="gender" class="input-field" required>
+                            <option value="" disabled {{ 'selected' if not user.gender }}>Select Gender</option>
+                            <option value="Male" {{ 'selected' if user.gender=='Male' }}>Male</option>
+                            <option value="Female" {{ 'selected' if user.gender=='Female' }}>Female</option>
+                            <option value="Other" {{ 'selected' if user.gender=='Other' }}>Other</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="margin-top: 1.5rem;">
+                    <label style="font-size: 0.85rem; font-weight: 600;">Full Address</label>
+                    <textarea name="address" class="input-field" style="height: 100px;" required
+                        placeholder="Street name, City, State, ZIP">{{ user.address or '' }}</textarea>
+                </div>
+
+                <div style="margin-top: 2rem; display: flex; gap: 1rem;">
+                    <button type="submit" class="btn-modern" style="flex: 1;">Save Changes</button>
+                    {% if user.is_profile_complete %}
+                    <button type="button" onclick="toggleEdit()" class="btn-modern"
+                        style="background: var(--bg-main); color: var(--text-main);">Cancel</button>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+
+        <script>
+            function toggleEdit() {
+                const view = document.getElementById('profile-view');
+                const edit = document.getElementById('profile-edit');
+                if (view.style.display === 'none') {
+                    view.style.display = 'block';
+                    edit.style.display = 'none';
+                } else {
+                    view.style.display = 'none';
+                    edit.style.display = 'block';
+                }
+            }
+        </script>
+    </main>
+
+</div>
+{% endblock %}
