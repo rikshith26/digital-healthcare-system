@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediScan AI - Premium Health Intelligence</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body class="{% if request.endpoint == 'dashboard' %}dashboard-body{% endif %}">
+    {% if request.endpoint == 'index' %}
+    <nav class="navbar-modern">
+        <a href="{{ url_for('index') }}" class="logo-modern" style="text-decoration: none;">
+            <i data-lucide="activity" style="width: 20px; height: 20px;"></i>
+            HealthLab<span>AI</span>
+        </a>
+
+        <div class="nav-pill">
+            <a href="{{ url_for('index') }}" class="pill-item active">Home</a>
+            <a href="#" class="pill-item">Doctor</a>
+            <a href="#" class="pill-item">Patients</a>
+            <a href="#services" class="pill-item">Services</a>
+            <a href="#benefits" class="pill-item">Benefits ↗</a>
+        </div>
+
+        <div class="auth-box">
+            {% if current_user.is_authenticated %}
+            <a href="{{ url_for('dashboard') }}" class="btn-login">Dashboard</a>
+            {% else %}
+            <a href="{{ url_for('login') }}" class="btn-login">Login</a>
+            {% endif %}
+        </div>
+    </nav>
+    {% endif %}
+
+    <div class="content">
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <div style="position: fixed; top: 100px; right: 20px; z-index: 2000;">
+            {% for message in messages %}
+            <div class="glass-card" style="padding: 1rem; margin-bottom: 1rem; border-color: var(--accent);">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </div>
+
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+
+</html>
