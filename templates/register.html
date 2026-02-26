@@ -1,0 +1,62 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="reference-auth-wrapper">
+    <div class="auth-main-container">
+        <!-- Left Side: Illustration -->
+        <div class="auth-illustration-panel">
+            <img src="/static/images/auth_illustration.png" alt="Medical Illustration">
+        </div>
+
+        <!-- Right Side: Form -->
+        <div class="auth-form-panel">
+            <h2>Sign Up <span>to Get Started</span></h2>
+
+            <form method="POST">
+                <!-- Full Name -->
+                <div class="ref-input-group">
+                    <i data-lucide="user"></i>
+                    <input type="text" name="username" required placeholder="Full Name">
+                </div>
+
+                <!-- Email -->
+                <div class="ref-input-group">
+                    <i data-lucide="mail"></i>
+                    <input type="email" name="email" required placeholder="Email Address">
+                </div>
+
+                <!-- Password -->
+                <div class="ref-input-group">
+                    <i data-lucide="lock"></i>
+                    <input type="password" name="password" required placeholder="Password">
+                </div>
+
+                <!-- Account Type -->
+                <div class="ref-input-group">
+                    <i data-lucide="briefcase"></i>
+                    <select name="role">
+                        <option value="patient">Patient</option>
+                        <option value="technician">Technician</option>
+                        <option value="doctor">Doctor</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn-ref-login" style="margin-top: 1rem;">Register</button>
+            </form>
+
+            <div class="divider-text">
+                <span>Or register with</span>
+            </div>
+
+            <button type="button" class="btn-google-rect">
+                <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" alt="Google">
+                Continue with Google
+            </button>
+
+            <p class="auth-footer-text">
+                Already have an account? <a href="{{ url_for('login') }}">Sign In</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
