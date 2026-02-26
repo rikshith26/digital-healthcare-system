@@ -1,0 +1,122 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="logo" style="margin-bottom: 2rem;">HealthLab <span style="font-weight: 300;">AI</span></div>
+        <a href="{{ url_for('dashboard') }}" class="sidebar-item">
+            <i data-lucide="layout-grid"></i> Dashboard
+        </a>
+        <a href="{{ url_for('profile') }}" class="sidebar-item">
+            <i data-lucide="user"></i> My Profile
+        </a>
+        <a href="{{ url_for('history') }}" class="sidebar-item">
+            <i data-lucide="history"></i> Medical History
+        </a>
+        <a href="{{ url_for('book_test_page') }}" class="sidebar-item active">
+            <i data-lucide="microscope"></i> Book a Test
+        </a>
+        <a href="#" class="sidebar-item">
+            <i data-lucide="settings"></i> Settings
+        </a>
+        <a href="#" class="sidebar-item">
+            <i data-lucide="message-square"></i> Feedback
+        </a>
+        <a href="{{ url_for('logout') }}" class="sidebar-item" style="color: var(--accent);">
+            <i data-lucide="log-out"></i> Sign Out
+        </a>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header style="margin-bottom: 2rem;">
+            <h1 style="font-size: 2rem; margin: 0;">Diagnostic Center</h1>
+            <p style="color: var(--text-muted);">Select a test and book a home sample collection.</p>
+        </header>
+
+        {% if user.is_profile_complete %}
+        <div class="frosted-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <h3 style="margin: 0;">Quick Lab Booking</h3>
+                <span style="color: var(--primary); font-weight: 600; font-size: 0.9rem;">Verified Account</span>
+            </div>
+
+            <form action="{{ url_for('book_test') }}" method="POST">
+                <div class="grid-2">
+                    <div>
+                        <label style="font-size: 0.85rem; font-weight: 600;">Patient Full Name</label>
+                        <input type="text" name="full_name" class="input-field" required value="{{ user.full_name }}"
+                            readonly style="background: #f8fafc;">
+                    </div>
+                    <div>
+                        <label style="font-size: 0.85rem; font-weight: 600;">Contact Email</label>
+                        <input type="email" name="patient_email" class="input-field" required value="{{ user.email }}"
+                            readonly style="background: #f8fafc;">
+                    </div>
+                </div>
+
+                <div class="grid-2" style="margin-top: 1.5rem;">
+                    <div>
+                        <label style="font-size: 0.85rem; font-weight: 600;">Date of Birth</label>
+                        <input type="date" name="dob" class="input-field" required value="{{ user.dob }}" readonly
+                            style="background: #f8fafc;">
+                    </div>
+                    <div>
+                        <label style="font-size: 0.85rem; font-weight: 600;">Collection Address</label>
+                        <input type="text" name="address" class="input-field" required value="{{ user.address }}">
+                    </div>
+                </div>
+
+                <div class="grid-2" style="margin-top: 1.5rem;">
+                    <div>
+                        <label style="font-size: 0.85rem; font-weight: 600;">Select Test</label>
+                        <select name="test_name" class="input-field" required>
+                            <option value="Malaria Screening">Malaria Screening (₹149)</option>
+                            <option value="Typhoid Test">Typhoid (Widal) (₹199)</option>
+                            <option value="Dengue Test">Dengue NS1 (₹599)</option>
+                            <option value="Diabetes Check">Diabetes Check (₹299)</option>
+                        </select>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div>
+                            <label style="font-size: 0.85rem; font-weight: 600;">Pref. Date</label>
+                            <input type="date" name="date" class="input-field" required value="2024-02-23">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.85rem; font-weight: 600;">Pref. Time</label>
+                            <select name="time" class="input-field" required>
+                                <option value="09:00 AM">09:00 AM</option>
+                                <option value="11:00 AM">11:00 AM</option>
+                                <option value="02:00 PM">02:00 PM</option>
+                                <option value="05:00 PM">05:00 PM</option>
+                                <option value="08:00 PM">08:00 PM</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 1.5rem;">
+                    <label style="font-size: 0.85rem; font-weight: 600;">Special Instructions (Optional)</label>
+                    <textarea name="notes" class="input-field" style="height: 100px;"
+                        placeholder="Any specific requirements..."></textarea>
+                </div>
+
+                <button type="submit" class="btn-modern" style="width: 100%; margin-top: 2rem;">Proceed to
+                    Confirmation</button>
+            </form>
+        </div>
+        {% else %}
+        <div class="frosted-card"
+            style="text-align: center; padding: 4rem 2rem; border: 2px dashed var(--border-light);">
+            <i data-lucide="lock"
+                style="width: 48px; height: 48px; color: var(--text-muted); margin-bottom: 1.5rem;"></i>
+            <h3>Booking Locked</h3>
+            <p style="color: var(--text-muted); max-width: 400px; margin: 0 auto 2rem;">Please complete your primary
+                profile details to enable lab technician booking services.</p>
+            <a href="{{ url_for('profile') }}" class="btn-modern" style="text-decoration: none;">Complete My Profile</a>
+        </div>
+        {% endif %}
+    </main>
+</div>
+{% endblock %}
