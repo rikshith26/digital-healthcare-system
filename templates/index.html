@@ -1,0 +1,150 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<section class="hero-section">
+    <div class="hero-content">
+        <h1>Brightening your<br>health path</h1>
+        <p style="font-size: 1.25rem; max-width: 600px; margin-bottom: 3rem; opacity: 0.9;">
+            {{ config.PROJECT_DESCRIPTION or "An AI-enabled digital healthcare platform that allows users to request
+            tests, receive reports digitally, and analyze results with intelligence." }}
+        </p>
+        <a href="{{ url_for('register') }}" class="btn btn-white">Book Now</a>
+    </div>
+</section>
+
+
+<section id="services" class="section-title">
+    <h2>Expert Online Consultations</h2>
+    <p style="color: var(--text-muted);">Get expert care from our seasoned doctors via live reports and AI insights, all
+        from the comfort of your home.</p>
+</section>
+
+<div class="feature-grid">
+    <div class="feature-card">
+        <i data-lucide="brain-circuit"
+            style="width: 48px; height: 48px; color: var(--secondary); margin-bottom: 2rem;"></i>
+        <h3>AI-Enabled Analysis</h3>
+        <p style="color: var(--text-muted); line-height: 1.6;">Our proprietary neural networks interpret complex
+            diagnostic data, providing simplified explanations of medical parameters in multiple languages.</p>
+    </div>
+    <div class="feature-card">
+        <i data-lucide="shield-check"
+            style="width: 48px; height: 48px; color: var(--secondary); margin-bottom: 2rem;"></i>
+        <h3>Secure Digital Vault</h3>
+        <p style="color: var(--text-muted); line-height: 1.6;">State-of-the-art encryption for managing patient records
+            and test history. Your healthcare data is always accessible and always protected.</p>
+    </div>
+    <div class="feature-card">
+        <i data-lucide="stethoscope"
+            style="width: 48px; height: 48px; color: var(--secondary); margin-bottom: 2rem;"></i>
+        <h3>Clinical Decision Support</h3>
+        <p style="color: var(--text-muted); line-height: 1.6;">Assisting healthcare professionals with AI-based trend
+            analysis and automated health recommendations based on historical data.</p>
+    </div>
+    <div class="feature-card">
+        <i data-lucide="truck" style="width: 48px; height: 48px; color: var(--secondary); margin-bottom: 2rem;"></i>
+        <h3>Home Sample Collection</h3>
+        <p style="color: var(--text-muted); line-height: 1.6;">Seamless digital requesting for home diagnostic tests.
+            Reduce manual work and experience efficient healthcare access anytime, anywhere.</p>
+    </div>
+</div>
+
+<!-- Benefits Section -->
+<section id="benefits" class="section-title">
+    <h2>Platform Benefits</h2>
+    <p style="color: var(--text-muted);">Discover why HealthLab AI is the preferred choice for digital healthcare.</p>
+</section>
+
+<div class="benefits-container">
+    <div class="benefit-row">
+        <div class="benefit-item">
+            <div class="benefit-icon"><i data-lucide="zap"></i></div>
+            <div class="benefit-text">
+                <h3>Rapid Results</h3>
+                <p>Get your diagnostic reports within hours instead of days with our automated technician workflow.</p>
+            </div>
+        </div>
+        <div class="benefit-item">
+            <div class="benefit-icon"><i data-lucide="globe"></i></div>
+            <div class="benefit-text">
+                <h3>Global Accessibility</h3>
+                <p>Access your health history from anywhere in the world with our secure cloud-based patient vault.</p>
+            </div>
+        </div>
+    </div>
+    <div class="benefit-row">
+        <div class="benefit-item">
+            <div class="benefit-icon"><i data-lucide="heart-pulse"></i></div>
+            <div class="benefit-text">
+                <h3>Predictive Insights</h3>
+                <p>Identify potential health trends before they become issues using our AI-driven longitudinal analysis.
+                </p>
+            </div>
+        </div>
+        <div class="benefit-item">
+            <div class="benefit-icon"><i data-lucide="users"></i></div>
+            <div class="benefit-text">
+                <h3>Collaborative Care</h3>
+                <p>Easily share your verified reports with doctors and specialists directly through the platform.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="cta-banner">
+    <div style="max-width: 600px;">
+        <h2 style="margin-top: 0; font-size: 2.5rem;">Register and Book Your Appointment</h2>
+        <p style="color: #4a6b5d;">Experience quality healthcare from the comfort of your home with our AI-driven
+            diagnostic system.</p>
+    </div>
+    <div style="display: flex; gap: 1rem;">
+        <a href="{{ url_for('register') }}" class="btn btn-primary">Register</a>
+        <a href="{{ url_for('login') }}" class="btn" style="border: 1px solid var(--primary);">Learn More</a>
+    </div>
+</div>
+
+<footer class="footer">
+    <div
+        style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 4rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 4rem;">
+        <div>
+            <div class="logo"
+                style="background: white; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; font-size: 2rem; margin-bottom: 1rem;">
+                HealthLab AI</div>
+            <p style="font-size: 0.9rem; opacity: 0.7; line-height: 1.8;">Our vision is to democratize high-end medical
+                diagnostics using the power of Artificial Intelligence.</p>
+        </div>
+        <div>
+            <h4 style="margin-bottom: 1.5rem;">About Us</h4>
+            <div style="display: flex; flex-direction: column; gap: 1rem; opacity: 0.7; font-size: 0.9rem;">
+                <span>Our Story</span>
+                <span>Our Team</span>
+                <span>Values</span>
+            </div>
+        </div>
+        <div>
+            <h4 style="margin-bottom: 1.5rem;">Services</h4>
+            <div style="display: flex; flex-direction: column; gap: 1rem; opacity: 0.7; font-size: 0.9rem;">
+                <span>Digital Reports</span>
+                <span>AI Diagnostics</span>
+                <span>Home Collection</span>
+            </div>
+        </div>
+        <div>
+            <h4 style="margin-bottom: 1.5rem;">Account</h4>
+            <div style="display: flex; flex-direction: column; gap: 1rem; opacity: 0.7; font-size: 0.9rem;">
+                {% if current_user.is_authenticated %}
+                <a href="{{ url_for('dashboard') }}" style="color: white; text-decoration: none;">Dashboard</a>
+                <a href="{{ url_for('logout') }}" style="color: #ff4757; text-decoration: none; font-weight: 600;">Sign
+                    Out</a>
+                {% else %}
+                <a href="{{ url_for('login') }}" style="color: white; text-decoration: none;">Login</a>
+                <a href="{{ url_for('register') }}" style="color: white; text-decoration: none;">Register</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div style="text-align: center; margin-top: 3rem; font-size: 0.8rem; opacity: 0.5;">
+        © 2026 Digitalised Healthcare and Report Analysis System. All Rights Reserved.
+    </div>
+</footer>
+{% endblock %}
