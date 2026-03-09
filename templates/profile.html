@@ -2,32 +2,6 @@
 
 {% block content %}
 <div class="dashboard-container">
-    <!-- Sidebar -->
-    <aside class="sidebar">
-        <div class="logo" style="margin-bottom: 2rem;">HealthLab <span style="font-weight: 300;">AI</span></div>
-        <a href="{{ url_for('dashboard') }}" class="sidebar-item">
-            <i data-lucide="layout-grid"></i> Dashboard
-        </a>
-        <a href="{{ url_for('profile') }}" class="sidebar-item active">
-            <i data-lucide="user"></i> My Profile
-        </a>
-        <a href="{{ url_for('history') }}" class="sidebar-item">
-            <i data-lucide="history"></i> Medical History
-        </a>
-        <a href="{{ url_for('book_test_page') }}" class="sidebar-item">
-            <i data-lucide="microscope"></i> Book a Test
-        </a>
-        <a href="#" class="sidebar-item">
-            <i data-lucide="settings"></i> Settings
-        </a>
-        <a href="#" class="sidebar-item">
-            <i data-lucide="message-square"></i> Feedback
-        </a>
-        <a href="{{ url_for('logout') }}" class="sidebar-item" style="color: var(--accent);">
-            <i data-lucide="log-out"></i> Sign Out
-        </a>
-    </aside>
-
     <!-- Main Content -->
     <main class="main-content">
         <header style="margin-bottom: 2rem;">

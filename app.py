@@ -57,9 +57,17 @@ def index():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    chat_redirect = request.args.get('chat_redirect')
+    consult_redirect = request.args.get('consult_redirect')
+    if chat_redirect:
+        flash('Please login to our site so that you can access the AI Health Assistant.')
+    if consult_redirect:
+        flash('Please login to our site to consult with our specialized doctors.')
+
     if request.method == 'POST':
         email = request.form.get('email')
         password = request.form.get('password')
+        next_url = request.args.get('next')
         
         users_col = db_manager.get_collection('users')
         user_data = users_col.find_one({"email": email})
@@ -67,6 +75,14 @@ def login():
         if user_data and check_password_hash(user_data['password'], password):
             user = User(user_data)
             login_user(user)
+            if next_url:
+                # If we were going to the dashboard or index, add the open_chat/open_consult param
+                sep = '?' if '?' not in next_url else '&'
+                if consult_redirect:
+                    return redirect(next_url + sep + "open_consult=true")
+                if chat_redirect:
+                    return redirect(next_url + sep + "open_chat=true")
+                return redirect(next_url)
             return redirect(url_for('dashboard'))
         
         flash('Invalid email or password')
@@ -270,7 +286,10 @@ def logout():
 
 if __name__ == '__main__':
     # Test DB connection on start
-    if db_manager.test_connection():
+    success, hint = db_manager.test_connection()
+    if success:
         app.run(debug=True, port=int(os.getenv("PORT", 5000)))
     else:
+        if hint:
+            print(hint)
         print("Could not start app: Database connection failed.")

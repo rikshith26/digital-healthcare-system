@@ -2,32 +2,6 @@
 
 {% block content %}
 <div class="dashboard-container">
-    <!-- Sidebar -->
-    <aside class="sidebar">
-        <div class="logo" style="margin-bottom: 2rem;">HealthLab <span style="font-weight: 300;">AI</span></div>
-        <a href="{{ url_for('dashboard') }}" class="sidebar-item active">
-            <i data-lucide="layout-grid"></i> Dashboard
-        </a>
-        <a href="{{ url_for('profile') }}" class="sidebar-item">
-            <i data-lucide="user"></i> My Profile
-        </a>
-        <a href="{{ url_for('history') }}" class="sidebar-item">
-            <i data-lucide="history"></i> Medical History
-        </a>
-        <a href="{{ url_for('book_test_page') }}" class="sidebar-item">
-            <i data-lucide="microscope"></i> Book a Test
-        </a>
-        <a href="#" class="sidebar-item">
-            <i data-lucide="settings"></i> Settings
-        </a>
-        <a href="#" class="sidebar-item">
-            <i data-lucide="message-square"></i> Feedback
-        </a>
-        <a href="{{ url_for('logout') }}" class="sidebar-item" style="color: var(--accent);">
-            <i data-lucide="log-out"></i> Sign Out
-        </a>
-    </aside>
-
     <!-- Main Content -->
     <main class="main-content">
         <header style="margin-bottom: 2rem;">
@@ -36,53 +10,125 @@
         </header>
 
         {% if user.role == 'patient' %}
-        <!-- Featured Card -->
-        <div class="frosted-card"
-            style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: white; margin-bottom: 2rem; position: relative; overflow: hidden;">
-            <div style="position: relative; z-index: 2;">
-                <p style="opacity: 0.8; margin: 0;">Your Next Step</p>
-                <h2 style="font-size: 2rem; margin: 0.5rem 0;">Ready for a Checkup?</h2>
-                {% if not user.is_profile_complete %}
-                <p style="max-width: 400px; opacity: 0.9; margin-bottom: 1.5rem;">Please complete your medical profile
-                    to enable one-click booking for lab technicians.</p>
-                <a href="{{ url_for('profile') }}" class="btn-modern"
-                    style="background: white; color: var(--primary); text-decoration: none;">Complete Profile Now</a>
-                {% else %}
-                <p style="max-width: 400px; opacity: 0.9; margin-bottom: 1.5rem;">Book a professional technician for
-                    home sample collection and get AI-powered results.</p>
-                {% endif %}
-                <div style="display: flex; gap: 1rem; align-items: center; margin-top: 1.5rem;">
-                    <div
-                        style="background: rgba(255,255,255,0.2); padding: 0.75rem 1.5rem; border-radius: 12px; font-size: 0.9rem;">
-                        <i data-lucide="clock" style="width: 16px; display: inline-block;"></i> Available: 9AM - 9PM
+        <div class="carousel-main-wrapper">
+            <div class="carousel-viewport" id="mainCarousel">
+                <div class="carousel-track">
+                    <div class="carousel-slide">
+                        <div class="ai-banner" onclick="toggleChat()">
+                            <div class="ai-banner-content">
+                                <h2>Ask anything about your health.</h2>
+                                <p>Get trusted answers directly from our intelligent AI Diagnostics assistant.</p>
+                                <button class="btn-ai-chat">
+                                    <i data-lucide="sparkles" style="width: 18px;"></i> Ask HealthLab AI
+                                </button>
+                            </div>
+                            <div class="ai-banner-illustration">
+                                <i data-lucide="brain-circuit"
+                                    style="width: 100px; height: 100px; opacity: 0.2; position: absolute;"></i>
+                                <i data-lucide="stethoscope" style="width: 120px; height: 120px; opacity: 0.1;"></i>
+                            </div>
+                        </div>
                     </div>
+
+                    <div class="carousel-slide">
+                        <div class="consult-banner" onclick="toggleConsult()">
+                            <div class="consult-banner-content">
+                                <h2>Expert Professional Consultation.</h2>
+                                <p>Book a checkup with our specialized doctors and get expert medical advice.</p>
+                                <button class="btn-consult">
+                                    <i data-lucide="user-round" style="width: 18px;"></i> Consult a Doctor
+                                </button>
+                            </div>
+                            <div class="consult-banner-illustration">
+                                <i data-lucide="stethoscope"
+                                    style="width: 100px; height: 100px; opacity: 0.2; position: absolute;"></i>
+                                <i data-lucide="heart-pulse" style="width: 120px; height: 120px; opacity: 0.1;"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if user.role == 'patient' %}
+                    <div class="carousel-slide">
+                        <div class="frosted-card"
+                            style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: white; position: relative; overflow: hidden; height: 240px; display: flex; align-items: center; margin: 0; padding: 2.5rem 3.5rem; box-sizing: border-box;">
+                            <div style="position: relative; z-index: 2;">
+                                <p style="opacity: 0.8; margin: 0;">Your Next Step</p>
+                                <h2 style="font-size: 2rem; margin: 0.5rem 0;">Ready for a Checkup?</h2>
+                                {% if not user.is_profile_complete %}
+                                <p style="max-width: 400px; opacity: 0.9; margin-bottom: 1rem;">Complete your profile to
+                                    enable one-click booking.</p>
+                                <a href="{{ url_for('profile') }}" class="btn-modern"
+                                    style="background: white; color: var(--primary); text-decoration: none;">Complete
+                                    Now</a>
+                                {% else %}
+                                <p style="max-width: 400px; opacity: 0.9; margin-bottom: 1rem;">Home sample collection
+                                    by pro technicians.</p>
+                                <a href="{{ url_for('book_test_page') }}" class="btn-checkup">
+                                    <i data-lucide="calendar" style="width: 18px;"></i> Book a Test
+                                </a>
+                                {% endif %}
+                            </div>
+                            <i data-lucide="activity"
+                                style="position: absolute; right: -20px; bottom: -20px; width: 180px; height: 180px; opacity: 0.1;"></i>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="carousel-controls">
+                    <button class="carousel-btn prev"><i data-lucide="chevron-left"></i></button>
+                    <button class="carousel-btn next"><i data-lucide="chevron-right"></i></button>
+                </div>
+
+                <div class="carousel-indicators">
+                    <button class="indicator active"></button>
+                    <button class="indicator"></button>
+                    {% if user.role == 'patient' %}<button class="indicator"></button>{% endif %}
                 </div>
             </div>
-            <i data-lucide="activity"
-                style="position: absolute; right: -20px; bottom: -20px; width: 200px; height: 200px; opacity: 0.1;"></i>
         </div>
 
-        <!-- Quick Actions Grid -->
-        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem; margin-bottom: 3rem;">
-            <div style="display: flex; flex-direction: column; align-items: center; cursor: pointer;">
-                <div class="action-circle"><i data-lucide="pill" style="color: var(--primary);"></i></div>
-                <small style="font-weight: 600; color: var(--text-main);">Pharmacy</small>
-            </div>
-            <div style="display: flex; flex-direction: column; align-items: center; cursor: pointer;">
-                <div class="action-circle"><i data-lucide="list-ordered" style="color: var(--primary);"></i></div>
-                <small style="font-weight: 600; color: var(--text-main);">My Queue</small>
-            </div>
-            <a href="{{ url_for('book_test_page') }}"
-                style="display: flex; flex-direction: column; align-items: center; text-decoration: none; color: inherit;">
-                <div class="action-circle"
-                    style="background: var(--secondary); box-shadow: 0 10px 25px rgba(16, 185, 129, 0.2);"><i
-                        data-lucide="plus" style="color: white;"></i></div>
-                <small style="font-weight: 600; color: var(--text-main);">Book Test</small>
+        <!-- Quick Actions Navigation -->
+        <div class="quick-nav-grid">
+            <a href="#" class="quick-nav-card card-green">
+                <div class="nav-card-icon"><i data-lucide="pill" style="color: #10b981; width: 32px; height: 32px;"></i>
+                </div>
+                <div class="nav-card-text">
+                    <h4>Pharmacy</h4>
+                    <span>BUY MEDICINES</span>
+                </div>
+                <i data-lucide="chevron-right" class="nav-card-arrow" style="width: 18px;"></i>
             </a>
-            <div style="display: flex; flex-direction: column; align-items: center; cursor: pointer;">
-                <div class="action-circle"><i data-lucide="user-round" style="color: var(--primary);"></i></div>
-                <small style="font-weight: 600; color: var(--text-main);">Doctors</small>
-            </div>
+
+            <a href="#" class="quick-nav-card card-yellow">
+                <div class="nav-card-icon"><i data-lucide="user-round"
+                        style="color: #f59e0b; width: 32px; height: 32px;"></i></div>
+                <div class="nav-card-text">
+                    <h4>Doctors</h4>
+                    <span>APPOINTMENTS</span>
+                </div>
+                <i data-lucide="chevron-right" class="nav-card-arrow" style="width: 18px;"></i>
+            </a>
+
+            <a href="{{ url_for('book_test_page') }}" class="quick-nav-card card-pink">
+                <div class="nav-card-icon"><i data-lucide="microscope"
+                        style="color: #ec4899; width: 32px; height: 32px;"></i></div>
+                <div class="nav-card-text">
+                    <h4>Lab Tests</h4>
+                    <span>BOOK AT HOME</span>
+                </div>
+                <i data-lucide="chevron-right" class="nav-card-arrow" style="width: 18px;"></i>
+            </a>
+
+            <a href="javascript:void(0)" onclick="toggleChat()" class="quick-nav-card card-orange">
+                <div class="nav-card-icon"><i data-lucide="sparkles"
+                        style="color: #f97316; width: 32px; height: 32px;"></i></div>
+                <div class="nav-card-text">
+                    <h4>AI HealthLab</h4>
+                    <span>CHAT WITH AI</span>
+                </div>
+                <i data-lucide="chevron-right" class="nav-card-arrow" style="width: 18px;"></i>
+            </a>
         </div>
         {% else %}
         <!-- Technician Workspace -->

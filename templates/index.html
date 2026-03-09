@@ -1,21 +1,96 @@
 {% extends "layout.html" %}
 
 {% block content %}
-<section class="hero-section">
-    <div class="hero-content">
-        <h1>Brightening your<br>health path</h1>
-        <p style="font-size: 1.25rem; max-width: 600px; margin-bottom: 3rem; opacity: 0.9;">
-            {{ config.PROJECT_DESCRIPTION or "An AI-enabled digital healthcare platform that allows users to request
-            tests, receive reports digitally, and analyze results with intelligence." }}
-        </p>
-        <a href="{{ url_for('register') }}" class="btn btn-white">Book Now</a>
+<section class="heal-hero">
+    <div class="heal-hero-content">
+        <div class="pill">
+            <i data-lucide="sparkles" style="width: 14px;"></i>
+            THE FUTURE OF DIAGNOSTICS
+        </div>
+        <h1>AI-Powered Smart<br><span class="text-blue">Healthcare</span> Platform</h1>
+        <p>Empowering patients and doctors with intelligent diagnostics and seamless report management. Experience a new era of medical clarity.</p>
+        
+        <div class="heal-hero-btns">
+            <a href="{{ url_for('register') }}" class="btn-heal-primary">Get Started Free</a>
+            <a href="{{ url_for('login') }}" class="btn-heal-light">Login / Register</a>
+        </div>
+    </div>
+
+    <div class="heal-hero-visual">
+        <div class="main-img">
+            <img src="{{ url_for('static', filename='images/heal_hero.png') }}" alt="AI Health Visual">
+        </div>
+        <div class="floating-accuracy-card">
+            <div class="acc-icon">
+                <i data-lucide="line-chart"></i>
+            </div>
+            <div class="acc-text">
+                <span class="label">Live Analysis</span>
+                <h4>AI Diagnostic Report: 99.8% Accuracy</h4>
+            </div>
+        </div>
     </div>
 </section>
+
+<div class="carousel-main-wrapper">
+    <div class="carousel-viewport" id="mainCarousel">
+        <div class="carousel-track">
+            <!-- Slide 1: AI Health -->
+            <div class="carousel-slide">
+                <div class="ai-banner" onclick="toggleChat()">
+                    <div class="ai-banner-content">
+                        <h2>Ask anything about your health.</h2>
+                        <p>Get trusted answers directly from our intelligent AI Diagnostics assistant.</p>
+                        <button class="btn-ai-chat">
+                            <i data-lucide="sparkles" style="width: 18px;"></i> Ask HealAI
+                        </button>
+                    </div>
+                    <div class="ai-banner-illustration">
+                        <i data-lucide="brain-circuit"
+                            style="width: 100px; height: 100px; opacity: 0.2; position: absolute;"></i>
+                        <i data-lucide="stethoscope" style="width: 120px; height: 120px; opacity: 0.1;"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 2: Consult Doctor -->
+            <div class="carousel-slide">
+                <div class="consult-banner" onclick="toggleConsult()">
+                    <div class="consult-banner-content">
+                        <h2>Expert Professional Consultation.</h2>
+                        <p>Book a checkup with our specialized doctors and get expert medical advice.</p>
+                        <button class="btn-consult">
+                            <i data-lucide="user-round" style="width: 18px;"></i> Consult a Doctor
+                        </button>
+                    </div>
+                    <div class="consult-banner-illustration">
+                        <i data-lucide="stethoscope"
+                            style="width: 100px; height: 100px; opacity: 0.2; position: absolute;"></i>
+                        <i data-lucide="heart-pulse" style="width: 120px; height: 120px; opacity: 0.1;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Carousel Controls -->
+        <div class="carousel-controls">
+            <button class="carousel-btn prev"><i data-lucide="chevron-left"></i></button>
+            <button class="carousel-btn next"><i data-lucide="chevron-right"></i></button>
+        </div>
+
+        <!-- Indicators -->
+        <div class="carousel-indicators">
+            <button class="indicator active"></button>
+            <button class="indicator"></button>
+        </div>
+    </div>
+</div>
 
 
 <section id="services" class="section-title">
     <h2>Expert Online Consultations</h2>
-    <p style="color: var(--text-muted);">Get expert care from our seasoned doctors via live reports and AI insights, all
+    <p style="color: var(--text-muted);">Get expert care from our seasoned doctors via live reports and AI insights,
+        all
         from the comfort of your home.</p>
 </section>
 
@@ -31,20 +106,23 @@
         <i data-lucide="shield-check"
             style="width: 48px; height: 48px; color: var(--secondary); margin-bottom: 2rem;"></i>
         <h3>Secure Digital Vault</h3>
-        <p style="color: var(--text-muted); line-height: 1.6;">State-of-the-art encryption for managing patient records
+        <p style="color: var(--text-muted); line-height: 1.6;">State-of-the-art encryption for managing patient
+            records
             and test history. Your healthcare data is always accessible and always protected.</p>
     </div>
     <div class="feature-card">
         <i data-lucide="stethoscope"
             style="width: 48px; height: 48px; color: var(--secondary); margin-bottom: 2rem;"></i>
         <h3>Clinical Decision Support</h3>
-        <p style="color: var(--text-muted); line-height: 1.6;">Assisting healthcare professionals with AI-based trend
+        <p style="color: var(--text-muted); line-height: 1.6;">Assisting healthcare professionals with AI-based
+            trend
             analysis and automated health recommendations based on historical data.</p>
     </div>
     <div class="feature-card">
         <i data-lucide="truck" style="width: 48px; height: 48px; color: var(--secondary); margin-bottom: 2rem;"></i>
         <h3>Home Sample Collection</h3>
-        <p style="color: var(--text-muted); line-height: 1.6;">Seamless digital requesting for home diagnostic tests.
+        <p style="color: var(--text-muted); line-height: 1.6;">Seamless digital requesting for home diagnostic
+            tests.
             Reduce manual work and experience efficient healthcare access anytime, anywhere.</p>
     </div>
 </div>
@@ -52,7 +130,8 @@
 <!-- Benefits Section -->
 <section id="benefits" class="section-title">
     <h2>Platform Benefits</h2>
-    <p style="color: var(--text-muted);">Discover why HealthLab AI is the preferred choice for digital healthcare.</p>
+    <p style="color: var(--text-muted);">Discover why HealAI is the preferred choice for digital healthcare.
+    </p>
 </section>
 
 <div class="benefits-container">
@@ -61,14 +140,16 @@
             <div class="benefit-icon"><i data-lucide="zap"></i></div>
             <div class="benefit-text">
                 <h3>Rapid Results</h3>
-                <p>Get your diagnostic reports within hours instead of days with our automated technician workflow.</p>
+                <p>Get your diagnostic reports within hours instead of days with our automated technician workflow.
+                </p>
             </div>
         </div>
         <div class="benefit-item">
             <div class="benefit-icon"><i data-lucide="globe"></i></div>
             <div class="benefit-text">
                 <h3>Global Accessibility</h3>
-                <p>Access your health history from anywhere in the world with our secure cloud-based patient vault.</p>
+                <p>Access your health history from anywhere in the world with our secure cloud-based patient vault.
+                </p>
             </div>
         </div>
     </div>
@@ -77,7 +158,8 @@
             <div class="benefit-icon"><i data-lucide="heart-pulse"></i></div>
             <div class="benefit-text">
                 <h3>Predictive Insights</h3>
-                <p>Identify potential health trends before they become issues using our AI-driven longitudinal analysis.
+                <p>Identify potential health trends before they become issues using our AI-driven longitudinal
+                    analysis.
                 </p>
             </div>
         </div>
@@ -85,7 +167,8 @@
             <div class="benefit-icon"><i data-lucide="users"></i></div>
             <div class="benefit-text">
                 <h3>Collaborative Care</h3>
-                <p>Easily share your verified reports with doctors and specialists directly through the platform.</p>
+                <p>Easily share your verified reports with doctors and specialists directly through the platform.
+                </p>
             </div>
         </div>
     </div>
@@ -108,9 +191,10 @@
         style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 4rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 4rem;">
         <div>
             <div class="logo"
-                style="background: white; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; font-size: 2rem; margin-bottom: 1rem;">
-                HealthLab AI</div>
-            <p style="font-size: 0.9rem; opacity: 0.7; line-height: 1.8;">Our vision is to democratize high-end medical
+                style="background: white; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; font-size: 2rem; margin-bottom: 1rem; font-weight: 800;">
+                HealAI</div>
+            <p style="font-size: 0.9rem; opacity: 0.7; line-height: 1.8;">Our vision is to democratize high-end
+                medical
                 diagnostics using the power of Artificial Intelligence.</p>
         </div>
         <div>

@@ -4,39 +4,179 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MediScan AI - Premium Health Intelligence</title>
+    <title>HealAI - AI-Powered Smart Healthcare</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 
 <body class="{% if request.endpoint == 'dashboard' %}dashboard-body{% endif %}">
     {% if request.endpoint == 'index' %}
-    <nav class="navbar-modern">
-        <a href="{{ url_for('index') }}" class="logo-modern" style="text-decoration: none;">
-            <i data-lucide="activity" style="width: 20px; height: 20px;"></i>
-            HealthLab<span>AI</span>
+    <nav class="navbar-heal">
+        <a href="{{ url_for('index') }}" class="heal-logo">
+            <i data-lucide="waves"></i>
+            HealAI
         </a>
 
-        <div class="nav-pill">
-            <a href="{{ url_for('index') }}" class="pill-item active">Home</a>
-            <a href="#" class="pill-item">Doctor</a>
-            <a href="#" class="pill-item">Patients</a>
-            <a href="#services" class="pill-item">Services</a>
-            <a href="#benefits" class="pill-item">Benefits ↗</a>
+        <div class="heal-nav-links">
+            <a href="#">About</a>
+            <a href="#">Features</a>
+            <a href="#">How it Works</a>
+            <a href="#">Pricing</a>
         </div>
 
-        <div class="auth-box">
+        <div class="heal-auth-btns">
             {% if current_user.is_authenticated %}
-            <a href="{{ url_for('dashboard') }}" class="btn-login">Dashboard</a>
+            <a href="{{ url_for('dashboard') }}" class="btn-nav-heal">Dashboard</a>
             {% else %}
-            <a href="{{ url_for('login') }}" class="btn-login">Login</a>
+            <a href="{{ url_for('login') }}" class="btn-nav-light">Login</a>
+            <a href="{{ url_for('register') }}" class="btn-nav-heal">Get Started</a>
             {% endif %}
+        </div>
+    </nav>
+    {% elif current_user.is_authenticated and request.endpoint not in ['login', 'register'] %}
+    <header class="dashboard-header">
+        <a href="{{ url_for('dashboard') }}" class="logo-modern"
+            style="color: var(--text-main); text-decoration: none; font-size: 1.2rem;">
+            <i data-lucide="activity" style="width: 18px; height: 18px; color: var(--primary);"></i>
+            HealthLab<span>AI</span>
+        </a>
+        <a href="{{ url_for('profile') }}"
+            style="display: flex; align-items: center; gap: 0.75rem; text-decoration: none; padding: 0.35rem 0.5rem; border-radius: 10px; transition: 0.3s; margin-right: -0.5rem;"
+            class="profile-route-link">
+            <div style="text-align: right; line-height: 1.1;">
+                <div style="font-weight: 700; color: var(--text-main); font-size: 0.8rem;">{{ current_user.full_name or
+                    current_user.username }}</div>
+                <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: capitalize;">{{
+                    current_user.role }}</div>
+            </div>
+            <div
+                style="width: 32px; height: 32px; border-radius: 10px; background: rgba(79, 70, 229, 0.1); display: flex; align-items: center; justify-content: center; color: var(--primary); border: 1px solid rgba(79, 70, 229, 0.2);">
+                <i data-lucide="user" style="width: 16px; height: 16px;"></i>
+            </div>
+        </a>
+    </header>
+    <nav class="dashboard-nav">
+        <div class="nav-row">
+            <a href="{{ url_for('dashboard') }}"
+                class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}">
+                <i data-lucide="layout-grid"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="{{ url_for('history') }}" class="nav-link {% if request.endpoint == 'history' %}active{% endif %}">
+                <i data-lucide="history"></i>
+                <span>Medical History</span>
+            </a>
+            <a href="{{ url_for('book_test_page') }}"
+                class="nav-link {% if request.endpoint == 'book_test_page' %}active{% endif %}">
+                <i data-lucide="microscope"></i>
+                <span>Book a Test</span>
+            </a>
+            <a href="#" class="nav-link">
+                <i data-lucide="settings"></i>
+                <span>Settings</span>
+            </a>
+            <a href="#" class="nav-link">
+                <i data-lucide="message-square"></i>
+                <span>Feedback</span>
+            </a>
+            <a href="{{ url_for('logout') }}" class="nav-link sign-out">
+                <i data-lucide="log-out"></i>
+                <span>Sign Out</span>
+            </a>
         </div>
     </nav>
     {% endif %}
 
     <div class="content">
+        <!-- AI Chat Modal -->
+        <div class="chat-overlay" id="chatOverlay">
+            <div class="chat-container">
+                <div class="chat-header">
+                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                        <i data-lucide="sparkles" style="width: 20px; color: #FFC371;"></i>
+                        <span style="font-weight: 700;">Health AI Assistant</span>
+                    </div>
+                    <button onclick="toggleChat()"
+                        style="background: none; border: none; color: white; cursor: pointer;">
+                        <i data-lucide="x"></i>
+                    </button>
+                </div>
+                <div class="chat-messages" id="chatMessages">
+                    <div class="message ai">
+                        Hello! I'm your HealthLab AI Assistant. How can I help you regarding your health or reports
+                        today?
+                    </div>
+                </div>
+                <div class="chat-input-area">
+                    <input type="text" class="chat-input" placeholder="Type your health concern..." id="chatInput">
+                    <button class="btn-send" onclick="sendMessage()">
+                        <i data-lucide="send" style="width: 20px;"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Consult Doctor Modal -->
+        <div class="consult-overlay" id="consultOverlay">
+            <div class="consult-container">
+                <div class="consult-header">
+                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                        <i data-lucide="user-round" style="width: 20px; color: white;"></i>
+                        <span style="font-weight: 700;">Consult a Doctor</span>
+                    </div>
+                    <button onclick="toggleConsult()"
+                        style="background: none; border: none; color: white; cursor: pointer;">
+                        <i data-lucide="x"></i>
+                    </button>
+                </div>
+                <div class="consult-body">
+                    <h3 style="margin-top: 0; margin-bottom: 0.5rem;">Available Specialists</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 2rem;">Select a doctor to
+                        begin
+                        your consultation.</p>
+                    <div class="doc-list">
+                        <div class="doc-card">
+                            <div class="doc-info">
+                                <div class="doc-avatar"><i data-lucide="stethoscope"></i></div>
+                                <div>
+                                    <h4 style="margin: 0;">Dr. Sarah Johnson</h4>
+                                    <p style="margin: 0; font-size: 0.8rem; color: var(--text-muted);">Cardiologist • 12
+                                        yrs
+                                        exp</p>
+                                </div>
+                            </div>
+                            <button class="btn-modern" style="padding: 0.5rem 1rem; font-size: 0.8rem;">Book</button>
+                        </div>
+                        <div class="doc-card">
+                            <div class="doc-info">
+                                <div class="doc-avatar"><i data-lucide="stethoscope"></i></div>
+                                <div>
+                                    <h4 style="margin: 0;">Dr. Michael Chen</h4>
+                                    <p style="margin: 0; font-size: 0.8rem; color: var(--text-muted);">General Physician
+                                        • 8
+                                        yrs exp</p>
+                                </div>
+                            </div>
+                            <button class="btn-modern" style="padding: 0.5rem 1rem; font-size: 0.8rem;">Book</button>
+                        </div>
+                        <div class="doc-card">
+                            <div class="doc-info">
+                                <div class="doc-avatar"><i data-lucide="stethoscope"></i></div>
+                                <div>
+                                    <h4 style="margin: 0;">Dr. Emily White</h4>
+                                    <p style="margin: 0; font-size: 0.8rem; color: var(--text-muted);">Neurologist • 15
+                                        yrs
+                                        exp</p>
+                                </div>
+                            </div>
+                            <button class="btn-modern" style="padding: 0.5rem 1rem; font-size: 0.8rem;">Book</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         {% with messages = get_flashed_messages() %}
         {% if messages %}
         <div style="position: fixed; top: 100px; right: 20px; z-index: 2000;">
@@ -54,6 +194,124 @@
 
     <script>
         lucide.createIcons();
+
+        function toggleChat() {
+            const isAuth = "{{ current_user.is_authenticated }}" === "True";
+            if (!isAuth) {
+                window.location.href = "{{ url_for('login', next=request.path, chat_redirect='true') }}";
+                return;
+            }
+            const chatOverlay = document.getElementById('chatOverlay');
+            chatOverlay.style.display = chatOverlay.style.display === 'flex' ? 'none' : 'flex';
+        }
+
+        function toggleConsult() {
+            const isAuth = "{{ current_user.is_authenticated }}" === "True";
+            if (!isAuth) {
+                window.location.href = "{{ url_for('login', next=request.path, consult_redirect='true') }}";
+                return;
+            }
+            const consultOverlay = document.getElementById('consultOverlay');
+            consultOverlay.style.display = consultOverlay.style.display === 'flex' ? 'none' : 'flex';
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const messages = document.getElementById('chatMessages');
+            if (input.value.trim() === '') return;
+
+            const userMsg = document.createElement('div');
+            userMsg.className = 'message user';
+            userMsg.textContent = input.value;
+            messages.appendChild(userMsg);
+
+            input.value = '';
+            messages.scrollTop = messages.scrollHeight;
+
+            // Mock AI Response
+            setTimeout(() => {
+                const aiMsg = document.createElement('div');
+                aiMsg.className = 'message ai';
+                aiMsg.textContent = "Thank you for sharing. I'm processing your request regarding: " + userMsg.textContent;
+                messages.appendChild(aiMsg);
+                messages.scrollTop = messages.scrollHeight;
+            }, 1000);
+        }
+
+        // Carousel Logic
+        function initCarousel(carouselId) {
+            const viewport = document.getElementById(carouselId);
+            if (!viewport) return;
+
+            const track = viewport.querySelector('.carousel-track');
+            const slides = viewport.querySelectorAll('.carousel-slide');
+            const indicators = viewport.querySelectorAll('.indicator');
+            const prevBtn = viewport.querySelector('.prev');
+            const nextBtn = viewport.querySelector('.next');
+
+            let currentIndex = 0;
+            let slideInterval;
+            const intervalTime = 4000;
+
+            function updateCarousel() {
+                track.style.transform = `translateX(-${currentIndex * 100}%)`;
+                indicators.forEach((ind, i) => {
+                    ind.classList.toggle('active', i === currentIndex);
+                });
+            }
+
+            function nextSlide() {
+                currentIndex = (currentIndex + 1) % slides.length;
+                updateCarousel();
+            }
+
+            function prevSlide() {
+                currentIndex = (currentIndex - 1 + slides.length) % slides.length;
+                updateCarousel();
+            }
+
+            function startSliding() {
+                slideInterval = setInterval(nextSlide, intervalTime);
+            }
+
+            function stopSliding() {
+                clearInterval(slideInterval);
+            }
+
+            // Click events
+            if (nextBtn) nextBtn.addEventListener('click', () => { nextSlide(); stopSliding(); startSliding(); });
+            if (prevBtn) prevBtn.addEventListener('click', () => { prevSlide(); stopSliding(); startSliding(); });
+
+            indicators.forEach((ind, i) => {
+                ind.addEventListener('click', () => {
+                    currentIndex = i;
+                    updateCarousel();
+                    stopSliding();
+                    startSliding();
+                });
+            });
+
+            // Pause on Hover
+            viewport.addEventListener('mouseenter', stopSliding);
+            viewport.addEventListener('mouseleave', startSliding);
+
+            startSliding();
+            updateCarousel();
+        }
+
+        // Auto-open if redirected from login for chat or consult
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('open_chat') === 'true') {
+                toggleChat();
+            }
+            if (urlParams.get('open_consult') === 'true') {
+                toggleConsult();
+            }
+
+            // Init carousels
+            initCarousel('mainCarousel');
+        });
     </script>
 </body>
 
