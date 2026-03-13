@@ -1,0 +1,56 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="dashboard-container">
+    <main class="main-content">
+        <header style="margin-bottom: 3rem; display: flex; justify-content: space-between; align-items: flex-end;">
+            <div>
+                <h1 style="font-size: 2.5rem; font-weight: 800; margin: 0; letter-spacing: -0.02em;">Booking History</h1>
+                <p style="color: var(--text-muted); font-size: 1.1rem;">Review all your laboratory test requests and their current status.</p>
+            </div>
+            <a href="{{ url_for('book_test_page') }}" class="btn-heal-light">
+                <i data-lucide="plus" style="width: 16px;"></i> Book New Test
+            </a>
+        </header>
+
+        <!-- Booking History Section -->
+        <section class="history-section">
+            <div class="history-section-title">
+                <i data-lucide="clock-rewind" style="width: 20px; height: 20px;"></i>
+                <span>Previous Test Requests</span>
+            </div>
+            <div class="clean-list">
+                {% if bookings %}
+                {% for booking in bookings %}
+                <div class="clean-list-item">
+                    <div class="item-main">
+                        <div class="item-icon-circle">
+                            <i data-lucide="microscope" style="width: 20px;"></i>
+                        </div>
+                        <div class="item-details">
+                            <h4>{{ booking.test_name }}</h4>
+                            <p>{{ booking.date }} • {{ booking.time }}</p>
+                            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">Location: {{ booking.address }}</p>
+                        </div>
+                    </div>
+                    <div class="item-meta">
+                        <span class="status-pill-clean {% if booking.status == 'completed' %}status-completed{% else %}status-pending{% endif %}">
+                            {{ booking.status }}
+                        </span>
+                        <span style="font-size: 0.75rem; color: var(--text-muted);">Ref ID: #{{ (booking._id|string)[-6:] }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <div style="padding: 5rem; text-align: center; color: var(--text-muted);">
+                    <i data-lucide="calendar-off" style="width: 50px; height: 50px; margin-bottom: 1.5rem; opacity: 0.2;"></i>
+                    <h3 style="margin-bottom: 0.5rem;">No Bookings Yet</h3>
+                    <p>Your previous test bookings will appear here once you place an order.</p>
+                    <a href="{{ url_for('book_test_page') }}" class="btn-heal-primary" style="margin-top: 2rem;">Book Your First Test</a>
+                </div>
+                {% endif %}
+            </div>
+        </section>
+    </main>
+</div>
+{% endblock %}

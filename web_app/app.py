@@ -119,7 +119,6 @@ def dashboard():
     bookings_col = db_manager.get_collection('bookings')
     
     if current_user.role == 'patient':
-        # Dashboard only shows active/pending stuff if needed, but per request we're moving history
         return render_template('dashboard.html', user=current_user)
     else:
         # Technician view: split into New, Accepted, and Collected
@@ -135,7 +134,11 @@ def dashboard():
 def book_test_page():
     if current_user.role != 'patient':
         return redirect(url_for('dashboard'))
-    return render_template('book_test.html', user=current_user)
+    
+    bookings_col = db_manager.get_collection('bookings')
+    my_bookings = list(bookings_col.find({"patient_id": current_user.id}).sort("_id", -1))
+    
+    return render_template('book_test.html', user=current_user, bookings=my_bookings)
 
 @app.route('/book', methods=['POST'])
 @login_required
@@ -245,19 +248,28 @@ def collect_sample(booking_id):
     flash('Sample collected successfully! Proceed to lab testing.')
     return redirect(url_for('dashboard'))
 
-@app.route('/history')
+@app.route('/booking-history')
 @login_required
-def history():
+def booking_history():
     if current_user.role != 'patient':
         return redirect(url_for('dashboard'))
     
     bookings_col = db_manager.get_collection('bookings')
-    reports_col = db_manager.get_collection('reports')
-    
     my_bookings = list(bookings_col.find({"patient_id": current_user.id}).sort("_id", -1))
+    
+    return render_template('booking_history.html', user=current_user, bookings=my_bookings)
+
+@app.route('/clinical-reports')
+@login_required
+def clinical_reports():
+    if current_user.role != 'patient':
+        return redirect(url_for('dashboard'))
+    
+    reports_col = db_manager.get_collection('reports')
     my_reports = list(reports_col.find({"patient_id": current_user.id}).sort("_id", -1))
     
-    return render_template('history.html', user=current_user, bookings=my_bookings, reports=my_reports)
+    return render_template('clinical_reports.html', user=current_user, reports=my_reports)
+
 
 @app.route('/profile', methods=['GET', 'POST'])
 @login_required

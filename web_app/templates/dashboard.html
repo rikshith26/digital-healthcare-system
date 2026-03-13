@@ -47,18 +47,17 @@
                         </div>
                     </div>
 
-                    {% if user.role == 'patient' %}
                     <div class="carousel-slide">
                         <div class="frosted-card"
-                            style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: white; position: relative; overflow: hidden; height: 240px; display: flex; align-items: center; margin: 0; padding: 2.5rem 3.5rem; box-sizing: border-box;">
+                            style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: white; position: relative; overflow: hidden; height: 240px; display: flex; align-items: center; margin: 0; padding: 2.5rem 3.5rem; box-sizing: border-box; border: none;">
                             <div style="position: relative; z-index: 2;">
                                 <p style="opacity: 0.8; margin: 0;">Your Next Step</p>
-                                <h2 style="font-size: 2rem; margin: 0.5rem 0;">Ready for a Checkup?</h2>
+                                <h2 style="font-size: 2rem; margin: 0.5rem 0; color: white;">Ready for a Checkup?</h2>
                                 {% if not user.is_profile_complete %}
                                 <p style="max-width: 400px; opacity: 0.9; margin-bottom: 1rem;">Complete your profile to
                                     enable one-click booking.</p>
-                                <a href="{{ url_for('profile') }}" class="btn-modern"
-                                    style="background: white; color: var(--primary); text-decoration: none;">Complete
+                                <a href="{{ url_for('profile') }}" class="btn-heal-light"
+                                    style="background: white; border: none;">Complete
                                     Now</a>
                                 {% else %}
                                 <p style="max-width: 400px; opacity: 0.9; margin-bottom: 1rem;">Home sample collection
@@ -69,10 +68,9 @@
                                 {% endif %}
                             </div>
                             <i data-lucide="activity"
-                                style="position: absolute; right: -20px; bottom: -20px; width: 180px; height: 180px; opacity: 0.1;"></i>
+                                style="position: absolute; right: -20px; bottom: -20px; width: 180px; height: 180px; opacity: 0.1; color: white;"></i>
                         </div>
                     </div>
-                    {% endif %}
                 </div>
 
                 <div class="carousel-controls">
@@ -83,7 +81,7 @@
                 <div class="carousel-indicators">
                     <button class="indicator active"></button>
                     <button class="indicator"></button>
-                    {% if user.role == 'patient' %}<button class="indicator"></button>{% endif %}
+                    <button class="indicator"></button>
                 </div>
             </div>
         </div>
@@ -131,6 +129,7 @@
             </a>
         </div>
         {% else %}
+
         <!-- Technician Workspace -->
         <header style="margin-bottom: 2rem;">
             <h1 style="font-size: 2rem; margin: 0;">Task Center</h1>

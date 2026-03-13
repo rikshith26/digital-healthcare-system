@@ -1,0 +1,59 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="dashboard-container">
+    <main class="main-content">
+        <header style="margin-bottom: 3rem; display: flex; justify-content: space-between; align-items: flex-end;">
+            <div>
+                <h1 style="font-size: 2.5rem; font-weight: 800; margin: 0; letter-spacing: -0.02em;">Clinical Reports</h1>
+                <p style="color: var(--text-muted); font-size: 1.1rem;">Access and download your official laboratory diagnostic reports.</p>
+            </div>
+            <div class="item-icon-circle" style="background: rgba(16, 185, 129, 0.1); color: var(--secondary); width: 60px; height: 60px;">
+                <i data-lucide="file-check" style="width: 32px; height: 32px;"></i>
+            </div>
+        </header>
+
+        <!-- Clinical Reports Section -->
+        <section class="history-section">
+            <div class="history-section-title" style="border-color: rgba(16, 185, 129, 0.2);">
+                <i data-lucide="microscope" style="color: var(--secondary);"></i>
+                <span>Available Reports</span>
+            </div>
+            <div class="clean-list">
+                {% if reports %}
+                {% for report in reports %}
+                <div class="clean-list-item report-item">
+                    <div class="item-main report-content">
+                        <div class="item-icon-circle" style="background: rgba(16, 185, 129, 0.1); color: var(--secondary);">
+                            <i data-lucide="file-text" style="width: 20px;"></i>
+                        </div>
+                        <div class="item-details">
+                            <h4 style="display: flex; align-items: center; gap: 0.5rem;">
+                                Laboratory Analysis 
+                                <span style="font-weight: 400; font-size: 0.8rem; color: var(--text-muted); opacity: 0.7;">• Issued {{ report.timestamp }}</span>
+                            </h4>
+                            <p style="margin-top: 0.5rem; line-height: 1.6; color: var(--text-main);">
+                                {{ report.get('description', 'Detailed medical summary and diagnostic parameters...') }}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="item-meta">
+                        <a href="{{ url_for('download_report', filename=report.pdf_url) }}" class="btn-heal-primary" 
+                           style="padding: 0.6rem 1.2rem; font-size: 0.85rem; border-radius: 8px; box-shadow: none;">
+                            <i data-lucide="download" style="width: 14px; margin-right: 4px;"></i> View PDF
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <div style="padding: 5rem; text-align: center; color: var(--text-muted);">
+                    <i data-lucide="clipboard-x" style="width: 50px; height: 50px; margin-bottom: 1.5rem; opacity: 0.2;"></i>
+                    <h3 style="margin-bottom: 0.5rem;">No Reports Issued</h3>
+                    <p>Once your samples are processed, your digital reports will appear here.</p>
+                </div>
+                {% endif %}
+            </div>
+        </section>
+    </main>
+</div>
+{% endblock %}

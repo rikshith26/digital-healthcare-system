@@ -1,0 +1,108 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- Main Content -->
+    <main class="main-content">
+        <header style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: flex-end;">
+            <div>
+                <h1 style="font-size: 2.5rem; font-weight: 800; margin: 0; letter-spacing: -0.02em;">Diagnostic Center</h1>
+                <p style="color: var(--text-muted); font-size: 1.1rem;">Select a test and book a home sample collection.</p>
+            </div>
+            <a href="{{ url_for('booking_history') }}" class="btn-heal-light">
+                <i data-lucide="history" style="width: 18px;"></i> Previous Tests
+            </a>
+        </header>
+
+        {% if user.is_profile_complete %}
+        <div class="frosted-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <h3 style="margin: 0;">Quick Lab Booking</h3>
+                <span style="color: var(--primary); font-weight: 600; font-size: 0.9rem;">Verified Account</span>
+            </div>
+
+            <form action="{{ url_for('book_test') }}" method="POST">
+                <!-- Row 1: Patient Name & Email -->
+                <div class="grid-2">
+                    <div class="input-group-modern">
+                        <label>Patient Full Name</label>
+                        <input type="text" name="full_name" class="input-field" required value="{{ user.full_name }}"
+                            readonly style="background: rgba(0,0,0,0.03); cursor: not-allowed;">
+                    </div>
+                    <div class="input-group-modern">
+                        <label>Contact Email</label>
+                        <input type="email" name="patient_email" class="input-field" required value="{{ user.email }}"
+                            readonly style="background: rgba(0,0,0,0.03); cursor: not-allowed;">
+                    </div>
+                </div>
+
+                <!-- Row 2: Date of Birth & Address -->
+                <div class="grid-2" style="margin-top: 1.5rem;">
+                    <div class="input-group-modern">
+                        <label>Date of Birth</label>
+                        <input type="date" name="dob" class="input-field" required value="{{ user.dob }}" readonly
+                            style="background: rgba(0,0,0,0.03); cursor: not-allowed;">
+                    </div>
+                    <div class="input-group-modern">
+                        <label>Collection Address</label>
+                        <input type="text" name="address" class="input-field" required value="{{ user.address }}" placeholder="Street, City, State">
+                    </div>
+                </div>
+
+                <!-- Row 3: Test Selection -->
+                <div style="margin-top: 1.5rem;">
+                    <label>Select Your Diagnostic Test</label>
+                    <select name="test_name" class="input-field" required>
+                        <option value="" disabled>Choose a test...</option>
+                        <option value="Malaria Screening">Malaria Screening (₹149)</option>
+                        <option value="Typhoid Test">Typhoid (Widal) (₹199)</option>
+                        <option value="Dengue Test">Dengue NS1 (₹599)</option>
+                        <option value="Diabetes Check">Diabetes Check (₹299)</option>
+                    </select>
+                </div>
+
+                <!-- Row 4: Preferred Timing -->
+                <div class="grid-2" style="margin-top: 1.5rem;">
+                    <div class="input-group-modern">
+                        <label>Preferred Date</label>
+                        <input type="date" name="date" class="input-field" required value="2024-02-23">
+                    </div>
+                    <div class="input-group-modern">
+                        <label>Preferred Time Slot</label>
+                        <select name="time" class="input-field" required>
+                            <option value="09:00 AM">09:00 AM - Morning</option>
+                            <option value="11:00 AM">11:00 AM - Morning</option>
+                            <option value="02:00 PM">02:00 PM - Afternoon</option>
+                            <option value="05:00 PM">05:00 PM - Evening</option>
+                            <option value="08:00 PM">08:00 PM - Night</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Row 5: Notes -->
+                <div style="margin-top: 1.5rem;">
+                    <label>Special Instructions (Optional)</label>
+                    <textarea name="notes" class="input-field" style="height: 120px; resize: vertical;"
+                        placeholder="Please mention any allergies or specific instructions for the technician..."></textarea>
+                </div>
+
+                <button type="submit" class="btn-heal-primary" style="width: 100%; margin-top: 2rem; padding: 1.1rem;">
+                    Proceed to Confirmation
+                </button>
+            </form>
+        </div>
+        {% else %}
+        <div class="frosted-card"
+            style="text-align: center; padding: 4rem 2rem; border: 2px dashed var(--border-light);">
+            <i data-lucide="lock"
+                style="width: 48px; height: 48px; color: var(--text-muted); margin-bottom: 1.5rem;"></i>
+            <h3>Booking Locked</h3>
+            <p style="color: var(--text-muted); max-width: 400px; margin: 0 auto 2rem;">Please complete your primary
+                profile details to enable lab technician booking services.</p>
+            <a href="{{ url_for('profile') }}" class="btn-heal-primary" style="margin-top: 2rem;">Complete My Profile</a>
+        </div>
+        {% endif %}
+
+    </main>
+</div>
+{% endblock %}
