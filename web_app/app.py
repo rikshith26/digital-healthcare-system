@@ -45,6 +45,13 @@ class User(UserMixin):
 
 @login_manager.user_loader
 def load_user(user_id):
+    # Try Admins collection first
+    admins_col = db_manager.get_collection('admins')
+    admin_data = admins_col.find_one({"_id": ObjectId(user_id)})
+    if admin_data:
+        return User(admin_data)
+        
+    # Then fall back to general Users collection
     users_col = db_manager.get_collection('users')
     user_data = users_col.find_one({"_id": ObjectId(user_id)})
     if user_data:
@@ -69,8 +76,13 @@ def login():
         password = request.form.get('password')
         next_url = request.args.get('next')
         
-        users_col = db_manager.get_collection('users')
-        user_data = users_col.find_one({"email": email})
+        # Search Admins collection first, then Users
+        admins_col = db_manager.get_collection('admins')
+        user_data = admins_col.find_one({"email": email})
+        
+        if not user_data:
+            users_col = db_manager.get_collection('users')
+            user_data = users_col.find_one({"email": email})
         
         if user_data and check_password_hash(user_data['password'], password):
             user = User(user_data)
@@ -96,8 +108,9 @@ def register():
         password = request.form.get('password')
         role = request.form.get('role', 'patient')
         
+        admins_col = db_manager.get_collection('admins')
         users_col = db_manager.get_collection('users')
-        if users_col.find_one({"email": email}):
+        if users_col.find_one({"email": email}) or admins_col.find_one({"email": email}):
             flash('Email already exists')
             return redirect(url_for('register'))
         
@@ -123,14 +136,19 @@ def dashboard():
     elif current_user.role == 'admin':
         # Admin Dashboard View
         users_col = db_manager.get_collection('users')
-        all_users = list(users_col.find())
+        admins_col = db_manager.get_collection('admins')
+        
+        all_regular_users = list(users_col.find())
+        all_admins = list(admins_col.find())
+        all_users = all_regular_users + all_admins
+        
         all_bookings = list(bookings_col.find().sort("_id", -1))
         
         # Calculate some stats
         total_patients = sum(1 for u in all_users if u.get('role') == 'patient')
         total_techs = sum(1 for u in all_users if u.get('role') == 'technician')
         total_doctors = sum(1 for u in all_users if u.get('role') == 'doctor')
-        total_admins = sum(1 for u in all_users if u.get('role') == 'admin')
+        total_admins = len(all_admins)
         
         # Mock Revenue / Active tests
         active_tests = sum(1 for b in all_bookings if b.get('status') in ['pending', 'accepted'])
