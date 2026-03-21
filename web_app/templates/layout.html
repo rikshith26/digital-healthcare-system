@@ -41,6 +41,13 @@
             <i data-lucide="activity" style="width: 18px; height: 18px; color: var(--primary);"></i>
             HealthLab<span>AI</span>
         </a>
+
+        <!-- Global Search Bar -->
+        <div class="header-search-container">
+            <i data-lucide="search" class="search-icon"></i>
+            <input type="text" placeholder="Search for tests, reports, or doctors..." class="global-search-input">
+        </div>
+
         <a href="{{ url_for('profile') }}"
             style="display: flex; align-items: center; gap: 0.75rem; text-decoration: none; padding: 0.35rem 0.5rem; border-radius: 10px; transition: 0.3s; margin-right: -0.5rem;"
             class="profile-route-link">
@@ -138,43 +145,9 @@
                     <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 2rem;">Select a doctor to
                         begin
                         your consultation.</p>
-                    <div class="doc-list">
-                        <div class="doc-card">
-                            <div class="doc-info">
-                                <div class="doc-avatar"><i data-lucide="stethoscope"></i></div>
-                                <div>
-                                    <h4 style="margin: 0;">Dr. Sarah Johnson</h4>
-                                    <p style="margin: 0; font-size: 0.8rem; color: var(--text-muted);">Cardiologist • 12
-                                        yrs
-                                        exp</p>
-                                </div>
-                            </div>
-                            <button class="btn-modern" style="padding: 0.5rem 1rem; font-size: 0.8rem;">Book</button>
-                        </div>
-                        <div class="doc-card">
-                            <div class="doc-info">
-                                <div class="doc-avatar"><i data-lucide="stethoscope"></i></div>
-                                <div>
-                                    <h4 style="margin: 0;">Dr. Michael Chen</h4>
-                                    <p style="margin: 0; font-size: 0.8rem; color: var(--text-muted);">General Physician
-                                        • 8
-                                        yrs exp</p>
-                                </div>
-                            </div>
-                            <button class="btn-modern" style="padding: 0.5rem 1rem; font-size: 0.8rem;">Book</button>
-                        </div>
-                        <div class="doc-card">
-                            <div class="doc-info">
-                                <div class="doc-avatar"><i data-lucide="stethoscope"></i></div>
-                                <div>
-                                    <h4 style="margin: 0;">Dr. Emily White</h4>
-                                    <p style="margin: 0; font-size: 0.8rem; color: var(--text-muted);">Neurologist • 15
-                                        yrs
-                                        exp</p>
-                                </div>
-                            </div>
-                            <button class="btn-modern" style="padding: 0.5rem 1rem; font-size: 0.8rem;">Book</button>
-                        </div>
+                    <div class="doc-list" style="text-align: center; padding: 2rem 0;">
+                        <i data-lucide="stethoscope" style="width: 40px; height: 40px; color: var(--text-muted); opacity: 0.3; margin-bottom: 1rem;"></i>
+                        <p style="color: var(--text-muted);">No specialists are currently available. Please check back later.</p>
                     </div>
                 </div>
             </div>

@@ -120,8 +120,34 @@ def dashboard():
     
     if current_user.role == 'patient':
         return render_template('dashboard.html', user=current_user)
+    elif current_user.role == 'admin':
+        # Admin Dashboard View
+        users_col = db_manager.get_collection('users')
+        all_users = list(users_col.find())
+        all_bookings = list(bookings_col.find().sort("_id", -1))
+        
+        # Calculate some stats
+        total_patients = sum(1 for u in all_users if u.get('role') == 'patient')
+        total_techs = sum(1 for u in all_users if u.get('role') == 'technician')
+        total_doctors = sum(1 for u in all_users if u.get('role') == 'doctor')
+        total_admins = sum(1 for u in all_users if u.get('role') == 'admin')
+        
+        # Mock Revenue / Active tests
+        active_tests = sum(1 for b in all_bookings if b.get('status') in ['pending', 'accepted'])
+        
+        stats = {
+            'total_users': len(all_users),
+            'total_patients': total_patients,
+            'total_techs': total_techs,
+            'total_doctors': total_doctors,
+            'total_admins': total_admins,
+            'active_tests': active_tests,
+            'total_bookings': len(all_bookings)
+        }
+        
+        return render_template('admin_dashboard.html', user=current_user, users=all_users, bookings=all_bookings, stats=stats)
     else:
-        # Technician view: split into New, Accepted, and Collected
+        # Technician/Doctor view
         pending_bookings = list(bookings_col.find({"status": "pending"}))
         my_tasks = list(bookings_col.find({
             "status": {"$in": ["accepted", "collected"]},
