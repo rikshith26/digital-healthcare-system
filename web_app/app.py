@@ -1,4 +1,7 @@
 import os
+import smtplib
+from email.message import EmailMessage
+import threading
 from flask import Flask, render_template, request, redirect, url_for, flash, send_from_directory
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -19,6 +22,37 @@ def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+def send_system_email(subject, body_text, recipients, body_html=None):
+    sender = os.getenv("MAIL_USERNAME")
+    password = os.getenv("MAIL_PASSWORD")
+    if not sender or not password:
+        print("Error: Mail credentials missing from .env")
+        return False
+        
+    msg = EmailMessage()
+    msg['Subject'] = subject
+    msg['From'] = f"HealthLab AI <{sender}>"
+    msg['To'] = ", ".join(recipients) if isinstance(recipients, list) else recipients
+    
+    # Set plain text as a fallback
+    msg.set_content(body_text)
+    
+    # Attach modern HTML formatting if provided
+    if body_html:
+        msg.add_alternative(body_html, subtype='html')
+    
+    def async_send():
+        try:
+            with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
+                smtp.login(sender, password)
+                smtp.send_message(msg)
+            print(f"Success: Email sent to {msg['To']}")
+        except Exception as e:
+            print(f"Failed to send email: {e}")
+            
+    threading.Thread(target=async_send).start()
+    return True
+
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
@@ -35,6 +69,9 @@ class User(UserMixin):
         self.dob = user_data.get('dob')
         self.address = user_data.get('address')
         self.gender = user_data.get('gender')
+        self.status = user_data.get('status', 'Approved')
+        self.reject_reason = user_data.get('reject_reason', '')
+        self.verification_docs = user_data.get('verification_docs', [])
 
     @property
     def is_profile_complete(self):
@@ -57,6 +94,14 @@ def load_user(user_id):
     if user_data:
         return User(user_data)
     return None
+
+@app.before_request
+def check_verification():
+    if current_user.is_authenticated and current_user.role != 'admin':
+        if getattr(current_user, 'status', 'Approved') in ['Pending Verification', 'Under Review', 'Rejected'] and current_user.role != 'patient':
+            allowed_endpoints = ['verify_account', 'logout', 'static']
+            if request.endpoint and request.endpoint not in allowed_endpoints:
+                return redirect(url_for('verify_account'))
 
 @app.route('/')
 def index():
@@ -115,11 +160,14 @@ def register():
             return redirect(url_for('register'))
         
         hashed_password = generate_password_hash(password)
+        
+        status = 'Approved' if role == 'patient' else 'Pending Verification'
         users_col.insert_one({
             "username": username,
             "email": email,
             "password": hashed_password,
-            "role": role
+            "role": role,
+            "status": status
         })
         flash('Registration successful. Please login.')
         return redirect(url_for('login'))
@@ -198,6 +246,75 @@ def user_data_page():
     all_users = all_regular_users + all_admins
     
     return render_template('user_data.html', user=current_user, users=all_users)
+
+@app.route('/verify-account', methods=['GET', 'POST'])
+@login_required
+def verify_account():
+    if current_user.role in ['patient', 'admin'] or current_user.status == 'Approved':
+        return redirect(url_for('dashboard'))
+        
+    if request.method == 'POST':
+        users_col = db_manager.get_collection('users')
+        docs_uploaded = []
+        
+        # Save uploaded files
+        upload_dir = os.path.join(app.config['UPLOAD_FOLDER'], 'verifications')
+        os.makedirs(upload_dir, exist_ok=True)
+            
+        for key in request.files:
+            file = request.files[key]
+            if file and file.filename != '':
+                filename = secure_filename(f"{current_user.id}_{key}_{file.filename}")
+                file.save(os.path.join(upload_dir, filename))
+                docs_uploaded.append({"document_type": key, "filename": filename})
+                
+        # Update user with form data and status
+        form_data = dict(request.form)
+        users_col.update_one(
+            {"_id": ObjectId(current_user.id)},
+            {"$set": {
+                "status": "Under Review", 
+                "verification_details": form_data,
+                "verification_docs": current_user.verification_docs + docs_uploaded
+            }}
+        )
+        flash('Documents submitted successfully. Approval may take 24-48 hours.')
+        return redirect(url_for('verify_account'))
+        
+    return render_template('verify_account.html', user=current_user)
+
+@app.route('/admin/verifications')
+@login_required
+def admin_verifications():
+    if current_user.role != 'admin':
+        return redirect(url_for('dashboard'))
+        
+    users_col = db_manager.get_collection('users')
+    pending_users = list(users_col.find({"status": {"$in": ["Pending Verification", "Under Review", "Rejected"]}, "role": {"$ne": "patient"}}))
+    return render_template('admin_verifications.html', user=current_user, pending_users=pending_users)
+
+@app.route('/admin/verify/<user_id>', methods=['POST'])
+@login_required
+def process_verification(user_id):
+    if current_user.role != 'admin': return "Unauthorized", 401
+    action = request.form.get('action')
+    reason = request.form.get('reason', '')
+    users_col = db_manager.get_collection('users')
+    
+    if action == 'approve':
+        users_col.update_one({"_id": ObjectId(user_id)}, {"$set": {"status": "Approved"}})
+        flash("Professional account approved and activated.")
+    elif action == 'reject':
+        users_col.update_one({"_id": ObjectId(user_id)}, {"$set": {"status": "Rejected", "reject_reason": reason}})
+        flash("Professional account application rejected.")
+        
+    return redirect(url_for('admin_verifications'))
+
+@app.route('/uploads/verifications/<filename>')
+@login_required
+def uploaded_verification_file(filename):
+    if current_user.role != 'admin': return "Unauthorized", 401
+    return send_from_directory(os.path.join(app.config['UPLOAD_FOLDER'], 'verifications'), filename)
 
 @app.route('/book', methods=['POST'])
 @login_required

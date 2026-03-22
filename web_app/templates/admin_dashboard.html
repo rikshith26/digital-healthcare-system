@@ -40,47 +40,7 @@
             </div>
         </div>
 
-        <!-- User Management Table -->
-        <div style="background: white; border: 1px solid #f1f5f9; border-radius: 1.5rem; overflow: hidden; margin-bottom: 2rem;">
-            <div style="padding: 1.5rem; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
-                <h3 style="margin: 0; font-size: 1.25rem; font-weight: 800;">User Management Directory</h3>
-            </div>
-            <div style="overflow-x: auto;">
-                <table style="width: 100%; text-align: left; border-collapse: collapse;">
-                    <thead>
-                        <tr style="background-color: #f8fafc; color: #64748b; text-transform: uppercase; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.05em;">
-                            <th style="padding: 1rem 1.5rem;">Username / Email</th>
-                            <th style="padding: 1rem 1.5rem;">Role</th>
-                            <th style="padding: 1rem 1.5rem;">ID</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for u in users %}
-                        <tr style="border-bottom: 1px solid #f1f5f9;">
-                            <td style="padding: 1.25rem 1.5rem;">
-                                <div style="font-weight: 700; color: #0f172a;">{{ u.username }}</div>
-                                <div style="font-size: 0.8rem; color: #64748b;">{{ u.email }}</div>
-                            </td>
-                            <td style="padding: 1.25rem 1.5rem;">
-                                {% if u.role == 'admin' %}
-                                    <span style="background-color: #2563eb; color: white; padding: 0.25rem 0.75rem; border-radius: 9999px; font-weight: 700; font-size: 0.7rem; text-transform: uppercase;">Owner / Admin</span>
-                                {% elif u.role == 'doctor' %}
-                                    <span style="background-color: #f0fdf4; color: #16a34a; padding: 0.25rem 0.75rem; border-radius: 9999px; font-weight: 700; font-size: 0.7rem; text-transform: uppercase;">Doctor</span>
-                                {% elif u.role == 'technician' %}
-                                    <span style="background-color: #fefce8; color: #eab308; padding: 0.25rem 0.75rem; border-radius: 9999px; font-weight: 700; font-size: 0.7rem; text-transform: uppercase;">Technician</span>
-                                {% else %}
-                                    <span style="background-color: #f1f5f9; color: #64748b; padding: 0.25rem 0.75rem; border-radius: 9999px; font-weight: 700; font-size: 0.7rem; text-transform: uppercase;">Patient</span>
-                                {% endif %}
-                            </td>
-                            <td style="padding: 1.25rem 1.5rem;">
-                                <code style="background-color: #f8fafc; padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.7rem; color: #475569;">{{ u._id }}</code>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
+        <!-- User Management Table has been moved to the dedicated 'User Data' tab -->
         
     </main>
 </div>
