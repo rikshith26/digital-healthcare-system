@@ -1,0 +1,216 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<style>
+.section-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+.pdf-brand {
+    display: none;
+    text-align: center;
+    margin-bottom: 20px;
+}
+.pdf-brand .brand-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--text-main, #111827);
+    margin: 0;
+}
+.pdf-brand .brand-logo span {
+    color: var(--primary, #4F46E5);
+}
+.table-responsive {
+    overflow-x: auto;
+}
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.data-table th, .data-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #f0f0f0;
+}
+.data-table th {
+    font-weight: 600;
+    color: #6b7280;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+}
+.data-table td {
+    font-size: 0.95rem;
+    color: #374151;
+}
+.btn-download {
+    background: #4F46E5;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.2s;
+    font-family: inherit;
+    font-weight: 500;
+}
+.btn-download:hover {
+    background: #4338ca;
+}
+</style>
+
+<div style="padding: 2rem;">
+    <h2 style="margin-bottom: 2rem; color: #111827; font-weight: 700;">User Data Directory</h2>
+
+    {% set patients = [] %}
+    {% set doctors = [] %}
+    {% set technicians = [] %}
+    {% set pharmacies = [] %}
+    {% set admins = [] %}
+
+    {% for u in users %}
+        {% set role = u.get('role', 'patient') %}
+        {% if role == 'patient' %}
+            {% set __ = patients.append(u) %}
+        {% elif role == 'doctor' %}
+             {% set __ = doctors.append(u) %}
+        {% elif role == 'technician' %}
+             {% set __ = technicians.append(u) %}
+        {% elif 'pharmacy' in role.lower() %}
+             {% set __ = pharmacies.append(u) %}
+        {% elif role == 'admin' %}
+             {% set __ = admins.append(u) %}
+        {% else %}
+             {% set __ = patients.append(u) %}
+        {% endif %}
+    {% endfor %}
+
+    {% macro render_group(title, id, group_users) %}
+    <div class="section-card">
+        <div class="section-header">
+            <h3 style="margin: 0; color: #1f2937; font-size: 1.25rem;">{{ title }} <span style="color: #6b7280; font-weight: normal; font-size: 1rem;">({{ group_users|length }})</span></h3>
+            <button class="btn-download" onclick="downloadPDF('{{ id }}', '{{ title }}')">
+                <i data-lucide="download"></i> Download {{ title }} Data
+            </button>
+        </div>
+        <div id="{{ id }}" class="pdf-content">
+            <div class="pdf-brand">
+                <h2 class="brand-logo">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #4F46E5;"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                    HealthLab<span>AI</span>
+                </h2>
+                <p style="color: #6b7280; font-size: 1rem; margin-top: 5px;">{{ title }} Directory Report</p>
+                <hr style="border: 0; border-top: 1px solid #e5e7eb; margin: 20px 0;">
+            </div>
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Name / Username</th>
+                            <th>Email Address</th>
+                            <th>Platform Role</th>
+                            <th>Identifier (ID)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if group_users|length > 0 %}
+                            {% for u in group_users %}
+                            <tr>
+                                <td>
+                                    <div style="font-weight: 500;">{{ u.get('full_name') or u.get('username') or 'N/A' }}</div>
+                                </td>
+                                <td>{{ u.get('email', 'N/A') }}</td>
+                                <td><span style="background: #f3f4f6; color: #4b5563; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase;">{{ u.get('role', 'patient') }}</span></td>
+                                <td style="color: #9ca3af; font-family: monospace; font-size: 0.8rem;">{{ u.get('_id', 'N/A') }}</td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="4" style="text-align: center; color: #9ca3af; padding: 2rem;">No entries found.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="pdf-footer" style="display: none; margin-top: 30px; text-align: center; font-size: 12px; color: #9ca3af;">
+                <p>Generated by HealthLab AI Dashboard</p>
+            </div>
+        </div>
+    </div>
+    {% endmacro %}
+
+    {{ render_group('Users (Patients)', 'pdf-patients', patients) }}
+    {{ render_group('Doctors', 'pdf-doctors', doctors) }}
+    {{ render_group('Technicians', 'pdf-technicians', technicians) }}
+    {{ render_group('Pharmacy Stores', 'pdf-pharmacies', pharmacies) }}
+    {{ render_group('Administrators', 'pdf-admins', admins) }}
+</div>
+
+<script>
+    function downloadPDF(elementId, title) {
+        const element = document.getElementById(elementId);
+        // Make clones or manipulate DOM before print
+        const brandHeader = element.querySelector('.pdf-brand');
+        const pdfFooter = element.querySelector('.pdf-footer');
+        
+        // Setup styles for PDF output
+        const originalParent = element.parentElement;
+        const clone = element.cloneNode(true);
+        
+        // Show hidden parts on the clone
+        clone.querySelector('.pdf-brand').style.display = 'block';
+        if (clone.querySelector('.pdf-footer')) {
+            clone.querySelector('.pdf-footer').style.display = 'block';
+        }
+        clone.querySelector('.table-responsive').style.overflow = 'visible';
+        
+        // Temporarily append clone to body for rendering to avoid affecting layout
+        const container = document.createElement('div');
+        container.style.position = 'absolute';
+        container.style.left = '-9999px';
+        container.style.top = '0';
+        container.style.width = '800px'; 
+        container.style.padding = '40px';
+        container.style.background = 'white';
+        container.appendChild(clone);
+        document.body.appendChild(container);
+
+        const opt = {
+            margin:       0.5,
+            filename:     title.toLowerCase().replace(/[^a-z0-9]/g, '_') + '_data_report.pdf',
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2, useCORS: true },
+            jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+        };
+
+        // Initialize icons on the clone just in case, wait a tick, then render
+        if (window.lucide) {
+            window.lucide.createIcons({root: container});
+        }
+        
+        html2pdf().set(opt).from(clone).save().then(() => {
+            // Cleanup
+            document.body.removeChild(container);
+        });
+    }
+</script>
+{% endblock %}

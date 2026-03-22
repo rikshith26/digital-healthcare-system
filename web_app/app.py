@@ -184,6 +184,21 @@ def book_test_page():
     
     return render_template('book_test.html', user=current_user, bookings=my_bookings)
 
+@app.route('/user-data')
+@login_required
+def user_data_page():
+    if current_user.role != 'admin':
+        return redirect(url_for('dashboard'))
+        
+    users_col = db_manager.get_collection('users')
+    admins_col = db_manager.get_collection('admins')
+    
+    all_regular_users = list(users_col.find())
+    all_admins = list(admins_col.find())
+    all_users = all_regular_users + all_admins
+    
+    return render_template('user_data.html', user=current_user, users=all_users)
+
 @app.route('/book', methods=['POST'])
 @login_required
 def book_test():

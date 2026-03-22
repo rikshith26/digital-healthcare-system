@@ -70,11 +70,19 @@
                 <i data-lucide="layout-grid"></i>
                 <span>Dashboard</span>
             </a>
+            {% if current_user.role == 'admin' %}
+            <a href="{{ url_for('user_data_page') }}"
+                class="nav-link {% if request.endpoint == 'user_data_page' %}active{% endif %}">
+                <i data-lucide="database"></i>
+                <span>User Data</span>
+            </a>
+            {% else %}
             <a href="{{ url_for('book_test_page') }}"
                 class="nav-link {% if request.endpoint == 'book_test_page' %}active{% endif %}">
                 <i data-lucide="microscope"></i>
                 <span>Book a Test</span>
             </a>
+            {% endif %}
             {% if user.role == 'patient' %}
             <a href="{{ url_for('clinical_reports') }}" 
                 class="nav-link {% if request.endpoint == 'clinical_reports' %}active{% endif %}">
