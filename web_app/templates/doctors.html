@@ -1,0 +1,105 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="dashboard-container">
+    <main class="main-content">
+        <header style="margin-bottom: 3rem; display: flex; justify-content: space-between; align-items: flex-end;">
+            <div>
+                <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 0.5rem;">
+                    <a href="{{ url_for('dashboard') }}" style="color: var(--text-muted); text-decoration: none; display: flex; align-items: center; gap: 0.5rem; font-weight: 600;">
+                        <i data-lucide="arrow-left" style="width: 16px;"></i> Home
+                    </a>
+                </div>
+                <h1 style="font-size: 2.5rem; margin: 0; font-weight: 900; color: #0f172a;">Verified <span style="color: var(--primary);">Experts</span></h1>
+                <p style="color: #64748b; font-size: 1.1rem; margin-top: 0.5rem;">Scroll to explore our network of specialized professionals.</p>
+            </div>
+            <div style="background: white; border: 1px solid #e2e8f0; padding: 0.75rem 1.25rem; border-radius: 1rem; display: flex; align-items: center; gap: 0.75rem;">
+                <i data-lucide="info" class="text-primary w-5 h-5"></i>
+                <span style="font-size: 0.85rem; font-weight: 700; color: #0f172a;">{{ doctors|length }} Professionals Online</span>
+            </div>
+        </header>
+
+        {% if doctors %}
+        <!-- Vertical list with horizontal cards -->
+        <div style="display: flex; flex-direction: column; gap: 1.5rem; max-width: 1000px; margin: 0 auto;">
+            {% for doctor in doctors %}
+            <div class="frosted-card" style="padding: 0; overflow: hidden; display: flex; transition: transform 0.2s, box-shadow 0.2s; border: 1px solid #f1f5f9;">
+                <!-- Left Section: Profile Image -->
+                <div style="width: 200px; min-width: 200px; background: #f8fafc; position: relative;">
+                    {% if doctor.profile_pic %}
+                    <img src="{{ doctor.profile_pic }}" alt="{{ doctor.username }}" style="width: 100%; height: 100%; object-fit: cover;">
+                    {% else %}
+                    <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%);">
+                        <i data-lucide="user" style="width: 60px; height: 60px; color: #cbd5e1;"></i>
+                    </div>
+                    {% endif %}
+                    <div style="position: absolute; bottom: 10px; right: 10px; background: #22c55e; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 10px rgba(34, 197, 94, 0.5);"></div>
+                </div>
+
+                <!-- Right Section: Content -->
+                <div style="flex: 1; padding: 2rem; display: flex; flex-direction: column; justify-content: center;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                        <div>
+                            <p style="margin: 0; font-size: 0.7rem; font-weight: 800; color: var(--primary); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.25rem;">{{ doctor.specialization or 'General Practitioner' }}</p>
+                            <h3 style="margin: 0; font-size: 1.6rem; font-weight: 900; color: #0f172a;">Dr. {{ doctor.full_name or doctor.username }}</h3>
+                            <div style="display: flex; align-items: center; gap: 0.5rem; color: #64748b; font-size: 0.85rem; margin-top: 0.5rem;">
+                                <i data-lucide="map-pin" style="width: 14px;"></i>
+                                <span style="font-weight: 500;">{{ doctor.address or 'HealthLab Central Facility' }}</span>
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="display: flex; align-items: center; gap: 0.25rem; font-weight: 800; color: #f59e0b; font-size: 1.1rem;">
+                                <i data-lucide="star" style="width: 16px; fill: #f59e0b;"></i>
+                                {{ doctor.rating or '4.5' }}
+                            </div>
+                            <span style="font-size: 0.7rem; font-weight: 700; color: #94a3b8; text-transform: uppercase;">Medical Rating</span>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 3rem; background: #f8fafc; padding: 1.25rem 2rem; border-radius: 1.25rem; border: 1px solid #f1f5f9; margin-bottom: 1.5rem;">
+                        <div>
+                            <div style="font-weight: 900; color: #0f172a; font-size: 1.2rem;">{{ doctor.experience or '0' }}+</div>
+                            <div style="font-size: 0.6rem; color: #94a3b8; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em;">Experience Years</div>
+                        </div>
+                        <div style="height: 30px; width: 1px; background: #e2e8f0; margin-top: 5px;"></div>
+                        <div>
+                            <div style="font-weight: 900; color: #0f172a; font-size: 1.2rem;">{{ doctor.treated_count or '0' }}</div>
+                            <div style="font-size: 0.6rem; color: #94a3b8; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em;">Patients Treated</div>
+                        </div>
+                        <div style="height: 30px; width: 1px; background: #e2e8f0; margin-top: 5px;"></div>
+                        <div>
+                            <div style="font-weight: 900; color: #0f172a; font-size: 1.2rem;">99%</div>
+                            <div style="font-size: 0.6rem; color: #94a3b8; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em;">Success Rate</div>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 1rem;">
+                        <button onclick="openBooking('{{ doctor._id }}')" class="btn-modern" style="flex: 2; padding: 1rem 2rem; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 0.75rem;">
+                            <i data-lucide="calendar-check" style="width: 20px;"></i> Book Consultation
+                        </button>
+                        <button class="btn-modern" style="flex: 1; background: white; color: #0f172a; border: 1px solid #e2e8f0; font-size: 0.9rem;">
+                            View Full Bio
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="frosted-card" style="text-align: center; padding: 5rem 2rem;">
+            <div style="width: 80px; height: 80px; background: #f8fafc; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; border: 1px solid #f1f5f9;">
+                <i data-lucide="user-plus" style="width: 40px; height: 40px; color: #cbd5e1;"></i>
+            </div>
+            <h3 style="font-size: 1.5rem; margin-bottom: 0.5rem; font-weight: 800;">Our expert network is growing.</h3>
+            <p style="color: #64748b; max-width: 400px; margin: 0 auto;">New specialized doctors are being verified. Please check back shortly for expert medical advice.</p>
+        </div>
+        {% endif %}
+    </main>
+</div>
+
+<script>
+    function openBooking(doctorId) {
+        alert('Initializing secure appointment channel for Doctor ID: ' + doctorId + '\n\nPlease wait while our AI synchronizes the medical calendar.');
+    }
+</script>
+{% endblock %}

@@ -40,8 +40,60 @@
             </div>
         </div>
 
-        <!-- User Management Table has been moved to the dedicated 'User Data' tab -->
-        
+        <!-- Clinical Audit Table -->
+        <div style="background: white; border: 1px solid #f1f5f9; border-radius: 1.5rem; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);">
+            <div style="padding: 1.5rem 2rem; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h3 style="margin: 0; font-size: 1.25rem; font-weight: 800; color: #0f172a;">Recent Patient Reports</h3>
+                    <p style="margin: 0; color: #64748b; font-size: 0.85rem;">Audit system diagnostics and technician performance.</p>
+                </div>
+            </div>
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+                    <thead>
+                        <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
+                            <th style="padding: 1rem 2rem; text-align: left; font-weight: 700; color: #64748b; text-transform: uppercase; font-size: 0.75rem;">Patient / Test</th>
+                            <th style="padding: 1rem 2rem; text-align: left; font-weight: 700; color: #64748b; text-transform: uppercase; font-size: 0.75rem;">Status</th>
+                            <th style="padding: 1rem 2rem; text-align: left; font-weight: 700; color: #64748b; text-transform: uppercase; font-size: 0.75rem;">Date</th>
+                            <th style="padding: 1rem 2rem; text-align: right; font-weight: 700; color: #64748b; text-transform: uppercase; font-size: 0.75rem;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if bookings %}
+                            {% for b in bookings %}
+                            <tr style="border-bottom: 1px solid #f1f5f9; transition: background 0.2s;">
+                                <td style="padding: 1rem 2rem;">
+                                    <div style="font-weight: 700; color: #0f172a;">{{ b.patient_name }}</div>
+                                    <div style="font-size: 0.8rem; color: #2563eb; font-weight: 600;">{{ b.test_name }}</div>
+                                </td>
+                                <td style="padding: 1rem 2rem;">
+                                    {% if b.status == 'completed' %}
+                                        <span style="background: #ecfdf5; color: #059669; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase;">Final Report Ready</span>
+                                    {% elif b.status == 'pending' %}
+                                        <span style="background: #fffbeb; color: #d97706; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase;">Awaiting Sample</span>
+                                    {% else %}
+                                        <span style="background: #eff6ff; color: #2563eb; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase;">{{ b.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td style="padding: 1rem 2rem; color: #64748b;">{{ b.date }}</td>
+                                <td style="padding: 1rem 2rem; text-align: right;">
+                                    {% if b.status == 'completed' %}
+                                        <a href="{{ url_for('download_report', filename=b._id|string + '_report.pdf') }}" target="_blank" style="display: inline-flex; align-items: center; gap: 0.5rem; color: #2563eb; font-weight: 700; text-decoration: none;">
+                                            <i data-lucide="external-link" style="width: 14px;"></i> View Report
+                                        </a>
+                                    {% else %}
+                                        <span style="color: #cbd5e1; font-weight: 600;">No File Yet</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr><td colspan="4" style="padding: 3rem; text-align: center; color: #94a3b8;">No bookings found in the system.</td></tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </main>
 </div>
 {% endblock %}

@@ -1,234 +1,1054 @@
 {% extends "layout.html" %}
 
-{% block content %}
-<section class="heal-hero">
-    <div class="heal-hero-content">
-        <div class="pill">
-            <i data-lucide="sparkles" style="width: 14px;"></i>
-            THE FUTURE OF DIAGNOSTICS
-        </div>
-        <h1>AI-Powered Smart<br><span class="text-blue">Healthcare</span> Platform</h1>
-        <p>Empowering patients and doctors with intelligent diagnostics and seamless report management. Experience a new era of medical clarity.</p>
+{% block extra_css %}
+<style>
+    :root {
+        --landing-blue: #2563eb;
+        --landing-blue-light: #eff6ff;
+        --landing-text-dark: #0f172a;
+        --landing-text-muted: #64748b;
+        --landing-bg-light: #f8fafc;
+        --landing-white: #ffffff;
+    }
+
+    body {
+        background-color: var(--landing-white) !important;
+        color: var(--landing-text-dark);
+        font-family: 'Inter', sans-serif;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Header Override (Custom one matching the image) */
+    .v3-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.5rem 8%;
+        background: var(--landing-white);
+        border-bottom: 1px solid #f1f5f9;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+    }
+
+    .v3-logo {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+        color: var(--landing-text-dark);
+        font-size: 1.4rem;
+        font-weight: 800;
+    }
+
+    .v3-logo i { color: var(--landing-blue); }
+
+    .v3-nav {
+        display: flex;
+        gap: 2rem;
+    }
+
+    .v3-nav a {
+        text-decoration: none;
+        color: var(--landing-text-muted);
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+
+    .v3-nav a.active {
+        color: var(--landing-blue);
+    }
+
+    .v3-auth {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .btn-v3-login {
+        padding: 0.6rem 1.5rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        text-decoration: none;
+        color: var(--landing-text-dark);
+        font-weight: 600;
+    }
+
+    .btn-v3-signup {
+        padding: 0.6rem 1.5rem;
+        background: #84cc16; /* Keeping the green from the original image? No, user said keep it blue */
+        background: var(--landing-blue);
+        color: white;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    /* Hero Section */
+    .hero-v3 {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 2rem 8% 6rem;
+        gap: 4rem;
+    }
+
+    .hero-v3-content {
+        flex: 1;
+        max-width: 600px;
+    }
+
+    .hero-v3-content .tag {
+        color: var(--landing-blue);
+        font-weight: 700;
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .hero-v3-content h1 {
+        font-size: 4rem;
+        line-height: 1.1;
+        margin-bottom: 1.5rem;
+        font-weight: 900;
+    }
+
+    .hero-v3-content h1 span {
+        color: #84cc16; /* Original Green */
+        color: var(--landing-blue); /* Requested Blue */
+    }
+
+    .hero-v3-content p {
+        color: var(--landing-text-muted);
+        font-size: 1.1rem;
+        line-height: 1.6;
+        margin-bottom: 2.5rem;
+    }
+
+    .hero-v3-btns {
+        display: flex;
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+    }
+
+    .btn-v3-hero-primary {
+        background: var(--landing-blue);
+        color: white;
+        padding: 1rem 2rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .btn-v3-hero-outline {
+        border: 1px solid #e2e8f0;
+        color: var(--landing-text-dark);
+        padding: 1rem 2rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .hero-v3-stats {
+        display: flex;
+        gap: 2rem;
+    }
+
+    .hero-v3-stats .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--landing-text-muted);
+    }
+
+    .hero-v3-stats i { color: var(--landing-blue); }
+
+    .hero-v3-visual {
+        flex: 1;
+        position: relative;
+        display: flex;
+        justify-content: center;
+    }
+
+    .hero-v3-visual .phone-img {
+        width: 320px;
+        z-index: 10;
+        border-radius: 40px;
+        box-shadow: 0 50px 100px -20px rgba(0,0,0,0.15);
+    }
+
+    .floating-card-v3 {
+        position: absolute;
+        background: white;
+        padding: 1rem;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        z-index: 20;
+    }
+
+    .card-reports { top: 20%; right: 0; }
+    .card-health { top: 10%; left: 0; }
+    .card-delivered { bottom: 20%; right: -20px; }
+
+    /* Service Icons Row */
+    .services-row-v3 {
+        display: flex;
+        justify-content: space-between;
+        padding: 3rem 8%;
+        border-top: 1px solid #f1f5f9;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .service-v3-item {
+        text-align: center;
+        max-width: 150px;
+    }
+
+    .service-v3-item i {
+        color: var(--landing-blue);
+        margin-bottom: 1rem;
+    }
+
+    .service-v3-item h4 { font-size: 0.9rem; margin-bottom: 0.25rem; font-weight: 700; }
+    .service-v3-item p { font-size: 0.75rem; color: var(--landing-text-muted); }
+
+    /* SECTION TITLE */
+    .section-v3-title {
+        text-align: center;
+        margin: 6rem 0 4rem;
+    }
+
+    .section-v3-title h2 {
+        font-size: 3rem;
+        font-weight: 900;
+        letter-spacing: -0.02em;
+    }
+
+    .section-v3-title h2 span { color: var(--landing-blue); }
+
+    /* HOW IT WORKS */
+    .how-it-works-v3 {
+        padding: 4rem 8%;
+        background: #0f172a;
+        color: white;
+        text-align: center;
+    }
+
+    .how-steps-v3 {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 4rem;
+        position: relative;
+    }
+
+    .how-steps-v3::before {
+        content: '';
+        position: absolute;
+        top: 30px;
+        left: 10%;
+        right: 10%;
+        height: 2px;
+        border-top: 2px dashed rgba(255,255,255,0.1);
+        z-index: 1;
+    }
+
+    .step-v3-item {
+        z-index: 2;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .step-v3-icon {
+        width: 64px;
+        height: 64px;
+        background: var(--landing-blue);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .step-v3-item h4 { font-size: 0.95rem; margin-bottom: 0.5rem; }
+    .step-v3-item p { font-size: 0.75rem; opacity: 0.6; max-width: 160px; }
+
+    /* SOLUTIONS CARDS */
+    .solutions-grid-v3 {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.5rem;
+        padding: 0 8% 6rem;
+    }
+
+    .solution-v3-card {
+        padding: 2.5rem 1.5rem;
+        border-radius: 16px;
+        text-align: center;
+        background: #f8fafc;
+    }
+
+    .solution-v3-card.blue { background: #eff6ff; }
+    .solution-v3-card.green { background: #f0fdf4; }
+    .solution-v3-card.purple { background: #f5f3ff; }
+    .solution-v3-card.orange { background: #fff7ed; }
+
+    .solution-v3-card img {
+        width: 80px;
+        height: 80px;
+        margin-bottom: 1.5rem;
+        border-radius: 50%;
+    }
+
+    .solution-v3-card h3 { margin-bottom: 0.75rem; font-weight: 800; }
+    .solution-v3-card p {
+        font-size: 0.85rem;
+        color: var(--landing-text-muted);
+        margin-bottom: 2rem;
+        min-height: 4em;
+    }
+
+    .solution-v3-card .btn-card-v3 {
+        text-decoration: none;
+        color: var(--landing-text-dark);
+        font-weight: 700;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    /* STATS STRIP */
+    .stats-strip-v3 {
+        display: flex;
+        justify-content: space-between;
+        padding: 3rem 8%;
+        background: #f0fdf4; /* Original Green bg, let's make it light blue */
+        background: var(--landing-blue-light);
+    }
+
+    .stat-v3-box {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .stat-v3-box i { color: var(--landing-blue); }
+    .stat-v3-box h3 { font-size: 1.5rem; font-weight: 900; margin: 0; }
+    .stat-v3-box p { font-size: 0.8rem; color: var(--landing-text-muted); margin: 0; }
+
+    /* WHY CHOOSE */
+    .why-choose-v3 {
+        display: flex;
+        padding: 4rem 8% 2rem;
+        gap: 4rem;
+        align-items: center;
+    }
+
+    .why-v3-content { flex: 1.5; }
+    .why-v3-visual { flex: 1; }
+
+    .why-features-v3 {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 2rem;
+        margin-top: 3rem;
+    }
+
+    .why-v3-feat {
+        display: flex;
+        gap: 1.25rem;
+        align-items: flex-start;
+        padding: 1rem;
+        background: #f8fafc;
+        border-radius: 12px;
+    }
+
+    .why-v3-feat i { 
+        color: var(--landing-blue); 
+        width: 32px !important; 
+        height: 32px !important;
+        flex-shrink: 0;
+    }
+
+    .why-v3-feat h4 { 
+        font-size: 1.1rem; 
+        margin-bottom: 0.35rem; 
+        font-weight: 800; 
+        color: var(--landing-text-dark);
+    }
+
+    .why-v3-feat p { 
+        font-size: 0.9rem; 
+        color: var(--landing-text-muted); 
+        line-height: 1.5;
+        margin: 0;
+    }
+
+    /* TESTIMONIALS */
+    .testimonials-v3 {
+        background: var(--landing-white);
+        padding: 2rem 8% 6rem;
+        text-align: center;
+    }
+
+    .testimonial-v3-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2rem;
+        margin-top: 3rem;
+    }
+
+    .testi-v3-card {
+        background: white;
+        padding: 2rem;
+        border-radius: 16px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        text-align: left;
+    }
+
+    .testi-v3-user {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .testi-v3-user img { width: 48px; border-radius: 50%; }
+    .testi-v3-user h4 { font-size: 0.95rem; margin: 0; }
+    .testi-v3-user .stars { color: #fbbf24; font-size: 0.8rem; }
+
+    /* FOOTER */
+    .v3-footer {
+        background: #0f172a;
+        color: white;
+        padding: 6rem 8% 2rem;
+    }
+
+    .footer-v3-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr 1fr 2fr;
+        gap: 3rem;
+        padding-bottom: 4rem;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .footer-v3-logo h2 { font-size: 1.8rem; margin-bottom: 1rem; }
+    .footer-v3-logo p { font-size: 0.85rem; opacity: 0.6; line-height: 1.6; }
+
+    .footer-v3-col h4 { margin-bottom: 1.5rem; font-weight: 700; }
+    .footer-v3-col ul { list-style: none; padding: 0; margin: 0; }
+    .footer-v3-col ul li { margin-bottom: 0.75rem; font-size: 0.85rem; opacity: 0.6; }
+
+    .footer-v3-newsletter h4 { margin-bottom: 1.5rem; }
+    .newsletter-form {
+        display: flex;
+        background: rgba(255,255,255,0.05);
+        padding: 0.25rem;
+        border-radius: 8px;
+    }
+
+    .newsletter-form input {
+        background: transparent;
+        border: none;
+        color: white;
+        padding: 0.75rem 1rem;
+        flex: 1;
+        outline: none;
+    }
+
+    .newsletter-form button {
+        background: var(--landing-blue);
+        border: none;
+        color: white;
+        padding: 0.75rem 1.25rem;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+
+    /* =========================================
+       MOBILE & TABLET RESPONSIVENESS (Landing Page)
+    ========================================= */
+    @media (max-width: 1024px) {
+        .hero-v3 { 
+            padding: 2rem 5% 4rem; 
+            gap: 3rem; 
+            flex-direction: column; 
+            text-align: center; 
+        }
+        .hero-v3-content { 
+            max-width: 100%; 
+            margin: 0 auto; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .hero-v3-content .tag { justify-content: center; }
+        .hero-v3-btns { justify-content: center; flex-wrap: wrap; }
+        .hero-v3-stats { justify-content: center; flex-wrap: wrap; }
+        .services-v3, .why-choose-v3, .testimonials-v3 { padding: 4rem 5%; }
+        .why-choose-v3 { flex-direction: column; }
+    }
+
+    @media (max-width: 768px) {
+        /* Header */
+        .v3-header { 
+            padding: 1rem 5%; 
+            position: relative; 
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+        }
+        .v3-nav { display: none; } /* Hide nav links on mobile for cleaner look */
+        .v3-auth { flex-direction: row; gap: 0.5rem; width: 100%; justify-content: center;}
+        .btn-v3-login, .btn-v3-signup { padding: 0.6rem 1.25rem; font-size: 0.9rem; flex: 1; text-align: center; }
         
-        <div class="heal-hero-btns">
-            <a href="{{ url_for('register') }}" class="btn-heal-primary">Get Started Free</a>
-            <a href="{{ url_for('login') }}" class="btn-heal-light">Login / Register</a>
+        /* Hero */
+        .hero-v3-content h1 { font-size: 2.5rem; }
+        .hero-v3-content p { font-size: 1rem; }
+        .hero-v3-visual { display: none !important; }
+        .floating-card-v3 { 
+            position: relative; 
+            transform: none !important; 
+            margin: 0 auto; 
+            left: auto !important; 
+            right: auto !important; 
+            top: auto !important; 
+            bottom: auto !important; 
+            width: max-content; 
+        }
+        
+        /* Services Row */
+        .services-row-v3 { 
+            flex-direction: column;
+            align-items: center;
+            gap: 2.5rem;
+            padding: 3rem 5%;
+            overflow: hidden;
+        }
+        
+        /* Flow Chart (How It Works) */
+        .how-steps-v3 {
+            flex-direction: column;
+            gap: 2rem;
+            align-items: center;
+            overflow: visible;
+        }
+        .step-v3-item {
+            width: 100%;
+            max-width: 300px;
+        }
+        
+        /* 4 Roles (Solutions) */
+        .solutions-grid-v3 {
+            grid-template-columns: 1fr; /* Stack down by down */
+            gap: 1.5rem;
+        }
+        .solutions-v3 {
+            padding: 4rem 5%;
+        }
+
+        /* Stats Strip */
+        .stats-strip-v3 {
+            display: grid !important;
+            grid-template-columns: repeat(2, 1fr) !important;
+            padding: 3rem 5%;
+            gap: 2rem 1rem;
+            align-items: center;
+            justify-content: center;
+        }
+        .stats-strip-v3 .stat-v3-box {
+            flex-direction: column;
+            text-align: center;
+            gap: 0.5rem;
+        }
+        .stats-strip-v3 .stat-v3-box:last-child {
+            grid-column: span 2;
+            justify-self: center;
+        }
+        
+        /* Why Choose */
+        .why-features-v3 { grid-template-columns: 1fr; }
+        
+        /* Testimonials */
+        .testimonial-v3-grid { grid-template-columns: 1fr; gap: 1.5rem; }
+        
+        /* Footer */
+        .footer-v3-grid { grid-template-columns: 1fr; gap: 2rem; text-align: center;}
+        .v3-footer { padding: 4rem 5% 2rem; }
+        .footer-col h4 { margin-bottom: 1rem; }
+        .footer-logo { justify-content: center; }
+        .social-links { justify-content: center; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- HEADER -->
+<header class="v3-header">
+    <a href="/" class="v3-logo">
+        <i data-lucide="activity" style="color: #0f172a; width: 28px; height: 28px;"></i>
+        <span style="font-weight: 900; color: #0f172a;">HealthLab <span style="font-weight: 400; color: #64748b; margin-left: -2px;">AI</span></span>
+    </a>
+    <nav class="v3-nav">
+        <a href="#" class="active">Home</a>
+        <a href="#">About Us</a>
+        <a href="#">Services</a>
+        <a href="#">For Business</a>
+        <a href="#">Pricing</a>
+        <a href="#">Contact Us</a>
+    </nav>
+    <div class="v3-auth">
+        <a href="{{ url_for('login') }}" class="btn-v3-login">Login</a>
+        <a href="{{ url_for('register') }}" class="btn-v3-signup">Sign Up</a>
+    </div>
+</header>
+
+<!-- HERO -->
+<section class="hero-v3">
+    <div class="hero-v3-content">
+        <div class="tag">
+            <i data-lucide="sparkles"></i> AI-Powered Healthcare Platform
+        </div>
+        <h1>Your Health.<br>Our Technology.<br><span>Better Tomorrow.</span></h1>
+        <p>HealthLab AI brings together advanced AI, certified professionals, and smart technology to make healthcare simple, accessible and reliable for everyone.</p>
+        
+        <div class="hero-v3-btns">
+            <a href="{{ url_for('book_test_page') }}" class="btn-v3-hero-primary">
+                Book a Test Now <i data-lucide="arrow-right"></i>
+            </a>
+            <a href="#" class="btn-v3-hero-outline">
+                Try AI Health Check <i data-lucide="bot"></i>
+            </a>
+        </div>
+
+        <div class="hero-v3-stats">
+            <div class="stat-item"><i data-lucide="shield-check"></i> Secure & Private</div>
+            <div class="stat-item"><i data-lucide="user-check"></i> Verified Professionals</div>
+            <div class="stat-item"><i data-lucide="zap"></i> Quick & Reliable</div>
         </div>
     </div>
 
-    <div class="heal-hero-visual">
-        <div class="main-img">
-            <img src="{{ url_for('static', filename='images/heal_hero.png') }}" alt="AI Health Visual">
-        </div>
-        <div class="floating-accuracy-card">
-            <div class="acc-icon">
-                <i data-lucide="line-chart"></i>
+    <div class="hero-v3-visual">
+        <div class="floating-card-v3 card-health">
+            <div style="background: #eff6ff; padding: 0.5rem; border-radius: 8px;">
+                <i data-lucide="heart" style="color: var(--landing-blue); width: 20px;"></i>
             </div>
-            <div class="acc-text">
-                <span class="label">Live Analysis</span>
-                <h4>AI Diagnostic Report: 99.8% Accuracy</h4>
+            <div>
+                <div style="font-size: 0.6rem; color: #94a3b8; font-weight: 700;">Health Score</div>
+                <div style="font-size: 1rem; font-weight: 900;">85 <span style="font-size: 0.6rem; opacity: 0.5;">/100</span></div>
             </div>
         </div>
-    </div>
-</section>
 
-<div class="carousel-main-wrapper">
-    <div class="carousel-viewport" id="mainCarousel">
-        <div class="carousel-track">
-            <!-- Slide 1: AI Health -->
-            <div class="carousel-slide">
-                <div class="ai-banner" onclick="toggleChat()">
-                    <div class="ai-banner-content">
-                        <h2>Ask anything about your health.</h2>
-                        <p>Get trusted answers directly from our intelligent AI Diagnostics assistant.</p>
-                        <button class="btn-ai-chat">
-                            <i data-lucide="sparkles" style="width: 18px;"></i> Ask HealthLab AI
-                        </button>
+        <div class="floating-card-v3 card-reports">
+            <div style="background: #eff6ff; padding: 0.5rem; border-radius: 8px;">
+                <i data-lucide="file-text" style="color: #2563eb; width: 20px;"></i>
+            </div>
+            <div>
+                <div style="font-size: 0.6rem; color: #94a3b8; font-weight: 700;">Reports</div>
+                <div style="font-size: 1rem; font-weight: 900;">23+</div>
+            </div>
+        </div>
+
+        <div class="floating-card-v3 card-delivered">
+            <div style="background: #fff7ed; padding: 0.5rem; border-radius: 8px;">
+                <i data-lucide="package" style="color: #f97316; width: 20px;"></i>
+            </div>
+            <div>
+                <div style="font-size: 0.6rem; color: #94a3b8; font-weight: 700;">Delivered</div>
+                <div style="font-size: 1rem; font-weight: 900;">2 Orders</div>
+            </div>
+        </div>
+
+        <!-- Phone Mockup using a realistic gradient -->
+        <div class="phone-img" style="background: #000; height: 550px; border: 12px solid #1a1a1a; position: relative; overflow: hidden;">
+            <div style="height: 100%; width: 100%; background: #f8fafc; padding: 1.5rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <div>
+                        <div style="font-size: 0.6rem; color: #94a3b8;">Good Morning,</div>
+                        <div style="font-size: 1rem; font-weight: 800;">Rohan 👋</div>
                     </div>
-                    <div class="ai-banner-illustration">
-                        <i data-lucide="brain-circuit"
-                            style="width: 100px; height: 100px; opacity: 0.2; position: absolute;"></i>
-                        <i data-lucide="stethoscope" style="width: 120px; height: 120px; opacity: 0.1;"></i>
+                    <div style="width: 32px; height: 32px; background: #e2e8f0; border-radius: 50%;"></div>
+                </div>
+
+                <div style="background: #0f172a; padding: 1.25rem; border-radius: 16px; color: white; margin-bottom: 1.5rem;">
+                    <div style="font-size: 0.8rem; font-weight: 700; margin-bottom: 0.5rem;">AI Health Assistant</div>
+                    <p style="font-size: 0.6rem; opacity: 0.7; margin-bottom: 1rem;">How can I help you today?</p>
+                    <div style="background: rgba(255,255,255,0.1); padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.6rem; width: 60%;">Start Chat <i data-lucide="chevron-right" style="width: 10px; float: right;"></i></div>
+                </div>
+
+                <div style="font-size: 0.8rem; font-weight: 800; margin-bottom: 1rem;">Book Services</div>
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; margin-bottom: 1.5rem;">
+                    <div style="text-align: center;">
+                        <div style="padding: 0.75rem; background: white; border-radius: 12px; margin-bottom: 0.25rem;"><i data-lucide="microscope" style="width: 16px; color: var(--landing-blue);"></i></div>
+                        <span style="font-size: 0.5rem; font-weight: 700;">Lab</span>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="padding: 0.75rem; background: white; border-radius: 12px; margin-bottom: 0.25rem;"><i data-lucide="user-round" style="width: 16px; color: #f97316;"></i></div>
+                        <span style="font-size: 0.5rem; font-weight: 700;">Doctor</span>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="padding: 0.75rem; background: white; border-radius: 12px; margin-bottom: 0.25rem;"><i data-lucide="pill" style="width: 16px; color: #ef4444;"></i></div>
+                        <span style="font-size: 0.5rem; font-weight: 700;">Meds</span>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="padding: 0.75rem; background: white; border-radius: 12px; margin-bottom: 0.25rem;"><i data-lucide="heart-pulse" style="width: 16px; color: var(--landing-blue);"></i></div>
+                        <span style="font-size: 0.5rem; font-weight: 700;">Checkup</span>
                     </div>
                 </div>
-            </div>
 
-            <!-- Slide 2: Consult Doctor -->
-            <div class="carousel-slide">
-                <div class="consult-banner" onclick="toggleConsult()">
-                    <div class="consult-banner-content">
-                        <h2>Expert Professional Consultation.</h2>
-                        <p>Book a checkup with our specialized doctors and get expert medical advice.</p>
-                        <button class="btn-consult">
-                            <i data-lucide="user-round" style="width: 18px;"></i> Consult a Doctor
-                        </button>
+                <div style="font-size: 0.8rem; font-weight: 800; margin-bottom: 1rem;">Recent Reports</div>
+                <div style="background: white; padding: 1rem; border-radius: 16px; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div style="font-size: 0.7rem; font-weight: 800;">Complete Blood Count</div>
+                        <div style="font-size: 0.5rem; color: #94a3b8;">15 Sep, 2023</div>
                     </div>
-                    <div class="consult-banner-illustration">
-                        <i data-lucide="stethoscope"
-                            style="width: 100px; height: 100px; opacity: 0.2; position: absolute;"></i>
-                        <i data-lucide="heart-pulse" style="width: 120px; height: 120px; opacity: 0.1;"></i>
-                    </div>
+                    <div style="font-size: 0.6rem; color: var(--landing-blue); font-weight: 800;">View</div>
+                </div>
+            </div>
+            <div style="position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 120px; height: 25px; background: #1a1a1a; border-radius: 0 0 15px 15px;"></div>
+        </div>
+    </div>
+</section>
+
+<!-- SERVICES ROW -->
+<div class="services-row-v3">
+    <div class="service-v3-item">
+        <i data-lucide="bot" style="width: 32px;"></i>
+        <h4>AI Health Assistant</h4>
+        <p>Get instant health insights 24/7</p>
+    </div>
+    <div class="service-v3-item">
+        <i data-lucide="home" style="width: 32px;"></i>
+        <h4>Home Collection</h4>
+        <p>Book tests & samples collected at home</p>
+    </div>
+    <div class="service-v3-item">
+        <i data-lucide="file-text" style="width: 32px;"></i>
+        <h4>Digital Reports</h4>
+        <p>View, download & share reports instantly</p>
+    </div>
+    <div class="service-v3-item">
+        <i data-lucide="user-round" style="width: 32px;"></i>
+        <h4>Doctor Consultation</h4>
+        <p>Consult online with verified doctors</p>
+    </div>
+    <div class="service-v3-item">
+        <i data-lucide="truck" style="width: 32px;"></i>
+        <h4>Medicine Delivery</h4>
+        <p>Order medicines & get them delivered</p>
+    </div>
+    <div class="service-v3-item">
+        <i data-lucide="heart" style="width: 32px;"></i>
+        <h4>Health Packages</h4>
+        <p>Affordable packages for your family</p>
+    </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<section class="how-it-works-v3">
+    <div class="section-v3-title" style="margin-top: 0;">
+        <h2 style="color: white;">How <span>HealthLab AI</span> Works?</h2>
+    </div>
+    <div class="how-steps-v3">
+        <div class="step-v3-item">
+            <div class="step-v3-icon"><i data-lucide="clipboard-list"></i></div>
+            <h4>1. Choose Service</h4>
+            <p>Select test, consultation or medicine</p>
+        </div>
+        <div class="step-v3-item">
+            <div class="step-v3-icon"><i data-lucide="calendar"></i></div>
+            <h4>2. Book & Schedule</h4>
+            <p>Pick a time slot that suits you</p>
+        </div>
+        <div class="step-v3-item">
+            <div class="step-v3-icon"><i data-lucide="home"></i></div>
+            <h4>3. Sample Collection</h4>
+            <p>Technician visits your home</p>
+        </div>
+        <div class="step-v3-item">
+            <div class="step-v3-icon"><i data-lucide="file-check"></i></div>
+            <h4>4. Get Reports</h4>
+            <p>Receive digital reports on the app</p>
+        </div>
+        <div class="step-v3-item">
+            <div class="step-v3-icon"><i data-lucide="stethoscope"></i></div>
+            <h4>5. Consult & Improve</h4>
+            <p>Take action & follow doctor's advice</p>
+        </div>
+    </div>
+</section>
+
+<!-- SOLUTIONS -->
+<section class="solutions-v3">
+    <div class="section-v3-title">
+        <h2>Health Solutions For <span>Everyone</span></h2>
+    </div>
+    <div class="solutions-grid-v3">
+        <div class="solution-v3-card orange">
+            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="Patient">
+            <h3>For Patients</h3>
+            <p>Book tests, consult doctors, get reports & order medicines seamlessly.</p>
+            <a href="{{ url_for('register') }}" class="btn-card-v3">Get Started <i data-lucide="arrow-right"></i></a>
+        </div>
+        <div class="solution-v3-card blue">
+            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Aria" alt="Doctor">
+            <h3>For Doctors</h3>
+            <p>Grow your practice, consult patients & manage appointments efficiently.</p>
+            <a href="{{ url_for('register') }}" class="btn-card-v3">Get Started <i data-lucide="arrow-right"></i></a>
+        </div>
+        <div class="solution-v3-card purple">
+            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Leo" alt="Technician">
+            <h3>For Lab Technicians</h3>
+            <p>Manage test requests, update samples & upload reports hassle-free.</p>
+            <a href="{{ url_for('register') }}" class="btn-card-v3">Get Started <i data-lucide="arrow-right"></i></a>
+        </div>
+        <div class="solution-v3-card blue">
+            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Milo" alt="Pharmacy">
+            <h3>For Pharmacies</h3>
+            <p>List medicines, manage orders & deliver healthcare to your customers.</p>
+            <a href="{{ url_for('register') }}" class="btn-card-v3">Get Started <i data-lucide="arrow-right"></i></a>
+        </div>
+    </div>
+</section>
+
+<!-- STATS STRIP -->
+<div class="stats-strip-v3">
+    <div class="stat-v3-box">
+        <i data-lucide="users" style="width: 40px; height: 40px;"></i>
+        <div>
+            <h3>{{ stats.total_users }}+</h3>
+            <p>Happy Users</p>
+        </div>
+    </div>
+    <div class="stat-v3-box">
+        <i data-lucide="user-check" style="width: 40px; height: 40px;"></i>
+        <div>
+            <h3>{{ stats.total_doctors }}+</h3>
+            <p>Verified Doctors</p>
+        </div>
+    </div>
+    <div class="stat-v3-box">
+        <i data-lucide="microscope" style="width: 40px; height: 40px;"></i>
+        <div>
+            <h3>{{ stats.total_bookings }}+</h3>
+            <p>Tests Booked</p>
+        </div>
+    </div>
+    <div class="stat-v3-box">
+        <i data-lucide="map-pin" style="width: 40px; height: 40px;"></i>
+        <div>
+            <h3>{{ stats.cities_covered }}+</h3>
+            <p>Cities Covered</p>
+        </div>
+    </div>
+    <div class="stat-v3-box">
+        <i data-lucide="smile" style="width: 40px; height: 40px;"></i>
+        <div>
+            <h3>{{ stats.satisfaction_rate }}%</h3>
+            <p>Satisfaction Rate</p>
+        </div>
+    </div>
+</div>
+
+<!-- WHY CHOOSE -->
+<section class="why-choose-v3">
+    <div class="why-v3-content">
+        <h2>Why Choose <span>HealthLab AI</span>?</h2>
+        <div class="why-features-v3">
+            <div class="why-v3-feat">
+                <i data-lucide="sparkles"></i>
+                <div>
+                    <h4>AI-Powered Insights</h4>
+                    <p>Smart analysis for better health decisions</p>
+                </div>
+            </div>
+            <div class="why-v3-feat">
+                <i data-lucide="user-check"></i>
+                <div>
+                    <h4>Verified Professionals</h4>
+                    <p>Experienced & trusted healthcare experts</p>
+                </div>
+            </div>
+            <div class="why-v3-feat">
+                <i data-lucide="zap"></i>
+                <div>
+                    <h4>Fast & Convenient</h4>
+                    <p>Save time with quick booking & reports</p>
+                </div>
+            </div>
+            <div class="why-v3-feat">
+                <i data-lucide="wallet"></i>
+                <div>
+                    <h4>Affordable Pricing</h4>
+                    <p>Quality healthcare that fits your budget</p>
+                </div>
+            </div>
+            <div class="why-v3-feat">
+                <i data-lucide="shield-check"></i>
+                <div>
+                    <h4>Secure & Private</h4>
+                    <p>Your data is encrypted and 100% safe</p>
+                </div>
+            </div>
+            <div class="why-v3-feat">
+                <i data-lucide="phone-call"></i>
+                <div>
+                    <h4>24/7 Support</h4>
+                    <p>We're here to help you anytime, anywhere</p>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Carousel Controls -->
-        <div class="carousel-controls">
-            <button class="carousel-btn prev"><i data-lucide="chevron-left"></i></button>
-            <button class="carousel-btn next"><i data-lucide="chevron-right"></i></button>
-        </div>
-
-        <!-- Indicators -->
-        <div class="carousel-indicators">
-            <button class="indicator active"></button>
-            <button class="indicator"></button>
+    <div class="why-v3-visual" style="background: var(--landing-blue-light); padding: 4rem 3rem; border-radius: 40px; text-align: center;">
+        <h3 style="margin-top: 0; margin-bottom: 0.75rem; font-size: 1.8rem; font-weight: 900;">Your Health Companion</h3>
+        <p style="color: var(--landing-blue); font-weight: 900; margin-bottom: 2rem; font-size: 1.3rem;">Always in Your Pocket</p>
+        <p style="font-size: 1rem; color: var(--landing-text-muted); margin-bottom: 2.5rem; line-height: 1.6;">Download the HealthLab AI app for a seamless experience on your mobile device.</p>
+        <div style="display: flex; gap: 1rem; justify-content: center;">
+            <!-- Google Play Button -->
+            <div style="background: #000; color: white; padding: 0.6rem 1.2rem; border-radius: 10px; display: flex; align-items: center; gap: 0.75rem; font-size: 0.8rem; cursor: pointer; border: 1px solid #333;">
+                <svg viewBox="0 0 512 512" style="width: 20px; height: 20px;">
+                    <path fill="#4285F4" d="M12 12l242 242L12 496c-5-6-8-14-8-24V36c0-10 3-18 8-24z"/>
+                    <path fill="#EA4335" d="M394 135L12 12c4-4 10-7 18-7 7 0 14 2 21 6l343 124z"/>
+                    <path fill="#FBBC04" d="M394 377l112-62c12-7 12-18 0-25l-112-62-140 140z"/>
+                    <path fill="#34A853" d="M394 377l-343 123c-7 4-14 6-21 6-8 0-14-3-18-7l382-122z"/>
+                </svg>
+                <div style="text-align: left; line-height: 1.1;">
+                    <div style="font-size: 0.55rem; opacity: 0.7; font-weight: 600;">GET IT ON</div>
+                    <div style="font-weight: 900; font-size: 0.9rem;">Google Play</div>
+                </div>
+            </div>
+            <!-- App Store Button -->
+            <div style="background: #000; color: white; padding: 0.6rem 1.2rem; border-radius: 10px; display: flex; align-items: center; gap: 0.75rem; font-size: 0.8rem; cursor: pointer; border: 1px solid #333;">
+                <i data-lucide="apple" style="width: 22px; height: 22px; fill: white;"></i>
+                <div style="text-align: left; line-height: 1.1;">
+                    <div style="font-size: 0.55rem; opacity: 0.7; font-weight: 600;">Download on the</div>
+                    <div style="font-weight: 900; font-size: 0.9rem;">App Store</div>
+                </div>
+            </div>
         </div>
     </div>
-</div>
-
-
-<section id="services" class="section-title">
-    <h2>Expert Online Consultations</h2>
-    <p style="color: var(--text-muted);">Get expert care from our seasoned doctors via live reports and AI insights,
-        all
-        from the comfort of your home.</p>
 </section>
 
-<div class="feature-grid">
-    <div class="feature-card">
-        <i data-lucide="brain-circuit"
-            style="width: 48px; height: 48px; color: var(--secondary); margin-bottom: 2rem;"></i>
-        <h3>AI-Enabled Analysis</h3>
-        <p style="color: var(--text-muted); line-height: 1.6;">Our proprietary neural networks interpret complex
-            diagnostic data, providing simplified explanations of medical parameters in multiple languages.</p>
+<!-- TESTIMONIALS -->
+<section class="testimonials-v3">
+    <div class="section-v3-title">
+        <h2>What Our <span>Users</span> Say</h2>
     </div>
-    <div class="feature-card">
-        <i data-lucide="shield-check"
-            style="width: 48px; height: 48px; color: var(--secondary); margin-bottom: 2rem;"></i>
-        <h3>Secure Digital Vault</h3>
-        <p style="color: var(--text-muted); line-height: 1.6;">State-of-the-art encryption for managing patient
-            records
-            and test history. Your healthcare data is always accessible and always protected.</p>
+    <div class="testimonial-v3-grid">
+        <div class="testi-v3-card">
+            <div class="testi-v3-user">
+                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Manikanta" alt="Manikanta">
+                <div>
+                    <h4>Manikanta</h4>
+                    <div class="stars">★★★★★</div>
+                </div>
+            </div>
+            <p style="font-size: 0.85rem; color: var(--landing-text-muted); line-height: 1.6;">"HealthLab AI made my life so easy. I booked a test and the technician arrived at my home on time. Got my reports within hours!"</p>
+        </div>
+        <div class="testi-v3-card">
+            <div class="testi-v3-user">
+                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Mahanth" alt="Navundru Mahanth">
+                <div>
+                    <h4>Navundru Mahanth</h4>
+                    <div class="stars">★★★★★</div>
+                </div>
+            </div>
+            <p style="font-size: 0.85rem; color: var(--landing-text-muted); line-height: 1.6;">"The AI health assistant is amazing! It gives quick suggestions and helps me decide when to consult a doctor."</p>
+        </div>
+        <div class="testi-v3-card">
+            <div class="testi-v3-user">
+                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Mokshagna" alt="Mokshagna">
+                <div>
+                    <h4>Mokshagna</h4>
+                    <div class="stars">★★★★★</div>
+                </div>
+            </div>
+            <p style="font-size: 0.85rem; color: var(--landing-text-muted); line-height: 1.6;">"As a doctor, this platform helps me connect with more patients and manage consultations very smoothly."</p>
+        </div>
     </div>
-    <div class="feature-card">
-        <i data-lucide="stethoscope"
-            style="width: 48px; height: 48px; color: var(--secondary); margin-bottom: 2rem;"></i>
-        <h3>Clinical Decision Support</h3>
-        <p style="color: var(--text-muted); line-height: 1.6;">Assisting healthcare professionals with AI-based
-            trend
-            analysis and automated health recommendations based on historical data.</p>
-    </div>
-    <div class="feature-card">
-        <i data-lucide="truck" style="width: 48px; height: 48px; color: var(--secondary); margin-bottom: 2rem;"></i>
-        <h3>Home Sample Collection</h3>
-        <p style="color: var(--text-muted); line-height: 1.6;">Seamless digital requesting for home diagnostic
-            tests.
-            Reduce manual work and experience efficient healthcare access anytime, anywhere.</p>
-    </div>
-</div>
-
-<!-- Benefits Section -->
-<section id="benefits" class="section-title">
-    <h2>Platform Benefits</h2>
-    <p style="color: var(--text-muted);">Discover why HealthLab AI is the preferred choice for digital healthcare.
-    </p>
 </section>
 
-<div class="benefits-container">
-    <div class="benefit-row">
-        <div class="benefit-item">
-            <div class="benefit-icon"><i data-lucide="zap"></i></div>
-            <div class="benefit-text">
-                <h3>Rapid Results</h3>
-                <p>Get your diagnostic reports within hours instead of days with our automated technician workflow.
-                </p>
+<!-- FOOTER -->
+<footer class="v3-footer">
+    <div class="footer-v3-grid">
+        <div class="footer-v3-logo">
+            <a href="/" class="v3-logo" style="margin-bottom: 1.5rem; text-decoration: none; display: flex; align-items: center; gap: 0.5rem; font-size: 1.8rem;">
+                <i data-lucide="activity" style="color: white; width: 32px; height: 32px;"></i>
+                <span style="font-weight: 900; color: white;">HealthLab <span style="font-weight: 400; color: rgba(255,255,255,0.5); margin-left: -2px;">AI</span></span>
+            </a>
+            <p>HealthLab AI is India's smart healthcare platform combining AI, technology and healthcare expertise for a better tomorrow.</p>
+            <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                <i data-lucide="facebook" style="width: 20px; opacity: 0.6;"></i>
+                <i data-lucide="twitter" style="width: 20px; opacity: 0.6;"></i>
+                <i data-lucide="instagram" style="width: 20px; opacity: 0.6;"></i>
+                <i data-lucide="linkedin" style="width: 20px; opacity: 0.6;"></i>
             </div>
         </div>
-        <div class="benefit-item">
-            <div class="benefit-icon"><i data-lucide="globe"></i></div>
-            <div class="benefit-text">
-                <h3>Global Accessibility</h3>
-                <p>Access your health history from anywhere in the world with our secure cloud-based patient vault.
-                </p>
-            </div>
+        <div class="footer-v3-col">
+            <h4>Quick Links</h4>
+            <ul>
+                <li>Home</li>
+                <li>About Us</li>
+                <li>Services</li>
+                <li>Pricing</li>
+                <li>Contact us</li>
+            </ul>
         </div>
-    </div>
-    <div class="benefit-row">
-        <div class="benefit-item">
-            <div class="benefit-icon"><i data-lucide="heart-pulse"></i></div>
-            <div class="benefit-text">
-                <h3>Predictive Insights</h3>
-                <p>Identify potential health trends before they become issues using our AI-driven longitudinal
-                    analysis.
-                </p>
-            </div>
+        <div class="footer-v3-col">
+            <h4>For Businesses</h4>
+            <ul>
+                <li>For Hospitals</li>
+                <li>For Labs</li>
+                <li>For Pharmacies</li>
+                <li>Partnership Program</li>
+            </ul>
         </div>
-        <div class="benefit-item">
-            <div class="benefit-icon"><i data-lucide="users"></i></div>
-            <div class="benefit-text">
-                <h3>Collaborative Care</h3>
-                <p>Easily share your verified reports with doctors and specialists directly through the platform.
-                </p>
-            </div>
+        <div class="footer-v3-col">
+            <h4>Support</h4>
+            <ul>
+                <li>Help Center</li>
+                <li>Privacy Policy</li>
+                <li>Terms & Conditions</li>
+                <li>Refund Policy</li>
+                <li>Careers</li>
+            </ul>
         </div>
-    </div>
-</div>
-
-<div class="cta-banner">
-    <div style="max-width: 600px;">
-        <h2 style="margin-top: 0; font-size: 2.5rem;">Register and Book Your Appointment</h2>
-        <p style="color: #4a6b5d;">Experience quality healthcare from the comfort of your home with our AI-driven
-            diagnostic system.</p>
-    </div>
-    <div style="display: flex; gap: 1rem;">
-        <a href="{{ url_for('register') }}" class="btn btn-primary">Register</a>
-        <a href="{{ url_for('login') }}" class="btn" style="border: 1px solid var(--primary);">Learn More</a>
-    </div>
-</div>
-
-<footer class="footer">
-    <div
-        style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 4rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 4rem;">
-        <div>
-            <div class="logo"
-                style="background: white; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; font-size: 2rem; margin-bottom: 1rem; font-weight: 800;">
-                HealthLab AI</div>
-            <p style="font-size: 0.9rem; opacity: 0.7; line-height: 1.8;">Our vision is to democratize high-end
-                medical
-                diagnostics using the power of Artificial Intelligence.</p>
-        </div>
-        <div>
-            <h4 style="margin-bottom: 1.5rem;">About Us</h4>
-            <div style="display: flex; flex-direction: column; gap: 1rem; opacity: 0.7; font-size: 0.9rem;">
-                <span>Our Story</span>
-                <span>Our Team</span>
-                <span>Values</span>
-            </div>
-        </div>
-        <div>
-            <h4 style="margin-bottom: 1.5rem;">Services</h4>
-            <div style="display: flex; flex-direction: column; gap: 1rem; opacity: 0.7; font-size: 0.9rem;">
-                <span>Digital Reports</span>
-                <span>AI Diagnostics</span>
-                <span>Home Collection</span>
-            </div>
-        </div>
-        <div>
-            <h4 style="margin-bottom: 1.5rem;">Account</h4>
-            <div style="display: flex; flex-direction: column; gap: 1rem; opacity: 0.7; font-size: 0.9rem;">
-                {% if current_user.is_authenticated %}
-                <a href="{{ url_for('dashboard') }}" style="color: white; text-decoration: none;">Dashboard</a>
-                <a href="{{ url_for('logout') }}" style="color: #ff4757; text-decoration: none; font-weight: 600;">Sign
-                    Out</a>
-                {% else %}
-                <a href="{{ url_for('login') }}" style="color: white; text-decoration: none;">Login</a>
-                <a href="{{ url_for('register') }}" style="color: white; text-decoration: none;">Register</a>
-                {% endif %}
+        <div class="footer-v3-newsletter">
+            <h4>Newsletter</h4>
+            <p style="font-size: 0.8rem; opacity: 0.6; margin-bottom: 1.5rem;">Subscribe to get health tips, updates & offers.</p>
+            <div class="newsletter-form">
+                <input type="email" placeholder="Enter your email">
+                <button><i data-lucide="send" style="width: 18px;"></i></button>
             </div>
         </div>
     </div>
-    <div style="text-align: center; margin-top: 3rem; font-size: 0.8rem; opacity: 0.5;">
-        © 2026 Digitalised Healthcare and Report Analysis System. All Rights Reserved.
+    <div style="text-align: center; padding-top: 3rem; font-size: 0.75rem; opacity: 0.4;">
+        © 2026 HealthLab AI. All rights reserved.
     </div>
 </footer>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+    });
+</script>
 {% endblock %}
