@@ -1,0 +1,574 @@
+/* =========================================
+   HEALTHLAB AI - MOBILE RESPONSIVE STYLES
+   This file is ONLY loaded on screens <= 768px
+========================================= */
+
+/* 1. Reset & Foundation */
+body {
+    overflow-x: hidden !important;
+    width: 100%;
+}
+
+.main-content {
+    padding: 1.25rem 1rem !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* 2. Global Headers & Navigations */
+.dashboard-header {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    height: auto !important;
+    padding: 1rem !important;
+    background: white !important;
+    border-bottom: none !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 1000 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.dashboard-search-row-mobile {
+    display: flex !important;
+    padding: 0 1rem 1rem !important;
+    gap: 8px !important; 
+    align-items: center !important;
+    justify-content: space-between !important;
+    background: white !important;
+    position: sticky !important;
+    top: 60px !important; 
+    z-index: 999 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.dashboard-search-row-mobile .header-search-container {
+    flex: 1 !important;
+    width: auto !important;
+    margin: 0 !important;
+    position: relative !important;
+    left: 0 !important;
+    transform: none !important;
+    background: #f1f5f9 !important;
+    border-radius: 12px !important;
+    padding: 0.6rem 1rem !important; /* Decreased size */
+    height: 44px !important; /* Decreased size */
+    display: flex !important;
+    align-items: center !important;
+    min-width: 0 !important;
+}
+
+.dashboard-search-row-mobile .mobile-menu-btn {
+    display: flex !important;
+    width: 44px !important; /* Decreased size */
+    height: 44px !important; /* Decreased size */
+    background: #f1f5f9 !important;
+    border: none !important;
+    border-radius: 12px !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    flex-shrink: 0 !important;
+}
+
+.mobile-bottom-nav {
+    display: flex !important;
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    background: white !important;
+    padding: 0.5rem 0 !important;
+    border-top: 1px solid var(--border-light) !important;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.05) !important;
+    z-index: 1001 !important;
+    justify-content: space-around !important;
+    box-sizing: border-box !important;
+}
+
+.mobile-nav-item {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    text-decoration: none !important;
+    color: #64748b !important;
+    gap: 4px !important;
+    font-size: 0.7rem !important;
+    font-weight: 600 !important;
+}
+
+.mobile-nav-item i {
+    width: 20px !important;
+    height: 20px !important;
+}
+
+.mobile-nav-item.active {
+    color: var(--primary) !important;
+}
+
+/* HIDE THE STRICKED OUT ROW (Horizontal Nav) */
+.dashboard-nav {
+    display: none !important;
+}
+
+/* Sidebar should still work when triggered */
+.dashboard-nav.mobile-active {
+    display: flex !important;
+    flex-direction: column !important;
+    position: fixed !important;
+    top: 0 !important;
+    right: -100% !important; 
+    width: 75% !important;
+    max-width: 320px !important;
+    height: 100vh !important;
+    background: white !important;
+    z-index: 9999 !important;
+    transition: right 0.3s ease !important;
+    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1) !important;
+    padding: 2rem 1.5rem !important;
+    overflow-y: auto !important;
+}
+
+.dashboard-nav.mobile-active {
+    right: 0 !important;
+}
+
+/* Profile Mobile Styles */
+#profile-view, #profile-edit {
+    padding: 0 !important; 
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    margin-top: 1rem !important;
+}
+
+#profile-view h3, #profile-edit h3 {
+    font-size: 1.2rem !important;
+    font-weight: 800 !important;
+    color: #0f172a !important;
+    padding: 0 1rem !important;
+}
+
+/* Profile Header Centering */
+#profile-view > div:nth-child(2) {
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    gap: 1rem !important;
+    margin-bottom: 2.5rem !important;
+    display: flex !important;
+    background: white !important; /* Add a nice clean white box for header info if needed, or transparent */
+    padding: 2rem 1rem !important;
+    border-radius: 30px !important;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05) !important;
+}
+
+#profile-view > div:nth-child(2) > div:first-child {
+    width: 130px !important;
+    height: 130px !important;
+    border-radius: 50% !important; /* Circular profile pic */
+    border: 4px solid white !important;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important;
+}
+
+#profile-view h2 {
+    font-size: 1.6rem !important;
+    font-weight: 800 !important;
+    margin-bottom: 0.25rem !important;
+}
+
+/* Information Grid & Items */
+.profile-info-grid {
+    grid-template-columns: 1fr !important;
+    gap: 0.75rem !important;
+    margin-bottom: 1.5rem !important;
+    display: grid !important;
+}
+
+.info-item {
+    display: flex !important;
+    align-items: center !important;
+    gap: 1rem !important;
+    background: #f8fafc !important;
+    padding: 0.85rem !important;
+    border-radius: 16px !important;
+    border: 1px solid #f1f5f9 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.info-icon {
+    width: 40px !important;
+    height: 40px !important;
+    background: white !important;
+    border-radius: 10px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: var(--primary) !important;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.03) !important;
+    flex-shrink: 0 !important;
+}
+
+.info-icon i {
+    width: 18px !important;
+    height: 18px !important;
+}
+
+.info-content small {
+    display: block !important;
+    font-size: 0.6rem !important;
+    font-weight: 700 !important;
+    color: #64748b !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+}
+
+.info-content p {
+    margin: 0 !important;
+    font-size: 0.9rem !important;
+    font-weight: 600 !important;
+    color: #0f172a !important;
+}
+
+/* Edit Form Styling */
+#profile-edit .grid-2 {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+    display: grid !important;
+}
+
+#profile-edit .btn-modern {
+    width: 100% !important;
+    height: 48px !important;
+    font-size: 0.9rem !important;
+    border-radius: 12px !important;
+}
+
+.profile-text-info {
+    display: none !important; /* Hide name in top header on small mobile */
+}
+
+/* Beautify Tests Page Header */
+.main-content > header {
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    gap: 1rem !important;
+    margin-bottom: 2.5rem !important;
+    background: linear-gradient(to bottom, rgba(255,255,255,0.8), transparent) !important;
+    padding: 2rem 1rem !important;
+    border-radius: 30px !important;
+}
+
+.main-content > header h1 {
+    font-size: 1.8rem !important;
+    font-weight: 800 !important;
+}
+
+.main-content > header p {
+    font-size: 0.9rem !important;
+    max-width: 250px !important;
+    margin: 0 auto !important;
+}
+
+.main-content > header .btn-heal-light {
+    width: auto !important;
+    min-width: 200px !important;
+    justify-content: center !important;
+    margin: 0 auto !important; /* Force center */
+    display: flex !important;
+}
+
+/* AGGRESSIVE OVERLAP FIX */
+body, html {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    height: auto !important;
+}
+
+.main-content, .dashboard-container, .content {
+    overflow: visible !important;
+    height: auto !important;
+    min-height: unset !important;
+    padding-bottom: 180px !important; /* Extremely high padding */
+}
+
+/* Force every last element to have a massive bottom gap */
+.main-content > *:last-child, 
+.dashboard-container > *:last-child,
+form > *:last-child {
+    margin-bottom: 150px !important;
+}
+
+.mobile-bottom-spacer {
+    display: block !important;
+    height: 150px !important;
+    visibility: visible !important;
+}
+
+/* Specific fix for book test page button */
+form button[type="submit"] {
+    margin-bottom: 80px !important; /* Extra margin for the button itself */
+    display: block !important;
+    width: 100% !important;
+    position: relative !important;
+    z-index: 10 !important;
+}
+
+/* Ensure the main container doesn't trap the scroll */
+.dashboard-container, .main-content {
+    overflow: visible !important;
+    display: block !important;
+}
+
+/* Add a visual spacer at the very bottom of the main content */
+.main-content::after {
+    content: "";
+    display: block;
+    height: 150px;
+    width: 100%;
+}
+
+.dashboard-nav .sign-out i {
+    color: #ef4444 !important;
+}
+
+/* 3. Hero & Banners (Landing Page & Dashboard) */
+.heal-hero {
+    grid-template-columns: 1fr !important;
+    padding: 4rem 1.5rem !important;
+    text-align: center !important;
+    gap: 2rem !important;
+}
+
+.heal-hero-content {
+    margin: 0 auto !important;
+}
+
+.heal-hero-content h1 {
+    font-size: 2.5rem !important;
+    line-height: 1.2 !important;
+}
+
+.heal-hero-btns {
+    flex-direction: column !important;
+    width: 100% !important;
+    gap: 1rem !important;
+}
+
+.btn-heal-primary,
+.btn-heal-light {
+    width: 100% !important;
+    justify-content: center !important;
+}
+
+/* AI & Consult Banners */
+.ai-banner,
+.consult-banner,
+.frosted-card {
+    flex-direction: column !important;
+    height: 200px !important;
+    /* Fixed height so they all match exactly */
+    min-height: unset !important;
+    padding: 1.25rem 1rem !important;
+    text-align: center !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+}
+
+.ai-banner-content,
+.consult-banner-content,
+.frosted-card>div {
+    max-width: 100% !important;
+    z-index: 10 !important;
+}
+
+.ai-banner-content h2,
+.consult-banner-content h2,
+.frosted-card h2 {
+    font-size: 1.3rem !important;
+    /* Decreased font size */
+    margin: 0.5rem 0 !important;
+}
+
+.ai-banner-content p,
+.consult-banner-content p,
+.frosted-card p {
+    font-size: 0.8rem !important;
+    margin-bottom: 0.75rem !important;
+}
+
+.ai-banner-illustration,
+.consult-banner-illustration {
+    position: absolute !important;
+    opacity: 0.05 !important;
+    /* Made even fainter so it doesn't clutter */
+    z-index: 1 !important;
+    right: -10px !important;
+    bottom: -10px !important;
+}
+
+.ai-banner-illustration i,
+.consult-banner-illustration i,
+.frosted-card i[data-lucide="activity"] {
+    width: 60px !important;
+    height: 60px !important;
+}
+
+.btn-ai-chat,
+.btn-consult,
+.btn-checkup,
+.btn-heal-light {
+    margin: 0.5rem auto 0 !important;
+    width: 100% !important;
+    justify-content: center !important;
+    padding: 0.5rem 1rem !important;
+    font-size: 0.85rem !important;
+}
+
+/* 4. Carousels (Crucial for Mobile Smoothness) */
+.carousel-main-wrapper {
+    margin: 0 !important;
+    /* Removed negative margins */
+    padding: 0 !important;
+    width: 100% !important;
+    /* Removed 100vw to fix horizontal scroll */
+}
+
+.carousel-viewport {
+    border-radius: 20px !important;
+    overflow: hidden !important;
+}
+
+.carousel-slide {
+    width: 100% !important;
+}
+
+/* Hide side arrows on mobile, rely on swipe or indicators */
+.carousel-controls {
+    display: none !important;
+}
+
+.carousel-indicators {
+    bottom: 15px !important;
+}
+
+/* 5. Grids (Quick Actions, Doctors, Forms) */
+.quick-nav-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 1rem !important;
+    margin-top: 2rem !important;
+}
+
+.quick-nav-card {
+    padding: 1.25rem !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    justify-content: center !important;
+}
+
+.quick-nav-card .nav-card-arrow {
+    display: none !important;
+}
+
+.quick-nav-card h4 {
+    font-size: 1rem !important;
+    margin-top: 0.5rem !important;
+}
+
+.grid-2 {
+    grid-template-columns: 1fr !important;
+    gap: 1.5rem !important;
+}
+
+/* 6. Typography & Tables */
+.section-title h2 {
+    font-size: 2rem !important;
+}
+
+.modern-table {
+    display: block !important;
+    width: 100% !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+}
+
+/* 7. Floating Navbar (Landing Page) */
+.navbar-modern {
+    width: 90% !important;
+    padding: 0.75rem 1.5rem !important;
+    border-radius: 20px !important;
+    flex-wrap: wrap !important;
+}
+
+.nav-pill {
+    display: none !important;
+    /* Hide on mobile to save space */
+}
+
+/* 8. Doctor Profile Cards */
+.doctor-card-landscape {
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    padding: 2rem 1.5rem !important;
+}
+
+.doctor-card-landscape .doctor-avatar {
+    width: 120px !important;
+    height: 120px !important;
+    margin: 0 auto 1.5rem !important;
+}
+
+.doc-stats-row {
+    justify-content: center !important;
+    flex-wrap: wrap !important;
+    gap: 0.75rem !important;
+}
+
+.doc-actions {
+    width: 100% !important;
+    flex-direction: column !important;
+}
+
+.doc-actions .btn-primary,
+.doc-actions .btn-outline {
+    width: 100% !important;
+    justify-content: center !important;
+}
+
+text-align: center !important;
+padding: 2rem 1.5rem !important;
+}
+
+.doctor-card-landscape .doctor-avatar {
+    width: 120px !important;
+    height: 120px !important;
+    margin: 0 auto 1.5rem !important;
+}
+
+.doc-stats-row {
+    justify-content: center !important;
+    flex-wrap: wrap !important;
+    gap: 0.75rem !important;
+}
+
+.doc-actions {
+    width: 100% !important;
+    flex-direction: column !important;
+}
+
+.doc-actions .btn-primary,
+.doc-actions .btn-outline {
+    width: 100% !important;
+    justify-content: center !important;
+}

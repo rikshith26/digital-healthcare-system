@@ -6,121 +6,141 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HealthLab AI - AI-Powered Smart Healthcare</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/mobile-style.css') }}"
+        media="screen and (max-width: 768px)">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
+    {% block extra_css %}{% endblock %}
 </head>
 
 <body class="{% if request.endpoint == 'dashboard' %}dashboard-body{% endif %}">
     {% if request.endpoint == 'index' %}
-    <nav class="navbar-heal">
-        <a href="{{ url_for('index') }}" class="heal-logo">
-            <i data-lucide="waves"></i>
-            HealthLab AI
-        </a>
-
-        <div class="heal-nav-links">
-            <a href="#">About</a>
-            <a href="#">Features</a>
-            <a href="#">How it Works</a>
-            <a href="#">Pricing</a>
-        </div>
-
-        <div class="heal-auth-btns">
-            {% if current_user.is_authenticated %}
-            <a href="{{ url_for('dashboard') }}" class="btn-nav-heal">Dashboard</a>
-            {% else %}
-            <a href="{{ url_for('login') }}" class="btn-nav-light">Login</a>
-            <a href="{{ url_for('register') }}" class="btn-nav-heal">Get Started</a>
-            {% endif %}
-        </div>
-    </nav>
+    <!-- Custom Landing Page Header handled in index.html -->
     {% elif current_user.is_authenticated and request.endpoint not in ['login', 'register'] %}
     <header class="dashboard-header">
         <a href="{{ url_for('dashboard') }}" class="logo-modern"
-            style="color: var(--text-main); text-decoration: none; font-size: 1.2rem;">
-            <i data-lucide="activity" style="width: 18px; height: 18px; color: var(--primary);"></i>
-            HealthLab<span>AI</span>
+            style="color: #0f172a; text-decoration: none; font-size: 1.2rem; display: flex; align-items: center; gap: 0.5rem;">
+            <i data-lucide="activity" style="width: 18px; height: 18px; color: #0f172a;"></i>
+            <span style="font-weight: 900;">HealthLab <span
+                    style="font-weight: 400; color: #64748b; margin-left: -2px;">AI</span></span>
         </a>
-
-        <!-- Global Search Bar -->
-        {% if current_user.status == 'Approved' or current_user.role in ['patient', 'admin'] %}
-        <div class="header-search-container">
-            <i data-lucide="search" class="search-icon"></i>
-            <input type="text" placeholder="Search for tests, reports, or doctors..." class="global-search-input">
-        </div>
-        {% else %}
-        <div style="flex-grow: 1;"></div>
-        {% endif %}
 
         <a href="{{ url_for('profile') }}"
             style="display: flex; align-items: center; gap: 0.75rem; text-decoration: none; padding: 0.35rem 0.5rem; border-radius: 10px; transition: 0.3s; margin-right: -0.5rem;"
             class="profile-route-link">
-            <div style="text-align: right; line-height: 1.1;">
-                <div style="font-weight: 700; color: var(--text-main); font-size: 0.8rem; display: flex; align-items: center; gap: 4px;">
+            <div style="text-align: right; line-height: 1.1;" class="profile-text-info">
+                <div
+                    style="font-weight: 700; color: var(--text-main); font-size: 0.8rem; display: flex; align-items: center; gap: 4px;">
                     {{ current_user.full_name or current_user.username }}
-                    {% if current_user.status == 'Approved' and current_user.role != 'patient' and current_user.role != 'admin' %}
-                    <i data-lucide="check-circle-2" style="width: 14px; color: #10b981;" title="Verified Professional"></i>
-                    {% endif %}
                 </div>
                 <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: capitalize;">{{
                     current_user.role }}</div>
             </div>
-            <div
-                style="width: 32px; height: 32px; border-radius: 10px; background: rgba(79, 70, 229, 0.1); display: flex; align-items: center; justify-content: center; color: var(--primary); border: 1px solid rgba(79, 70, 229, 0.2);">
-                <i data-lucide="user" style="width: 16px; height: 16px;"></i>
+            <div class="profile-pic-header">
+                {% if current_user.profile_pic %}
+                <img src="{{ current_user.profile_pic }}" alt="Profile" style="width: 32px; height: 32px; border-radius: 10px; object-fit: cover;">
+                {% else %}
+                <div style="width: 32px; height: 32px; border-radius: 10px; background: rgba(79, 70, 229, 0.1); display: flex; align-items: center; justify-content: center; color: var(--primary); border: 1px solid rgba(79, 70, 229, 0.2);">
+                    <i data-lucide="user" style="width: 16px; height: 16px;"></i>
+                </div>
+                {% endif %}
             </div>
         </a>
     </header>
+
+    {% if request.endpoint == 'dashboard' %}
+    <div class="dashboard-search-row-mobile">
+        <div class="header-search-container">
+            <i data-lucide="search" class="search-icon"></i>
+            <input type="text" placeholder="Search..." class="global-search-input">
+        </div>
+        <button id="mobileMenuBtn" class="mobile-menu-btn" onclick="toggleMobileMenu()" title="Menu">
+            <i data-lucide="menu"></i>
+        </button>
+    </div>
+    {% endif %}
+
+    <div class="mobile-bottom-nav">
+        <a href="{{ url_for('dashboard') }}" class="mobile-nav-item {% if request.endpoint == 'dashboard' %}active{% endif %}">
+            <i data-lucide="home"></i>
+            <span>Home</span>
+        </a>
+        <a href="{{ url_for('clinical_reports') }}" class="mobile-nav-item {% if request.endpoint == 'clinical_reports' %}active{% endif %}">
+            <i data-lucide="file-text"></i>
+            <span>Reports</span>
+        </a>
+        <a href="{{ url_for('book_test_page') }}" class="mobile-nav-item {% if request.endpoint == 'book_test_page' %}active{% endif %}">
+            <i data-lucide="flask-conical"></i>
+            <span>Tests</span>
+        </a>
+        <a href="{{ url_for('profile') }}" class="mobile-nav-item {% if request.endpoint == 'profile' %}active{% endif %}">
+            <i data-lucide="user"></i>
+            <span>Profile</span>
+        </a>
+    </div>
+    <div id="mobileMenuOverlay" class="mobile-menu-overlay" onclick="toggleMobileMenu()" style="display: none;"></div>
     <nav class="dashboard-nav">
-        <div class="nav-row" style="display: flex; justify-content: center; align-items: center; position: relative; width: 100%;">
-            
+        <button id="mobileCloseBtn" class="mobile-close-btn" onclick="toggleMobileMenu()"
+            style="display: none; align-self: flex-end; background: none; border: none; padding: 0.5rem; cursor: pointer;">
+            <i data-lucide="x" style="width: 24px; height: 24px; color: #0f172a;"></i>
+        </button>
+        <div class="nav-row"
+            style="display: flex; justify-content: center; align-items: center; position: relative; width: 100%;">
+
             <div style="display: flex; gap: 1rem; max-width: 100%; justify-content: center; flex-wrap: wrap;">
-            {% if current_user.status == 'Approved' or current_user.role in ['patient', 'admin'] %}
-            <a href="{{ url_for('dashboard') }}"
-                class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}">
-                <i data-lucide="layout-grid"></i>
-                <span>Dashboard</span>
-            </a>
-            {% if current_user.role == 'admin' %}
-            <a href="{{ url_for('user_data_page') }}"
-                class="nav-link {% if request.endpoint == 'user_data_page' %}active{% endif %}">
-                <i data-lucide="database"></i>
-                <span>User Data</span>
-            </a>
-            <a href="{{ url_for('admin_verifications') }}"
-                class="nav-link {% if request.endpoint == 'admin_verifications' %}active{% endif %}">
-                <i data-lucide="shield-check"></i>
-                <span>Verifications</span>
-            </a>
-            {% else %}
-            <a href="{{ url_for('book_test_page') }}"
-                class="nav-link {% if request.endpoint == 'book_test_page' %}active{% endif %}">
-                <i data-lucide="microscope"></i>
-                <span>Book a Test</span>
-            </a>
-            {% endif %}
-            {% if user.role == 'patient' %}
-            <a href="{{ url_for('clinical_reports') }}" 
-                class="nav-link {% if request.endpoint == 'clinical_reports' %}active{% endif %}">
-                <i data-lucide="file-text"></i>
-                <span>Clinical Reports</span>
-            </a>
-            {% endif %}
-            <a href="#" class="nav-link">
-                <i data-lucide="settings"></i>
-                <span>Settings</span>
-            </a>
-            <a href="#" class="nav-link">
-                <i data-lucide="message-square"></i>
-                <span>Feedback</span>
-            </a>
-            {% else %}
-            <div style="display: flex; align-items: center; justify-content: center; gap: 8px; color: #64748b; font-size: 0.85rem; font-weight: 700; padding: 0.5rem 1rem;">
-                <i data-lucide="shield-alert" style="width: 16px;"></i> Feature access locked pending verification
+                {% if current_user.status == 'Approved' or current_user.role in ['patient', 'admin'] %}
+                <a href="{{ url_for('dashboard') }}"
+                    class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}">
+                    <i data-lucide="layout-grid"></i>
+                    <span>Dashboard</span>
+                </a>
+                {% if current_user.role == 'admin' %}
+                <a href="{{ url_for('user_data_page') }}"
+                    class="nav-link {% if request.endpoint == 'user_data_page' %}active{% endif %}">
+                    <i data-lucide="database"></i>
+                    <span>User Data</span>
+                </a>
+                <a href="{{ url_for('admin_verifications') }}"
+                    class="nav-link {% if request.endpoint == 'admin_verifications' %}active{% endif %}">
+                    <i data-lucide="shield-check"></i>
+                    <span>Verifications</span>
+                </a>
+                {% else %}
+                <a href="{{ url_for('book_test_page') }}"
+                    class="nav-link {% if request.endpoint == 'book_test_page' %}active{% endif %}">
+                    <i data-lucide="microscope"></i>
+                    <span>Book a Test</span>
+                </a>
+                {% endif %}
+                {% if current_user.role == 'patient' %}
+                <a href="{{ url_for('doctors_page') }}"
+                    class="nav-link {% if request.endpoint == 'doctors_page' %}active{% endif %}">
+                    <i data-lucide="user-round"></i>
+                    <span>Doctors</span>
+                </a>
+                <a href="{{ url_for('clinical_reports') }}"
+                    class="nav-link {% if request.endpoint == 'clinical_reports' %}active{% endif %}">
+                    <i data-lucide="file-text"></i>
+                    <span>Clinical Reports</span>
+                </a>
+                {% endif %}
+                <a href="#" class="nav-link">
+                    <i data-lucide="settings"></i>
+                    <span>Settings</span>
+                </a>
+                <a href="#" class="nav-link">
+                    <i data-lucide="message-square"></i>
+                    <span>Feedback</span>
+                </a>
+                {% else %}
+                <div
+                    style="display: flex; align-items: center; justify-content: center; gap: 8px; color: #64748b; font-size: 0.85rem; font-weight: 700; padding: 0.5rem 1rem;">
+                    <i data-lucide="shield-alert" style="width: 16px;"></i> Feature access locked pending verification
+                </div>
+                {% endif %}
             </div>
-            {% endif %}
-            </div>
-            
+
             <a href="{{ url_for('logout') }}" class="nav-link sign-out" style="position: absolute; right: 0;">
                 <i data-lucide="log-out"></i>
                 <span>Sign Out</span>
@@ -177,8 +197,10 @@
                         begin
                         your consultation.</p>
                     <div class="doc-list" style="text-align: center; padding: 2rem 0;">
-                        <i data-lucide="stethoscope" style="width: 40px; height: 40px; color: var(--text-muted); opacity: 0.3; margin-bottom: 1rem;"></i>
-                        <p style="color: var(--text-muted);">No specialists are currently available. Please check back later.</p>
+                        <i data-lucide="stethoscope"
+                            style="width: 40px; height: 40px; color: var(--text-muted); opacity: 0.3; margin-bottom: 1rem;"></i>
+                        <p style="color: var(--text-muted);">No specialists are currently available. Please check back
+                            later.</p>
                     </div>
                 </div>
             </div>
@@ -197,10 +219,23 @@
         {% endwith %}
 
         {% block content %}{% endblock %}
+        <div class="mobile-bottom-spacer"></div>
     </div>
 
     <script>
         lucide.createIcons();
+
+        function toggleMobileMenu() {
+            const nav = document.querySelector('.dashboard-nav');
+            const overlay = document.getElementById('mobileMenuOverlay');
+            if (nav) {
+                nav.classList.toggle('mobile-active');
+            }
+            if (overlay) {
+                overlay.classList.toggle('mobile-active');
+                overlay.style.display = overlay.classList.contains('mobile-active') ? 'block' : 'none';
+            }
+        }
 
         function toggleChat() {
             const isAuth = "{{ current_user.is_authenticated }}" === "True";
@@ -251,33 +286,70 @@
             if (!viewport) return;
 
             const track = viewport.querySelector('.carousel-track');
-            const slides = viewport.querySelectorAll('.carousel-slide');
+            const originalSlides = Array.from(viewport.querySelectorAll('.carousel-slide'));
             const indicators = viewport.querySelectorAll('.indicator');
             const prevBtn = viewport.querySelector('.prev');
             const nextBtn = viewport.querySelector('.next');
 
+            if (originalSlides.length === 0) return;
+
+            // Clone first slide for infinite forward scrolling
+            const firstClone = originalSlides[0].cloneNode(true);
+            track.appendChild(firstClone);
+
+            const totalSlides = originalSlides.length;
             let currentIndex = 0;
             let slideInterval;
             const intervalTime = 4000;
+            const transitionTime = 500;
+            let isAnimating = false;
 
-            function updateCarousel() {
+            function updateCarousel(instant = false) {
+                if (instant) {
+                    track.style.transition = 'none';
+                } else {
+                    track.style.transition = 'transform 0.5s ease-in-out';
+                }
                 track.style.transform = `translateX(-${currentIndex * 100}%)`;
+
+                const activeIndex = currentIndex === totalSlides ? 0 : currentIndex;
                 indicators.forEach((ind, i) => {
-                    ind.classList.toggle('active', i === currentIndex);
+                    ind.classList.toggle('active', i === activeIndex);
                 });
             }
 
             function nextSlide() {
-                currentIndex = (currentIndex + 1) % slides.length;
+                if (isAnimating) return;
+                currentIndex++;
                 updateCarousel();
+
+                if (currentIndex === totalSlides) {
+                    isAnimating = true;
+                    setTimeout(() => {
+                        currentIndex = 0;
+                        updateCarousel(true);
+                        isAnimating = false;
+                    }, transitionTime);
+                }
             }
 
             function prevSlide() {
-                currentIndex = (currentIndex - 1 + slides.length) % slides.length;
-                updateCarousel();
+                if (isAnimating) return;
+                if (currentIndex === 0) {
+                    currentIndex = totalSlides;
+                    updateCarousel(true);
+                    // Force reflow
+                    void track.offsetWidth;
+                    currentIndex--;
+                    updateCarousel();
+                } else {
+                    currentIndex--;
+                    updateCarousel();
+                }
             }
 
             function startSliding() {
+                stopSliding();
                 slideInterval = setInterval(nextSlide, intervalTime);
             }
 
@@ -286,14 +358,14 @@
             }
 
             // Click events
-            if (nextBtn) nextBtn.addEventListener('click', () => { nextSlide(); stopSliding(); startSliding(); });
-            if (prevBtn) prevBtn.addEventListener('click', () => { prevSlide(); stopSliding(); startSliding(); });
+            if (nextBtn) nextBtn.addEventListener('click', () => { nextSlide(); startSliding(); });
+            if (prevBtn) prevBtn.addEventListener('click', () => { prevSlide(); startSliding(); });
 
             indicators.forEach((ind, i) => {
                 ind.addEventListener('click', () => {
+                    if (isAnimating) return;
                     currentIndex = i;
                     updateCarousel();
-                    stopSliding();
                     startSliding();
                 });
             });
@@ -319,6 +391,32 @@
             // Init carousels
             initCarousel('mainCarousel');
         });
+    </script>
+
+    <script>
+        function flashAndReload() {
+            const flash = document.getElementById('flash');
+            flash.style.opacity = '1';
+            setTimeout(() => {
+                window.location.reload();
+            }, 150);
+        }
+
+        function checkConnection() {
+            const overlay = document.getElementById('offline-overlay');
+            if (navigator.onLine) {
+                overlay.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            } else {
+                overlay.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+                lucide.createIcons({ root: overlay });
+            }
+        }
+
+        window.addEventListener('online', checkConnection);
+        window.addEventListener('offline', checkConnection);
+        window.addEventListener('load', checkConnection);
     </script>
 </body>
 

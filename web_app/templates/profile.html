@@ -17,40 +17,66 @@
                     style="padding: 0.5rem 1rem; font-size: 0.8rem;">Update Profile</button>
             </div>
 
-            <div class="grid-2">
-                <div>
-                    <small
-                        style="color: var(--text-muted); font-weight: 700; text-transform: uppercase; font-size: 0.7rem;">Full
-                        Name</small>
-                    <p style="margin: 0.25rem 0 1.5rem; font-weight: 600;">{{ user.full_name }}</p>
+            <div style="display: flex; gap: 2rem; margin-bottom: 2.5rem;">
+                <div style="width: 120px; height: 120px; border-radius: 20px; overflow: hidden; background: #f8fafc; border: 1px solid var(--border-light); flex-shrink: 0;">
+                    {% if user.profile_pic %}
+                    <img src="{{ user.profile_pic }}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;">
+                    {% else %}
+                    <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: var(--text-muted);">
+                        <i data-lucide="user" style="width: 40px; height: 40px;"></i>
+                    </div>
+                    {% endif %}
                 </div>
-                <div>
-                    <small
-                        style="color: var(--text-muted); font-weight: 700; text-transform: uppercase; font-size: 0.7rem;">Phone
-                        Number</small>
-                    <p style="margin: 0.25rem 0 1.5rem; font-weight: 600;">{{ user.phone }}</p>
+                <div style="flex: 1;">
+                    <h2 style="margin: 0; font-size: 1.5rem; font-weight: 800;">{{ user.full_name or user.username }}</h2>
+                    <p style="color: var(--primary); font-weight: 700; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; margin: 0.25rem 0 0.5rem;">Verified {{ user.role }}</p>
+                    <div style="display: flex; gap: 1rem;">
+                         {% if user.role == 'doctor' or user.role == 'technician' %}
+                         <div style="background: rgba(37, 99, 235, 0.05); padding: 0.5rem 1rem; border-radius: 10px; border: 1px solid rgba(37, 99, 235, 0.1);">
+                             <small style="display: block; font-size: 0.6rem; font-weight: 800; color: #64748b; text-transform: uppercase;">Specialization</small>
+                             <span style="font-weight: 700; color: var(--text-main); font-size: 0.9rem;">{{ user.specialization or 'N/A' }}</span>
+                         </div>
+                         <div style="background: rgba(37, 99, 235, 0.05); padding: 0.5rem 1rem; border-radius: 10px; border: 1px solid rgba(37, 99, 235, 0.1);">
+                            <small style="display: block; font-size: 0.6rem; font-weight: 800; color: #64748b; text-transform: uppercase;">Experience</small>
+                            <span style="font-weight: 700; color: var(--text-main); font-size: 0.9rem;">{{ user.experience or '0' }} Years</span>
+                        </div>
+                         {% endif %}
+                    </div>
                 </div>
             </div>
 
-            <div class="grid-2">
-                <div>
-                    <small
-                        style="color: var(--text-muted); font-weight: 700; text-transform: uppercase; font-size: 0.7rem;">Date
-                        of Birth</small>
-                    <p style="margin: 0.25rem 0 1.5rem; font-weight: 600;">{{ user.dob }}</p>
+            <div class="grid-2 profile-info-grid">
+                <div class="info-item">
+                    <div class="info-icon"><i data-lucide="phone"></i></div>
+                    <div class="info-content">
+                        <small>Phone Number</small>
+                        <p>{{ user.phone }}</p>
+                    </div>
                 </div>
-                <div>
-                    <small
-                        style="color: var(--text-muted); font-weight: 700; text-transform: uppercase; font-size: 0.7rem;">Gender</small>
-                    <p style="margin: 0.25rem 0 1.5rem; font-weight: 600;">{{ user.gender }}</p>
+                <div class="info-item">
+                    <div class="info-icon"><i data-lucide="calendar"></i></div>
+                    <div class="info-content">
+                        <small>Date of Birth</small>
+                        <p>{{ user.dob }}</p>
+                    </div>
                 </div>
             </div>
 
-            <div>
-                <small
-                    style="color: var(--text-muted); font-weight: 700; text-transform: uppercase; font-size: 0.7rem;">Verified
-                    Address</small>
-                <p style="margin: 0.25rem 0 1.5rem; font-weight: 600; line-height: 1.6;">{{ user.address }}</p>
+            <div class="grid-2 profile-info-grid">
+                <div class="info-item">
+                    <div class="info-icon"><i data-lucide="user-round"></i></div>
+                    <div class="info-content">
+                        <small>Gender</small>
+                        <p>{{ user.gender }}</p>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-icon"><i data-lucide="map-pin"></i></div>
+                    <div class="info-content">
+                        <small>Verified Address</small>
+                        <p>{{ user.address }}</p>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -58,7 +84,26 @@
             style="{{ 'display: block;' if not user.is_profile_complete else 'display: none;' }}">
             <h3 style="margin-bottom: 2rem;">{{ 'Complete Your Profile' if not user.is_profile_complete else 'Update
                 Profile Details' }}</h3>
-            <form method="POST">
+            <form method="POST" enctype="multipart/form-data">
+                <div style="margin-bottom: 2rem; border-bottom: 1px solid var(--border-light); padding-bottom: 2rem;">
+                    <label style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.05em;">Profile Picture</label>
+                    <div style="display: flex; align-items: center; gap: 2rem;">
+                        <div style="width: 80px; height: 80px; border-radius: 16px; overflow: hidden; background: #f8fafc; border: 1px solid var(--border-light);">
+                            {% if user.profile_pic %}
+                            <img src="{{ user.profile_pic }}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;">
+                            {% else %}
+                            <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: var(--text-muted);">
+                                <i data-lucide="camera" style="width: 24px; height: 24px;"></i>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div style="flex: 1;">
+                            <input type="file" name="profile_pic" accept="image/*" class="input-field" style="padding: 0.75rem;">
+                            <p style="margin: 0.5rem 0 0; color: var(--text-muted); font-size: 0.75rem;">Upload a clear professional headshot (JPEG/PNG).</p>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="grid-2">
                     <div>
                         <label style="font-size: 0.85rem; font-weight: 600;">Full Name</label>
@@ -87,6 +132,19 @@
                         </select>
                     </div>
                 </div>
+
+                {% if user.role == 'doctor' or user.role == 'technician' %}
+                <div class="grid-2" style="margin-top: 1.5rem;">
+                    <div>
+                        <label style="font-size: 0.85rem; font-weight: 600;">Specialization</label>
+                        <input type="text" name="specialization" class="input-field" value="{{ user.specialization or '' }}" placeholder="e.g. Cardiologist, Phlebotomist">
+                    </div>
+                    <div>
+                        <label style="font-size: 0.85rem; font-weight: 600;">Years of Experience</label>
+                        <input type="number" name="experience" class="input-field" value="{{ user.experience or '0' }}" min="0">
+                    </div>
+                </div>
+                {% endif %}
 
                 <div style="margin-top: 1.5rem;">
                     <label style="font-size: 0.85rem; font-weight: 600;">Full Address</label>
