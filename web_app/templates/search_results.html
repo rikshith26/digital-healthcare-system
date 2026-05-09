@@ -1,0 +1,112 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="main-content">
+    <header style="margin-bottom: 2.5rem;">
+        <h1 style="font-size: 2.2rem; margin: 0; font-weight: 800;">Search Results</h1>
+        <p style="color: var(--text-muted);">Showing results for "<span style="color: var(--primary); font-weight: 700;">{{ query }}</span>"</p>
+    </header>
+
+    {% set total_results = results.doctors|length + results.reports|length + results.bookings|length + results.users|length %}
+
+    {% if total_results == 0 %}
+    <div style="text-align: center; padding: 5rem 2rem; background: white; border-radius: 30px; border: 1px solid var(--border-light);">
+        <div style="width: 80px; height: 80px; background: #f1f5f9; border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; color: #94a3b8;">
+            <i data-lucide="search-x" style="width: 40px; height: 40px;"></i>
+        </div>
+        <h2 style="font-weight: 800; margin-bottom: 0.5rem;">No results found</h2>
+        <p style="color: var(--text-muted);">We couldn't find anything matching your search. Try different keywords.</p>
+        <a href="{{ url_for('dashboard') }}" class="btn-heal-primary" style="margin-top: 2rem;">Return to Dashboard</a>
+    </div>
+    {% else %}
+
+    <div style="display: flex; flex-direction: column; gap: 3rem;">
+        
+        {% if results.doctors %}
+        <section>
+            <h3 class="history-section-title"><i data-lucide="user-round"></i> Doctors</h3>
+            <div class="grid-2">
+                {% for doc in results.doctors %}
+                <div class="frosted-card" style="display: flex; gap: 1.5rem; align-items: center;">
+                    <div style="width: 60px; height: 60px; border-radius: 15px; background: var(--primary-light); display: flex; align-items: center; justify-content: center; color: var(--primary);">
+                        <i data-lucide="user"></i>
+                    </div>
+                    <div>
+                        <h4 style="margin: 0; font-size: 1.1rem;">{{ doc.full_name or doc.username }}</h4>
+                        <p style="margin: 0.25rem 0; font-size: 0.85rem; color: var(--primary); font-weight: 600;">{{ doc.specialization or 'General Specialist' }}</p>
+                        <p style="margin: 0; font-size: 0.8rem; color: var(--text-muted);">{{ doc.experience or '5+' }} Years Experience</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+
+        {% if results.reports %}
+        <section>
+            <h3 class="history-section-title"><i data-lucide="file-text"></i> Medical Reports</h3>
+            <div class="clean-list" style="background: white; border-radius: 20px; padding: 1rem 2rem; border: 1px solid var(--border-light);">
+                {% for report in results.reports %}
+                <div class="clean-list-item">
+                    <div class="item-main">
+                        <div class="item-icon-circle"><i data-lucide="file-text"></i></div>
+                        <div class="item-details">
+                            <h4>{{ report.description }}</h4>
+                            <p>{{ report.timestamp }}</p>
+                        </div>
+                    </div>
+                    <a href="{{ url_for('download_report', filename=report.pdf_url) }}" class="btn-heal-light" style="padding: 0.5rem 1rem; font-size: 0.8rem;">View Report</a>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+
+        {% if results.bookings %}
+        <section>
+            <h3 class="history-section-title"><i data-lucide="calendar"></i> Appointments & Tests</h3>
+            <div class="grid-2">
+                {% for booking in results.bookings %}
+                <div class="frosted-card">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                        <span class="status-pill-clean status-{{ booking.status }}">{{ booking.status }}</span>
+                        <small style="color: var(--text-muted);">{{ booking.date }}</small>
+                    </div>
+                    <h4 style="margin: 0 0 0.5rem 0;">{{ booking.test_name }}</h4>
+                    <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted);"><i data-lucide="map-pin" style="width: 12px; height: 12px;"></i> {{ booking.address }}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+
+        {% if results.users %}
+        <section>
+            <h3 class="history-section-title"><i data-lucide="database"></i> System Users (Admin)</h3>
+            <div class="frosted-card" style="padding: 0; overflow: hidden;">
+                <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                    <thead style="background: #f8fafc; border-bottom: 1px solid var(--border-light);">
+                        <tr>
+                            <th style="padding: 1rem 1.5rem; font-size: 0.75rem; font-weight: 700; color: var(--text-muted);">USER</th>
+                            <th style="padding: 1rem 1.5rem; font-size: 0.75rem; font-weight: 700; color: var(--text-muted);">EMAIL</th>
+                            <th style="padding: 1rem 1.5rem; font-size: 0.75rem; font-weight: 700; color: var(--text-muted);">ROLE</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for u in results.users %}
+                        <tr style="border-bottom: 1px solid var(--border-light);">
+                            <td style="padding: 1rem 1.5rem; font-weight: 600;">{{ u.username }}</td>
+                            <td style="padding: 1rem 1.5rem; color: var(--text-muted);">{{ u.email }}</td>
+                            <td style="padding: 1rem 1.5rem;"><span style="padding: 0.25rem 0.5rem; background: #e2e8f0; border-radius: 6px; font-size: 0.7rem; font-weight: 700;">{{ u.role.upper() }}</span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        {% endif %}
+
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

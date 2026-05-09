@@ -22,9 +22,14 @@
         <a href="{{ url_for('dashboard') }}" class="logo-modern"
             style="color: #0f172a; text-decoration: none; font-size: 1.2rem; display: flex; align-items: center; gap: 0.5rem;">
             <i data-lucide="activity" style="width: 18px; height: 18px; color: #0f172a;"></i>
-            <span style="font-weight: 900;">HealthLab <span
+            <span style="font-weight: 900; min-width: max-content;">HealthLab <span
                     style="font-weight: 400; color: #64748b; margin-left: -2px;">AI</span></span>
         </a>
+
+        <form action="{{ url_for('search') }}" method="GET" class="header-search-container desktop-only-search">
+            <i data-lucide="search" class="search-icon"></i>
+            <input type="text" name="q" placeholder="Search doctors, reports, tests..." class="global-search-input">
+        </form>
 
         <a href="{{ url_for('profile') }}"
             style="display: flex; align-items: center; gap: 0.75rem; text-decoration: none; padding: 0.35rem 0.5rem; border-radius: 10px; transition: 0.3s; margin-right: -0.5rem;"
@@ -51,10 +56,10 @@
 
     {% if request.endpoint == 'dashboard' %}
     <div class="dashboard-search-row-mobile">
-        <div class="header-search-container">
+        <form action="{{ url_for('search') }}" method="GET" class="header-search-container">
             <i data-lucide="search" class="search-icon"></i>
-            <input type="text" placeholder="Search..." class="global-search-input">
-        </div>
+            <input type="text" name="q" placeholder="Search..." class="global-search-input">
+        </form>
         <button id="mobileMenuBtn" class="mobile-menu-btn" onclick="toggleMobileMenu()" title="Menu">
             <i data-lucide="menu"></i>
         </button>
@@ -206,15 +211,44 @@
             </div>
         </div>
 
-        {% with messages = get_flashed_messages() %}
+        {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
-        <div style="position: fixed; top: 100px; right: 20px; z-index: 2000;">
-            {% for message in messages %}
-            <div class="glass-card" style="padding: 1rem; margin-bottom: 1rem; border-color: var(--accent);">
-                {{ message }}
+        <div id="toast-container" style="position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 10px; width: 90%; max-width: 400px;">
+            {% for category, message in messages %}
+            <div class="toast-notification {{ category }}" style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); padding: 1rem 1.5rem; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border-left: 5px solid {% if category == 'error' %}#ef4444{% else %}#10b981{% endif %}; display: flex; align-items: center; gap: 1rem; animation: slideInDown 0.5s ease-out forwards;">
+                <div style="background: {% if category == 'error' %}#fee2e2{% else %}#d1fae5{% endif %}; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                    <i data-lucide="{% if category == 'error' %}alert-circle{% else %}check-circle{% endif %}" style="width: 18px; color: {% if category == 'error' %}#ef4444{% else %}#10b981{% endif %};"></i>
+                </div>
+                <p style="margin: 0; font-size: 0.9rem; font-weight: 600; color: #1e293b; line-height: 1.4;">{{ message }}</p>
             </div>
             {% endfor %}
         </div>
+
+        <style>
+            @keyframes slideInDown {
+                from { transform: translateY(-100%); opacity: 0; }
+                to { transform: translateY(0); opacity: 1; }
+            }
+            @keyframes fadeOut {
+                from { opacity: 1; transform: translateY(0); }
+                to { opacity: 0; transform: translateY(-20px); }
+            }
+            .toast-notification.hide {
+                animation: fadeOut 0.5s ease-in forwards;
+            }
+        </style>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const toasts = document.querySelectorAll('.toast-notification');
+                toasts.forEach(toast => {
+                    setTimeout(() => {
+                        toast.classList.add('hide');
+                        setTimeout(() => toast.remove(), 500);
+                    }, 3000); // 3 seconds
+                });
+            });
+        </script>
         {% endif %}
         {% endwith %}
 

@@ -1,0 +1,587 @@
+{% extends "layout.html" %}
+
+{% block extra_css %}
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap');
+
+    :root {
+        --rx-blue: #0f172a;
+        --rx-accent: #2563eb;
+        --rx-light: #eff6ff;
+        --rx-border: #e2e8f0;
+    }
+
+    body {
+        background-color: #f1f5f9 !important;
+        font-family: 'Inter', sans-serif;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    .a4-page {
+        background: white;
+        width: 210mm;
+        height: 297mm;
+        padding: 15mm 15mm 30mm; /* Restored natural padding */
+        margin: 1.5rem auto;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        position: relative;
+        box-sizing: border-box;
+        color: #1e293b;
+        overflow: hidden;
+    }
+
+    /* Header */
+    .rx-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 2rem; /* Restored space */
+    }
+
+    .rx-logo-section {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .rx-logo-section h1 {
+        margin: 0;
+        font-size: 2rem; /* Shrunk from 2.5rem */
+        font-weight: 900;
+        color: #0f172a;
+    }
+
+    .rx-logo-section h1 span {
+        color: var(--rx-accent);
+    }
+
+    .rx-tagline {
+        margin: 0;
+        font-size: 0.9rem;
+        color: #64748b;
+        font-weight: 600;
+    }
+
+    .clinic-info {
+        text-align: right;
+        font-size: 0.8rem;
+        color: #1e293b;
+    }
+
+    .clinic-info p {
+        margin: 2px 0;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 0.5rem;
+        font-weight: 500;
+    }
+
+    .clinic-info i {
+        color: var(--rx-accent);
+        width: 14px;
+    }
+
+    /* Title Bar */
+    .prescription-title-bar {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1.5rem;
+        margin: 1rem 0 2rem; /* Balanced margin */
+        border-top: 1.5px solid var(--rx-border);
+        border-bottom: 1.5px solid var(--rx-border);
+        padding: 0.75rem 0;
+    }
+
+    .pulse-line {
+        flex: 1;
+        height: 20px;
+        background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="20" viewBox="0 0 100 20"><path d="M0 10 L10 10 L15 2 L25 18 L30 10 L100 10" stroke="%232563eb" stroke-width="1.5" fill="none"/></svg>') repeat-x;
+        opacity: 0.5;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    .prescription-title-bar h2 {
+        margin: 0;
+        font-size: 1.2rem;
+        font-weight: 800;
+        letter-spacing: 0.4em;
+        color: var(--rx-blue);
+        text-transform: uppercase;
+    }
+
+    /* Details Grid */
+    .details-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+        margin-bottom: 2rem; /* Space after details */
+    }
+
+    .detail-section {
+        border: 1px solid var(--rx-border);
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .detail-header {
+        background: var(--rx-blue);
+        color: white;
+        padding: 0.5rem 1rem;
+        font-size: 0.75rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    .detail-body {
+        padding: 1rem;
+    }
+
+    .detail-row {
+        display: flex;
+        margin-bottom: 0.5rem;
+        font-size: 0.85rem;
+    }
+
+    .detail-label {
+        width: 110px;
+        font-weight: 700;
+        color: #475569;
+    }
+
+    .detail-value {
+        flex: 1;
+        font-weight: 600;
+        color: #0f172a;
+    }
+
+    /* Clinical Section */
+    .clinical-details {
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid var(--rx-border); /* Divider line as in image */
+    }
+
+    .section-title {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 0.95rem;
+        font-weight: 800;
+        color: var(--rx-blue);
+        text-transform: uppercase;
+        margin-bottom: 1rem;
+    }
+
+    .section-title i {
+        background: var(--rx-light);
+        padding: 6px;
+        border-radius: 50%;
+        color: var(--rx-accent);
+        width: 18px;
+        height: 18px;
+    }
+
+    .clinical-row {
+        display: flex;
+        margin-bottom: 0.25rem; /* Shrunk further */
+        font-size: 0.85rem;
+    }
+
+    .clinical-label {
+        width: 100px;
+        font-weight: 700;
+        color: #475569;
+    }
+
+    /* Table */
+    .medicine-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 2rem;
+    }
+
+    .medicine-table th {
+        background: var(--rx-blue);
+        color: white;
+        text-align: left;
+        padding: 0.75rem;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        font-weight: 800;
+    }
+
+    .medicine-table td {
+        padding: 0.75rem;
+        font-size: 0.85rem;
+        border-bottom: 1px solid var(--rx-border);
+        font-weight: 600;
+    }
+
+    .medicine-table tr:nth-child(even) {
+        background-color: var(--rx-light);
+    }
+
+    /* Footer area */
+    .advice-section {
+        margin-bottom: 2rem;
+    }
+
+    .advice-list {
+        margin: 0;
+        padding-left: 1.5rem;
+        font-size: 0.85rem;
+        color: #475569;
+        font-weight: 500;
+    }
+
+    .advice-list li {
+        margin-bottom: 0.4rem;
+    }
+
+    .follow-up {
+        background: var(--rx-light);
+        padding: 0.5rem 0.75rem;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 800;
+        font-size: 0.8rem;
+        color: var(--rx-blue);
+        margin-bottom: 1rem;
+    }
+
+    .sig-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+    }
+
+    .sig-area {
+        text-align: center;
+        width: 250px;
+    }
+
+    .sig-font {
+        font-family: 'Dancing Script', cursive;
+        font-size: 1.8rem;
+        color: #0f172a;
+        margin-bottom: 0.25rem;
+    }
+
+    .sig-line {
+        border-top: 1.5px solid var(--rx-blue);
+        margin-bottom: 0.5rem;
+    }
+
+    .sig-details h4 {
+        margin: 0;
+        font-size: 0.9rem;
+        font-weight: 800;
+        color: var(--rx-accent);
+    }
+
+    .sig-details p {
+        margin: 0;
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: #64748b;
+    }
+
+    .digital-seal {
+        position: relative;
+        width: 100px;
+        height: 100px;
+        border: 2px solid var(--rx-accent);
+        border-radius: 50%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: var(--rx-accent);
+        font-size: 0.5rem;
+        font-weight: 900;
+        text-align: center;
+        padding: 5px;
+    }
+
+    .bottom-strip {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background: var(--rx-blue);
+        color: white;
+        padding: 1rem 15mm;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-sizing: border-box;
+        border-bottom-left-radius: 4px;
+        border-bottom-right-radius: 4px;
+    }
+
+    @media print {
+        @page { size: A4; margin: 0; }
+        
+        /* Hide everything from layout and UI */
+        header, footer, nav, 
+        .dashboard-header, .dashboard-nav, .mobile-bottom-nav, 
+        .mobile-bottom-spacer, .no-print, .btn-modern,
+        #toast-container, .profile-route-link, .header-search-container {
+            display: none !important;
+        }
+
+        body { 
+            background: white !important; 
+            padding: 0 !important; 
+            margin: 0 !important;
+        }
+
+        .dashboard-container {
+            margin: 0 !important;
+            padding: 0 !important;
+            max-width: none !important;
+        }
+
+        .content {
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+
+        .a4-page { 
+            margin: 0 !important; 
+            box-shadow: none !important; 
+            width: 210mm; 
+            height: 297mm;
+            padding: 15mm 15mm 30mm !important;
+        }
+
+        .bottom-strip { 
+            position: absolute !important; 
+            bottom: 0 !important; 
+            left: 0 !important;
+            width: 100% !important;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container" style="max-width: 1000px; margin: auto; padding: 2rem 1rem;">
+    <!-- Control Buttons -->
+    <div style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center;" class="no-print">
+        <a href="{{ url_for('dashboard') }}" style="color: #64748b; text-decoration: none; font-weight: 700; display: flex; align-items: center; gap: 0.5rem;">
+            <i data-lucide="arrow-left"></i> Back to Dashboard
+        </a>
+        <div style="display: flex; gap: 1rem;">
+            <button onclick="window.print()" class="btn-modern" style="background: white; color: var(--rx-accent); border: 2px solid var(--rx-accent); font-weight: 800; display: flex; align-items: center; gap: 0.5rem; padding: 0.6rem 1.25rem; cursor: pointer;">
+                <i data-lucide="printer" style="width: 18px;"></i> Print / Download
+            </button>
+        </div>
+    </div>
+
+    <!-- Official Prescription Page -->
+    <div class="a4-page">
+        <!-- Header -->
+        <div class="rx-header">
+            <div class="rx-logo-section">
+                <div style="background: var(--rx-accent); padding: 10px; border-radius: 12px; color: white;">
+                    <i data-lucide="activity" style="width: 32px; height: 32px;"></i>
+                </div>
+                <div>
+                    <h1>HealthLab <span>AI</span></h1>
+                    <p class="rx-tagline">Your Health. Powered by AI.</p>
+                </div>
+            </div>
+            <div class="clinic-info">
+                <p><b>HealthLab AI Clinic</b> <i data-lucide="map-pin"></i></p>
+                <p>123 Health Street, Ahmedabad, India <i data-lucide="map-pin" style="opacity:0"></i></p>
+                <p>+91 98765 43210 <i data-lucide="phone"></i></p>
+                <p>care@healthlabai.com <i data-lucide="mail"></i></p>
+                <p>www.healthlabai.com <i data-lucide="globe"></i></p>
+            </div>
+        </div>
+
+        <!-- Title Bar -->
+        <div class="prescription-title-bar">
+            <div class="pulse-line"></div>
+            <h2>Prescription</h2>
+            <div class="pulse-line"></div>
+        </div>
+
+        <!-- Details Grid -->
+        <div class="details-grid">
+            <div class="detail-section">
+                <div class="detail-header">
+                    <i data-lucide="user-round" style="width: 14px;"></i> Patient Details
+                </div>
+                <div class="detail-body">
+                    <div class="detail-row">
+                        <span class="detail-label">Patient Name</span>
+                        <span class="detail-value">: {{ prescription.patient_name }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Age / Gender</span>
+                        <span class="detail-value">: {{ prescription.patient_age }} / {{ prescription.patient_gender }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Patient ID</span>
+                        <span class="detail-value">: HLAI-{{ (prescription.patient_id|string)[-6:] }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Phone Number</span>
+                        <span class="detail-value">: {{ prescription.patient_phone or '+91 98765 43210' }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Date</span>
+                        <span class="detail-value">: {{ prescription.date.strftime('%d %b %Y') }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="detail-section">
+                <div class="detail-header">
+                    <i data-lucide="stethoscope" style="width: 14px;"></i> Doctor Details
+                </div>
+                <div class="detail-body">
+                    <div class="detail-row">
+                        <span class="detail-label">Doctor Name</span>
+                        <span class="detail-value">: Dr. {{ prescription.doctor_name }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Qualification</span>
+                        <span class="detail-value">: {{ prescription.doctor_specialization }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Registration No.</span>
+                        <span class="detail-value">: G-12345</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Department</span>
+                        <span class="detail-value">: {{ prescription.doctor_specialization }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Clinical Details -->
+        <div class="clinical-details">
+            <div class="section-title">
+                <i data-lucide="activity"></i> Clinical Details
+            </div>
+            <div class="clinical-row">
+                <span class="clinical-label">Symptoms</span>
+                <span style="flex:1; font-weight: 600;">: {{ prescription.symptoms or 'Fever, Body Ache' }}</span>
+            </div>
+            <div class="clinical-row">
+                <span class="clinical-label">Diagnosis</span>
+                <span style="flex:1; font-weight: 600;">: {{ prescription.diagnosis }}</span>
+            </div>
+        </div>
+
+        <!-- Medicines Table -->
+        <div class="medicines-section">
+            <div class="section-title">
+                <i data-lucide="pill"></i> Medicines
+            </div>
+            <table class="medicine-table">
+                <thead>
+                    <tr>
+                        <th style="width: 40px;">Sr.</th>
+                        <th>Medicine Name</th>
+                        <th>Dosage</th>
+                        <th>Frequency</th>
+                        <th>Duration</th>
+                        <th>Instructions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for med in prescription.medicines %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ med.name }}</td>
+                        <td>{{ med.dosage or '500mg' }}</td>
+                        <td>{{ med.frequency }}</td>
+                        <td>{{ med.duration }}</td>
+                        <td>{{ med.instructions or 'After Food' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Advice Section -->
+        {% if prescription.notes %}
+        <div class="advice-section">
+            <div class="section-title">
+                <i data-lucide="clipboard-list"></i> Advice / Notes
+            </div>
+            <ul class="advice-list">
+                {% for line in prescription.notes.split('\n') %}
+                {% if line.strip() %}
+                <li>{{ line.strip() }}</li>
+                {% endif %}
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        <!-- Follow up -->
+        {% if prescription.follow_up %}
+        <div class="follow-up">
+            <i data-lucide="calendar"></i>
+            FOLLOW-UP DATE: {{ prescription.follow_up }}
+        </div>
+        {% endif %}
+
+        <!-- Sig Footer -->
+        <div class="sig-footer">
+            <div style="max-width: 300px;">
+                <p style="display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 0.9rem; color: var(--rx-accent);">
+                    <i data-lucide="heart"></i> Take care and stay healthy!
+                </p>
+                <p style="font-size: 0.8rem; color: #64748b; font-weight: 600;">
+                    Thank you for trusting <b>HealthLab AI</b>.
+                </p>
+            </div>
+            <div class="sig-area">
+                <div class="sig-font">{{ prescription.doctor_name }}</div>
+                <div class="sig-line"></div>
+                <div class="sig-details">
+                    <h4>Dr. {{ prescription.doctor_name }}</h4>
+                    <p>{{ prescription.doctor_specialization }}</p>
+                    <p>Reg No: G-12345</p>
+                </div>
+            </div>
+            <div class="digital-seal">
+                <i data-lucide="shield-check" style="width: 24px; margin-bottom: 5px;"></i>
+                HEALTHLAB AI<br>CLINIC
+                <div style="font-size: 0.4rem; margin-top: 5px;">G-12345</div>
+            </div>
+        </div>
+
+        <!-- Bottom Strip -->
+        <div class="bottom-strip">
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <i data-lucide="lock" style="width: 16px;"></i>
+                <div style="font-size: 0.65rem;">
+                    This is a digitally generated prescription.<br>
+                    For verification, contact HealthLab AI Clinic.
+                </div>
+            </div>
+            <div style="background: white; padding: 4px; border-radius: 4px;">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=40x40&data={{ request.url }}" alt="QR" style="display: block;">
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

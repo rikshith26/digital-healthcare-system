@@ -16,6 +16,10 @@ body {
     box-sizing: border-box !important;
 }
 
+.desktop-only-search {
+    display: none !important;
+}
+
 /* 2. Global Headers & Navigations */
 .dashboard-header {
     display: flex !important;
@@ -420,6 +424,12 @@ form button[type="submit"] {
 .frosted-card i[data-lucide="activity"] {
     width: 60px !important;
     height: 60px !important;
+}
+
+.navbar-brand-mobile {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
 }
 
 .btn-ai-chat,

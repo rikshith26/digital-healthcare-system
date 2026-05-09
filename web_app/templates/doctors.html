@@ -3,7 +3,7 @@
 {% block content %}
 <div class="dashboard-container">
     <main class="main-content">
-        <header style="margin-bottom: 3rem; display: flex; justify-content: space-between; align-items: flex-end;">
+        <header style="margin-bottom: 3rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
             <div>
                 <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 0.5rem;">
                     <a href="{{ url_for('dashboard') }}" style="color: var(--text-muted); text-decoration: none; display: flex; align-items: center; gap: 0.5rem; font-weight: 600;">
@@ -13,17 +13,91 @@
                 <h1 style="font-size: 2.5rem; margin: 0; font-weight: 900; color: #0f172a;">Verified <span style="color: var(--primary);">Experts</span></h1>
                 <p style="color: #64748b; font-size: 1.1rem; margin-top: 0.5rem;">Scroll to explore our network of specialized professionals.</p>
             </div>
-            <div style="background: white; border: 1px solid #e2e8f0; padding: 0.75rem 1.25rem; border-radius: 1rem; display: flex; align-items: center; gap: 0.75rem;">
-                <i data-lucide="info" class="text-primary w-5 h-5"></i>
-                <span style="font-size: 0.85rem; font-weight: 700; color: #0f172a;">{{ doctors|length }} Professionals Online</span>
+            <div style="display: flex; gap: 1rem; align-items: center;">
+                <button onclick="toggleAppointments()" class="btn-modern" style="background: white; color: var(--primary); border: 2px solid var(--primary); font-weight: 800; display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; border-radius: 12px; cursor: pointer;">
+                    <i data-lucide="calendar-days" style="width: 20px;"></i> My Appointments
+                </button>
+                <div style="background: white; border: 1px solid #e2e8f0; padding: 0.75rem 1.25rem; border-radius: 1rem; display: flex; align-items: center; gap: 0.75rem;">
+                    <i data-lucide="info" class="text-primary w-5 h-5"></i>
+                    <span style="font-size: 0.85rem; font-weight: 700; color: #0f172a;">{{ doctors|length }} Professionals Online</span>
+                </div>
             </div>
         </header>
 
+        <!-- My Appointments History Section (Hidden by Default) -->
+        <div id="appointmentsHistory" style="display: none; margin-bottom: 4rem; animation: slideDown 0.4s cubic-bezier(0.16, 1, 0.3, 1);">
+            <div class="frosted-card" style="padding: 2.5rem; border: 1px dashed #cbd5e1; background: #f8fafc;">
+                <h3 style="margin-top: 0; display: flex; align-items: center; gap: 0.75rem; font-weight: 800; color: #0f172a; margin-bottom: 2rem;">
+                    <i data-lucide="history" style="color: var(--primary);"></i> Appointment History
+                </h3>
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    {% if appointments %}
+                        {% for appt in appointments %}
+                        <div style="background: white; padding: 1.5rem; border-radius: 20px; border: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);">
+                            <div style="display: flex; align-items: center; gap: 1.25rem;">
+                                <div style="width: 48px; height: 48px; background: #f1f5f9; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--primary);">
+                                    <i data-lucide="user" style="width: 20px;"></i>
+                                </div>
+                                <div>
+                                    <h4 style="margin: 0; font-size: 1rem; font-weight: 800; color: #1e293b;">Dr. {{ appt.doctor_name }}</h4>
+                                    <div style="display: flex; gap: 1rem; margin-top: 0.3rem;">
+                                        <p style="margin: 0; font-size: 0.8rem; color: #64748b; font-weight: 600; display: flex; align-items: center; gap: 0.3rem;">
+                                            <i data-lucide="calendar" style="width: 12px;"></i> {{ appt.date }} 
+                                        </p>
+                                        <p style="margin: 0; font-size: 0.8rem; color: #64748b; font-weight: 600; display: flex; align-items: center; gap: 0.3rem;">
+                                            <i data-lucide="clock" style="width: 12px;"></i> {{ appt.time }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="text-align: right;">
+                                {% if appt.status == 'completed' %}
+                                <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.4rem;">
+                                    <span style="background: #ecfdf5; color: #10b981; padding: 0.4rem 0.8rem; border-radius: 10px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; border: 1px solid rgba(16, 185, 129, 0.1);">Completed</span>
+                                    <a href="{{ url_for('view_prescription', appt_id=appt._id) }}" style="color: var(--primary); font-size: 0.75rem; font-weight: 700; text-decoration: none; display: flex; align-items: center; gap: 0.25rem;">
+                                        <i data-lucide="file-text" style="width: 14px;"></i> Prescription
+                                    </a>
+                                </div>
+                                {% else %}
+                                <span style="background: #eff6ff; color: #3b82f6; padding: 0.4rem 0.8rem; border-radius: 10px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; border: 1px solid rgba(59, 130, 246, 0.1);">Scheduled</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div style="text-align: center; padding: 3rem; color: #94a3b8;">
+                            <i data-lucide="calendar-off" style="width: 40px; height: 40px; margin-bottom: 1rem; opacity: 0.4;"></i>
+                            <p>No appointment history found.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <script>
+            function toggleAppointments() {
+                const history = document.getElementById('appointmentsHistory');
+                if (history.style.display === 'none') {
+                    history.style.display = 'block';
+                    history.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                } else {
+                    history.style.display = 'none';
+                }
+            }
+        </script>
+
+        <style>
+            @keyframes slideDown {
+                from { opacity: 0; transform: translateY(-20px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+        </style>
+
         {% if doctors %}
-        <!-- Vertical list with horizontal cards -->
-        <div style="display: flex; flex-direction: column; gap: 1.5rem; max-width: 1000px; margin: 0 auto;">
+        <!-- Vertical Stacked List -->
+        <div class="doctor-list-vertical" style="display: flex; flex-direction: column; gap: 2rem; max-width: 900px; margin: 0 auto; padding-bottom: 5rem;">
             {% for doctor in doctors %}
-            <div class="frosted-card" style="padding: 0; overflow: hidden; display: flex; transition: transform 0.2s, box-shadow 0.2s; border: 1px solid #f1f5f9;">
+            <div class="frosted-card doctor-card-animate" style="padding: 0; overflow: hidden; display: flex; flex-direction: row; border: 1px solid #f1f5f9; min-height: 280px; width: 100%; box-sizing: border-box;">
                 <!-- Left Section: Profile Image -->
                 <div style="width: 200px; min-width: 200px; background: #f8fafc; position: relative;">
                     {% if doctor.profile_pic %}
@@ -48,11 +122,6 @@
                             </div>
                         </div>
                         <div style="text-align: right;">
-                            <div style="display: flex; align-items: center; gap: 0.25rem; font-weight: 800; color: #f59e0b; font-size: 1.1rem;">
-                                <i data-lucide="star" style="width: 16px; fill: #f59e0b;"></i>
-                                {{ doctor.rating or '4.5' }}
-                            </div>
-                            <span style="font-size: 0.7rem; font-weight: 700; color: #94a3b8; text-transform: uppercase;">Medical Rating</span>
                         </div>
                     </div>
                     
@@ -62,19 +131,14 @@
                             <div style="font-size: 0.6rem; color: #94a3b8; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em;">Experience Years</div>
                         </div>
                         <div style="height: 30px; width: 1px; background: #e2e8f0; margin-top: 5px;"></div>
-                        <div>
-                            <div style="font-weight: 900; color: #0f172a; font-size: 1.2rem;">{{ doctor.treated_count or '0' }}</div>
-                            <div style="font-size: 0.6rem; color: #94a3b8; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em;">Patients Treated</div>
-                        </div>
-                        <div style="height: 30px; width: 1px; background: #e2e8f0; margin-top: 5px;"></div>
-                        <div>
-                            <div style="font-weight: 900; color: #0f172a; font-size: 1.2rem;">99%</div>
-                            <div style="font-size: 0.6rem; color: #94a3b8; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em;">Success Rate</div>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 900; color: var(--primary); font-size: 1.1rem; line-height: 1.2;">{{ doctor.hospital_name or 'Independent Practice' }}</div>
+                            <div style="font-size: 0.6rem; color: #94a3b8; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em;">Current Hospital</div>
                         </div>
                     </div>
 
                     <div style="display: flex; gap: 1rem;">
-                        <button onclick="openBooking('{{ doctor._id }}')" class="btn-modern" style="flex: 2; padding: 1rem 2rem; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 0.75rem;">
+                        <button onclick="openBooking('{{ doctor._id }}', 'Dr. {{ doctor.full_name or doctor.username }}')" class="btn-modern" style="flex: 2; padding: 1rem 2rem; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 0.75rem;">
                             <i data-lucide="calendar-check" style="width: 20px;"></i> Book Consultation
                         </button>
                         <button class="btn-modern" style="flex: 1; background: white; color: #0f172a; border: 1px solid #e2e8f0; font-size: 0.9rem;">
@@ -97,9 +161,169 @@
     </main>
 </div>
 
+<!-- Booking Modal -->
+<div id="bookingModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 1000; align-items: center; justify-content: center;">
+    <div class="frosted-card" style="width: 90%; max-width: 500px; padding: 2.5rem; position: relative; border: 1px solid rgba(255,255,255,0.2);">
+        <button onclick="closeBooking()" style="position: absolute; top: 1.5rem; right: 1.5rem; background: none; border: none; cursor: pointer; color: #94a3b8;">
+            <i data-lucide="x" style="width: 24px; height: 24px;"></i>
+        </button>
+        
+        <h2 id="modalDoctorName" style="margin-top: 0; font-size: 1.8rem; font-weight: 900; color: #0f172a;">Book Appointment</h2>
+        <p style="color: #64748b; margin-bottom: 2rem;">Select an available time slot for your consultation.</p>
+        
+        <div id="slotsContainer" style="display: flex; flex-direction: column; gap: 1rem; max-height: 300px; overflow-y: auto; padding-right: 0.5rem;">
+            <!-- Slots will be injected here -->
+        </div>
+        
+        <form id="bookingForm" action="{{ url_for('book_appointment') }}" method="POST" style="display: none; margin-top: 2rem;">
+            <input type="hidden" name="slot_id" id="selectedSlotId">
+            <input type="hidden" name="doctor_id" id="selectedDoctorId">
+            <div id="selectedSlotInfo" style="background: var(--bg-main); padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem; border: 1px solid var(--border-light); font-weight: 700; color: var(--primary); text-align: center;">
+            </div>
+            <button type="submit" class="btn-modern" style="width: 100%; padding: 1rem;">Confirm Booking</button>
+        </form>
+
+        <div id="noSlotsMsg" style="display: none; text-align: center; padding: 2rem; color: #64748b;">
+            <i data-lucide="calendar-off" style="width: 48px; height: 48px; margin: 0 auto 1rem; opacity: 0.3;"></i>
+            <p>No available slots for this doctor at the moment.</p>
+        </div>
+    </div>
+</div>
+
+<style>
+    .doctor-card-animate {
+        animation: fadeInUp 0.6s ease-out forwards;
+        opacity: 0;
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Staggered animation delay for cards */
+    .doctor-card-animate:nth-child(1) { animation-delay: 0.1s; }
+    .doctor-card-animate:nth-child(2) { animation-delay: 0.2s; }
+    .doctor-card-animate:nth-child(3) { animation-delay: 0.3s; }
+    .doctor-card-animate:nth-child(4) { animation-delay: 0.4s; }
+
+    .slot-pill {
+        background: white;
+        border: 2px solid #f1f5f9;
+        padding: 1rem 1.5rem;
+        border-radius: 15px;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: all 0.2s ease;
+    }
+    .slot-pill:hover {
+        border-color: var(--primary);
+        background: #f8fafc;
+        transform: translateY(-2px);
+    }
+    .slot-pill.active {
+        border-color: var(--primary);
+        background: rgba(79, 70, 229, 0.05);
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.1);
+    }
+
+    /* Mobile responsiveness */
+    @media (max-width: 768px) {
+        .doctor-card-animate {
+            flex-direction: column !important;
+        }
+        .doctor-card-animate > div:first-child {
+            width: 100% !important;
+            height: 200px !important;
+        }
+    }
+</style>
+
 <script>
-    function openBooking(doctorId) {
-        alert('Initializing secure appointment channel for Doctor ID: ' + doctorId + '\n\nPlease wait while our AI synchronizes the medical calendar.');
+    function openBooking(doctorId, doctorName) {
+        const modal = document.getElementById('bookingModal');
+        const container = document.getElementById('slotsContainer');
+        const noSlots = document.getElementById('noSlotsMsg');
+        const form = document.getElementById('bookingForm');
+        const modalTitle = document.getElementById('modalDoctorName');
+        
+        modalTitle.innerText = doctorName;
+        modal.style.display = 'flex';
+        container.innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--text-muted);">Fetching availability...</div>';
+        noSlots.style.display = 'none';
+        form.style.display = 'none';
+        
+        fetch(`/get_doctor_slots/${doctorId}`)
+            .then(response => response.json())
+            .then(data => {
+                container.innerHTML = '';
+                
+                // Show priority badge if applicable
+                if (data.has_priority) {
+                    const priorityBanner = document.createElement('div');
+                    priorityBanner.style.cssText = 'background: rgba(79, 70, 229, 0.1); color: var(--primary); padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem; font-weight: 700; font-size: 0.9rem; border: 1px solid rgba(79, 70, 229, 0.2);';
+                    priorityBanner.innerHTML = `
+                        <i data-lucide="sparkles" style="width: 20px; height: 20px;"></i>
+                        <span>Priority Booking: You have been marked for a revisit by this doctor.</span>
+                    `;
+                    container.appendChild(priorityBanner);
+                }
+
+                if (data.slots && data.slots.length > 0) {
+                    data.slots.forEach(slot => {
+                        const div = document.createElement('div');
+                        div.className = 'slot-pill';
+                        div.onclick = () => selectSlot(slot._id, doctorId, `${slot.date} @ ${slot.time}`, div);
+                        div.innerHTML = `
+                            <div>
+                                <div style="font-weight: 800; color: #0f172a;">${slot.date}</div>
+                                <div style="font-size: 0.8rem; color: #64748b; font-weight: 600;">Time: ${slot.time}</div>
+                            </div>
+                            <i data-lucide="chevron-right" style="width: 18px; color: var(--primary);"></i>
+                        `;
+                        container.appendChild(div);
+                    });
+                    lucide.createIcons();
+                } else {
+                    noSlots.style.display = 'block';
+                }
+            })
+            .catch(err => {
+                container.innerHTML = '<div style="color: #ef4444; text-align: center;">Error loading slots.</div>';
+            });
+    }
+
+    function selectSlot(slotId, doctorId, slotInfo, element) {
+        document.querySelectorAll('.slot-pill').forEach(p => p.classList.remove('active'));
+        element.classList.add('active');
+        
+        document.getElementById('selectedSlotId').value = slotId;
+        document.getElementById('selectedDoctorId').value = doctorId;
+        document.getElementById('selectedSlotInfo').innerText = `Selected: ${slotInfo}`;
+        document.getElementById('bookingForm').style.display = 'block';
+        
+        // Scroll form into view if needed
+        document.getElementById('bookingForm').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function closeBooking() {
+        document.getElementById('bookingModal').style.display = 'none';
+    }
+
+    // Close on click outside
+    window.onclick = function(event) {
+        const modal = document.getElementById('bookingModal');
+        if (event.target == modal) {
+            closeBooking();
+        }
     }
 </script>
 {% endblock %}

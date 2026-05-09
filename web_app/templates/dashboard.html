@@ -127,18 +127,355 @@
                 </div>
                 <i data-lucide="chevron-right" class="nav-card-arrow" style="width: 18px;"></i>
             </a>
-        </div>
-        {% else %}
+        </div> <!-- End of nav grid -->
 
-        <!-- Technician Workspace -->
-        <header style="margin-bottom: 2rem;">
-            <h1 style="font-size: 2rem; margin: 0;">Task Center</h1>
-            <p style="color: var(--text-muted);">Process lab requests and manage collections.</p>
-        </header>
+    {% elif current_user.role == 'doctor' %}
+        <!-- Doctor Workspace Carousel -->
+        <div class="carousel-main-wrapper">
+            <div class="carousel-viewport" id="doctorCarousel">
+                <div class="carousel-track">
+                    <div class="carousel-slide">
+                        <div class="ai-banner" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);">
+                            <div class="ai-banner-content">
+                                <h2 style="color: white;">Maximize Your Practice.</h2>
+                                <p style="color: #94a3b8;">Manage your appointments and patient records with our advanced digital workspace.</p>
+                                <button class="btn-ai-chat" style="background: var(--primary); border: none;">
+                                    <i data-lucide="shield-check" style="width: 18px;"></i> Verified Practice
+                                </button>
+                            </div>
+                            <div class="ai-banner-illustration">
+                                <i data-lucide="stethoscope" style="width: 120px; height: 120px; opacity: 0.1; color: white;"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="carousel-slide">
+                        <div class="consult-banner" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);">
+                            <div class="consult-banner-content">
+                                <h2 style="color: white;">Digital Prescription System.</h2>
+                                <p style="color: rgba(255,255,255,0.8);">Generate professional A4 prescriptions and send them instantly to your patients.</p>
+                                <button class="btn-consult" style="background: white; color: var(--primary);">
+                                    <i data-lucide="file-text" style="width: 18px;"></i> Write Prescriptions
+                                </button>
+                            </div>
+                            <div class="consult-banner-illustration">
+                                <i data-lucide="heart-pulse" style="width: 120px; height: 120px; opacity: 0.1; color: white;"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="carousel-slide">
+                        <div class="ai-banner" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                            <div class="ai-banner-content">
+                                <h2 style="color: white;">Earn as you heal.</h2>
+                                <p style="color: rgba(255,255,255,0.8);">Track your online earnings and consultation history in real-time with zero hassle.</p>
+                                <button class="btn-heal-light" style="background: white; border: none; color: #059669; padding: 0.6rem 1.2rem; border-radius: 10px; font-weight: 700;">
+                                    <i data-lucide="wallet" style="width: 18px; vertical-align: middle; margin-right: 4px;"></i> View Earnings
+                                </button>
+                            </div>
+                            <div class="ai-banner-illustration">
+                                <i data-lucide="wallet" style="width: 120px; height: 120px; opacity: 0.1; color: white;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="carousel-controls">
+                    <button class="carousel-btn prev"><i data-lucide="chevron-left"></i></button>
+                    <button class="carousel-btn next"><i data-lucide="chevron-right"></i></button>
+                </div>
+
+                <div class="carousel-indicators">
+                    <button class="indicator active"></button>
+                    <button class="indicator"></button>
+                    <button class="indicator"></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Doctor Quick Actions -->
+        <div class="quick-nav-grid">
+            <a href="{{ url_for('manage_slots') }}" class="quick-nav-card card-green">
+                <div class="nav-card-icon"><i data-lucide="calendar-plus" style="color: #10b981; width: 32px; height: 32px;"></i></div>
+                <div class="nav-card-text">
+                    <h4>Add Slots</h4>
+                    <span>AVAILABILITY</span>
+                </div>
+                <i data-lucide="chevron-right" class="nav-card-arrow" style="width: 18px;"></i>
+            </a>
+
+            <a href="{{ url_for('doctor_earnings') }}" class="quick-nav-card card-yellow">
+                <div class="nav-card-icon"><i data-lucide="wallet" style="color: #f59e0b; width: 32px; height: 32px;"></i></div>
+                <div class="nav-card-text">
+                    <h4>₹{{ total_earnings }}</h4>
+                    <span>TOTAL EARNED</span>
+                </div>
+                <i data-lucide="chevron-right" class="nav-card-arrow" style="width: 18px;"></i>
+            </a>
+
+            <a href="{{ url_for('doctor_appointments') }}" class="quick-nav-card card-pink">
+                <div class="nav-card-icon"><i data-lucide="users" style="color: #ec4899; width: 32px; height: 32px;"></i></div>
+                <div class="nav-card-text">
+                    <h4>Patients</h4>
+                    <span>APPOINTMENTS</span>
+                </div>
+                <i data-lucide="chevron-right" class="nav-card-arrow" style="width: 18px;"></i>
+            </a>
+
+            <a href="{{ url_for('ai_assistant') }}" class="quick-nav-card card-orange">
+                <div class="nav-card-icon"><i data-lucide="sparkles" style="color: #f97316; width: 32px; height: 32px;"></i></div>
+                <div class="nav-card-text">
+                    <h4>Medical AI</h4>
+                    <span>DIAGNOSTIC HELP</span>
+                </div>
+                <i data-lucide="chevron-right" class="nav-card-arrow" style="width: 18px;"></i>
+            </a>
+        </div>
+        <!-- Removed Slot/Appointment Grids from Main Dashboard as per request -->
+
+        <!-- Prescription Modal (Kept same) -->
+        <div id="prescriptionModal" class="consult-overlay" style="display: none; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(12px);">
+            <div class="consult-container" style="max-width: 800px; padding: 0; border-radius: 24px; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); background: #f8fafc;">
+                <!-- Modal Header -->
+                <div style="background: white; padding: 1.5rem 2rem; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <div style="background: var(--primary); padding: 0.75rem; border-radius: 12px; color: white;">
+                            <i data-lucide="file-text" style="width: 24px; height: 24px;"></i>
+                        </div>
+                        <div>
+                            <h3 style="margin: 0; font-size: 1.25rem; font-weight: 800; color: #1e293b;">Medical Prescription</h3>
+                            <p style="margin: 0; font-size: 0.8rem; color: #64748b; font-weight: 600;">Dr. {{ current_user.full_name or current_user.username }}</p>
+                        </div>
+                    </div>
+                    <button onclick="closePrescriptionModal()" style="background: #f1f5f9; border: none; color: #64748b; border-radius: 50%; width: 36px; height: 36px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s;">
+                        <i data-lucide="x" style="width: 20px;"></i>
+                    </button>
+                </div>
+
+                <div style="padding: 2rem; max-height: 80vh; overflow-y: auto;">
+                    <form action="{{ url_for('save_prescription') }}" method="POST" id="prescriptionForm">
+                        <input type="hidden" name="appointment_id" id="modalAppointmentId">
+                        
+                        <!-- Patient Info Section -->
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem; background: white; padding: 1.5rem; border-radius: 16px; border: 1px solid #e2e8f0;">
+                            <div>
+                                <label style="display: block; font-size: 0.75rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; margin-bottom: 0.5rem;">Patient Name</label>
+                                <div id="modalPatientName" style="font-size: 1rem; font-weight: 700; color: #1e293b;"></div>
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 0.75rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; margin-bottom: 0.5rem;">Date</label>
+                                <div style="font-size: 1rem; font-weight: 700; color: #1e293b;">{{ current_date }}</div>
+                            </div>
+                        </div>
+
+                        <!-- Clinical Details -->
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+                            <div>
+                                <label style="display: block; font-size: 0.75rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; margin-bottom: 0.5rem;">Symptoms</label>
+                                <input type="text" name="symptoms" placeholder="e.g. Fever, Headache" style="width: 100%; padding: 0.6rem; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.9rem;" required>
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 0.75rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; margin-bottom: 0.5rem;">Diagnosis</label>
+                                <input type="text" name="diagnosis" placeholder="e.g. Viral Fever" style="width: 100%; padding: 0.6rem; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.9rem;" required>
+                            </div>
+                        </div>
+
+                        <!-- Medicines Section -->
+                        <div style="margin-bottom: 2rem;">
+                            <h4 style="display: flex; align-items: center; gap: 0.5rem; color: #1e293b; margin-top: 0;">
+                                <i data-lucide="pill" style="width: 18px; color: var(--primary);"></i> Medicines
+                            </h4>
+                            <div id="medicineRows">
+                                <!-- Initial Row -->
+                                <div class="medicine-row" style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1.5fr 40px; gap: 0.75rem; margin-bottom: 1rem;">
+                                    <input type="text" name="med_name[]" placeholder="Medicine Name" style="padding: 0.75rem; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 0.85rem;" required>
+                                    <input type="text" name="med_dosage[]" placeholder="Dosage" style="padding: 0.75rem; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 0.85rem;" required>
+                                    <select name="med_freq[]" style="padding: 0.75rem; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 0.85rem; background: white;">
+                                        <option value="1-0-1">1-0-1</option>
+                                        <option value="1-1-1">1-1-1</option>
+                                        <option value="1-0-0">1-0-0</option>
+                                        <option value="0-0-1">0-0-1</option>
+                                    </select>
+                                    <input type="text" name="med_duration[]" placeholder="Duration" style="padding: 0.75rem; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 0.85rem;" required>
+                                    <input type="text" name="med_instructions[]" placeholder="Instructions" style="padding: 0.75rem; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 0.85rem;" required>
+                                    <button type="button" onclick="this.parentElement.remove()" style="background: #fee2e2; border: none; color: #ef4444; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                                        <i data-lucide="trash-2" style="width: 18px;"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <button type="button" onclick="addMedicineRow()" class="btn-modern" style="background: white; border: 2px dashed #cbd5e1; color: #64748b; font-weight: 700; font-size: 0.85rem; width: 100%; margin-top: 0.5rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                                <i data-lucide="plus" style="width: 16px;"></i> Add Another Medicine
+                            </button>
+                        </div>
+
+                        <!-- Advice Section -->
+                        <div style="margin-bottom: 2rem;">
+                            <label style="display: block; font-size: 0.75rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; margin-bottom: 0.5rem;">General Advice / Lifestyle Changes</label>
+                            <textarea name="notes" rows="3" placeholder="e.g. Avoid fatty foods, walk 30 mins daily..." style="width: 100%; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1rem; font-family: inherit; font-size: 0.9rem; resize: none;"></textarea>
+                        </div>
+
+                        <!-- Footer Actions -->
+                        <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 1.5rem; border-top: 1px solid #e2e8f0; padding-top: 1.5rem;">
+                            <div>
+                                <label style="display: block; font-size: 0.75rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; margin-bottom: 0.5rem;">Follow Up Date</label>
+                                <input type="date" name="follow_up" style="padding: 0.75rem; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 0.9rem; width: 100%;">
+                            </div>
+                            <div style="display: flex; align-items: flex-end;">
+                                <button type="submit" class="btn-heal-primary" style="width: 100%; padding: 1rem; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 0.75rem; border-radius: 14px;">
+                                    <i data-lucide="send"></i> Send Prescription
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                initCarousel('doctorCarousel');
+            });
+
+            function addMedicineRow() {
+                const container = document.getElementById('medicineRows');
+                const row = document.createElement('div');
+                row.className = 'medicine-row';
+                row.style = 'display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1.5fr 40px; gap: 0.75rem; margin-bottom: 1rem;';
+                row.innerHTML = `
+                    <input type="text" name="med_name[]" placeholder="Medicine Name" style="padding: 0.75rem; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 0.85rem;" required>
+                    <input type="text" name="med_dosage[]" placeholder="Dosage" style="padding: 0.75rem; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 0.85rem;" required>
+                    <select name="med_freq[]" style="padding: 0.75rem; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 0.85rem; background: white;">
+                        <option value="1-0-1">1-0-1</option>
+                        <option value="1-1-1">1-1-1</option>
+                        <option value="1-0-0">1-0-0</option>
+                        <option value="0-0-1">0-0-1</option>
+                    </select>
+                    <input type="text" name="med_duration[]" placeholder="Duration" style="padding: 0.75rem; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 0.85rem;" required>
+                    <input type="text" name="med_instructions[]" placeholder="Instructions" style="padding: 0.75rem; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 0.85rem;" required>
+                    <button type="button" onclick="this.parentElement.remove()" style="background: #fee2e2; border: none; color: #ef4444; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                        <i data-lucide="trash-2" style="width: 18px;"></i>
+                    </button>
+                `;
+                container.appendChild(row);
+                lucide.createIcons({ root: row });
+            }
+
+            function openPrescriptionModal(apptId, patientName) {
+                document.getElementById('modalAppointmentId').value = apptId;
+                document.getElementById('modalPatientName').textContent = patientName;
+                document.getElementById('prescriptionModal').style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closePrescriptionModal() {
+                document.getElementById('prescriptionModal').style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
+        </script>
+
+    {% else %}
+
+        <!-- Technician Workspace Carousel -->
+        <div class="carousel-main-wrapper">
+            <div class="carousel-viewport" id="techCarousel">
+                <div class="carousel-track">
+                    <div class="carousel-slide">
+                        <div class="ai-banner" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);">
+                            <div class="ai-banner-content">
+                                <h2 style="color: white;">Smart Sample Collection.</h2>
+                                <p style="color: #94a3b8;">Manage your home collection requests efficiently with real-time location tracking.</p>
+                                <button class="btn-ai-chat" style="background: var(--primary); border: none;">
+                                    <i data-lucide="map-pin" style="width: 18px;"></i> View Routes
+                                </button>
+                            </div>
+                            <div class="ai-banner-illustration">
+                                <i data-lucide="flask-conical" style="width: 120px; height: 120px; opacity: 0.1; color: white;"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="carousel-slide">
+                        <div class="consult-banner" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
+                            <div class="consult-banner-content">
+                                <h2 style="color: white;">Accurate Report Delivery.</h2>
+                                <p style="color: rgba(255,255,255,0.8);">Upload and verify patient test results. Fast delivery ensures better patient care.</p>
+                                <button class="btn-consult" style="background: white; color: #7c3aed;">
+                                    <i data-lucide="upload-cloud" style="width: 18px;"></i> Upload Reports
+                                </button>
+                            </div>
+                            <div class="consult-banner-illustration">
+                                <i data-lucide="clipboard-check" style="width: 120px; height: 120px; opacity: 0.1; color: white;"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="carousel-slide">
+                        <div class="frosted-card" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; height: 240px; display: flex; align-items: center; padding: 2.5rem 3.5rem; border: none;">
+                            <div style="z-index: 2;">
+                                <p style="opacity: 0.8; margin: 0;">Earnings Dashboard</p>
+                                <h2 style="font-size: 2rem; margin: 0.5rem 0; color: white;">Earn per Task.</h2>
+                                <p style="opacity: 0.9; margin-bottom: 1rem;">Keep track of your completed tests and collection payouts instantly.</p>
+                                <button class="btn-heal-light" style="background: white; border: none; color: #059669;">Check Payouts</button>
+                            </div>
+                            <i data-lucide="wallet" style="position: absolute; right: -20px; bottom: -20px; width: 180px; height: 180px; opacity: 0.1; color: white;"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="carousel-controls">
+                    <button class="carousel-btn prev"><i data-lucide="chevron-left"></i></button>
+                    <button class="carousel-btn next"><i data-lucide="chevron-right"></i></button>
+                </div>
+
+                <div class="carousel-indicators">
+                    <button class="indicator active"></button>
+                    <button class="indicator"></button>
+                    <button class="indicator"></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Technician Quick Actions -->
+        <div class="quick-nav-grid">
+            <a href="#pendingRequestsSection" class="quick-nav-card card-green">
+                <div class="nav-card-icon"><i data-lucide="bell" style="color: #10b981; width: 32px; height: 32px;"></i></div>
+                <div class="nav-card-text">
+                    <h4>Requests</h4>
+                    <span>PENDING COLLECTIONS</span>
+                </div>
+                <i data-lucide="chevron-right" class="nav-card-arrow" style="width: 18px;"></i>
+            </a>
+
+            <div class="quick-nav-card card-yellow" style="cursor: default;">
+                <div class="nav-card-icon"><i data-lucide="wallet" style="color: #f59e0b; width: 32px; height: 32px;"></i></div>
+                <div class="nav-card-text">
+                    <h4>Payouts</h4>
+                    <span>TRACK EARNINGS</span>
+                </div>
+            </div>
+
+            <a href="#activeTasksSection" class="quick-nav-card card-pink">
+                <div class="nav-card-icon"><i data-lucide="clipboard-list" style="color: #ec4899; width: 32px; height: 32px;"></i></div>
+                <div class="nav-card-text">
+                    <h4>My Tasks</h4>
+                    <span>ACTIVE COLLECTIONS</span>
+                </div>
+                <i data-lucide="chevron-right" class="nav-card-arrow" style="width: 18px;"></i>
+            </a>
+
+            <a href="javascript:void(0)" onclick="toggleChat()" class="quick-nav-card card-orange">
+                <div class="nav-card-icon"><i data-lucide="sparkles" style="color: #f97316; width: 32px; height: 32px;"></i></div>
+                <div class="nav-card-text">
+                    <h4>Lab Assistant</h4>
+                    <span>AI HELP</span>
+                </div>
+                <i data-lucide="chevron-right" class="nav-card-arrow" style="width: 18px;"></i>
+            </a>
+        </div>
 
         <div class="grid-2">
             <!-- Available Requests -->
-            <div class="frosted-card">
+            <div class="frosted-card" id="pendingRequestsSection">
                 <h3 style="margin-top: 0; display: flex; align-items: center; gap: 0.5rem;">
                     <i data-lucide="bell" style="color: var(--primary);"></i> Available Requests
                 </h3>
@@ -176,7 +513,7 @@
             </div>
 
             <!-- Active Tasks -->
-            <div class="frosted-card">
+            <div class="frosted-card" id="activeTasksSection">
                 <h3 style="margin-top: 0; display: flex; align-items: center; gap: 0.5rem;">
                     <i data-lucide="clipboard-list" style="color: var(--primary);"></i> My Active Tasks
                 </h3>
@@ -228,7 +565,13 @@
                 </div>
             </div>
         </div>
-        {% endif %}
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                initCarousel('techCarousel');
+            });
+        </script>
+    {% endif %}
     </main>
 
 </div>

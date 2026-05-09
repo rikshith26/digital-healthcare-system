@@ -75,6 +75,21 @@ body.auth-fixed-page {
     width: 100%;
 }
 
+/* HIDE MOBILE ELEMENTS ON DESKTOP */
+.dashboard-search-row-mobile,
+.mobile-bottom-nav,
+.mobile-menu-overlay,
+.mobile-bottom-spacer,
+.mobile-menu-btn {
+    display: none !important;
+}
+
+@media (max-width: 768px) {
+    .desktop-only-search {
+        display: none !important;
+    }
+}
+
 /* NEW HEALAI HERO */
 .heal-hero {
     display: grid;
@@ -534,11 +549,9 @@ body.auth-fixed-page {
 
 /* GLOBAL SEARCH BAR */
 .header-search-container {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
+    position: relative;
     width: 450px;
-    max-width: 40vw;
+    max-width: 35vw;
     display: flex;
     align-items: center;
     background: #f1f5f9;  /* Darker base background */
@@ -598,11 +611,11 @@ body.auth-fixed-page {
 
 .nav-row {
     display: flex;
-    gap: 1rem;
+    gap: 1.5rem;
     width: 100%;
     max-width: 1100px;
     justify-content: center;
-    padding: 0.25rem 0;
+    padding: 0.5rem 0;
 }
 
 .nav-link {
@@ -1843,6 +1856,12 @@ label {
     grid-template-columns: repeat(4, 1fr);
     gap: 1.5rem;
     margin: 2.5rem 0;
+}
+
+@media (max-width: 1280px) {
+    .quick-nav-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
 
 .quick-nav-card {
