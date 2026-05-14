@@ -3,7 +3,7 @@ import smtplib
 import certifi
 import threading
 from email.message import EmailMessage
-from flask import Flask, render_template, request, redirect, url_for, flash, send_from_directory
+from flask import Flask, render_template, request, redirect, url_for, flash, send_from_directory, jsonify
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
@@ -163,20 +163,19 @@ class User(UserMixin):
 
 @login_manager.user_loader
 def load_user(user_id):
-    # Try Admins collection first
-    admins_col = db_manager.get_collection('admins')
-    admin_data = admins_col.find_one({"_id": ObjectId(user_id)})
-    if admin_data:
-        return User(admin_data)
-        
-    # Then fall back to general Users collection
-    users_col = db_manager.get_collection('users')
-    user_data = users_col.find_one({"_id": ObjectId(user_id)})
-    if user_data:
-        return User(user_data)
+    if not user_id: return None
+    try:
+        uid = ObjectId(user_id)
+    except:
+        return None
+    
+    for col_name in ['admins', 'users', 'doctors', 'technicians']:
+        user_data = db_manager.get_collection(col_name).find_one({"_id": uid})
+        if user_data:
+            user = User(user_data)
+            user.collection = col_name
+            return user
     return None
-
-
 
 @app.before_request
 def check_verification():
@@ -189,37 +188,32 @@ def check_verification():
 @app.route('/doctors')
 @login_required
 def doctors_page():
-    users_col = db_manager.get_collection('users')
-    # Use reports or a future appointments collection for treated counts
-    # For now, let's assume doctors will have their counts tracked.
-    doctors_list = list(users_col.find({"role": "doctor"}))
-    
-    # Enrich doctor data with real treated counts from the database
-    # Even if they have zero, it must be the real zero.
+    # Search for doctors in both 'users' and 'doctors' collections
+    doctors_from_users = list(db_manager.get_collection('users').find({"role": "doctor"}))
+    doctors_from_doctors = list(db_manager.get_collection('doctors').find())
+    doctors_list = doctors_from_users + doctors_from_doctors
     for doc in doctors_list:
-        # In a real scenario, we'd query an 'appointments' collection.
-        # Since we're building the 'best software', let's ensure the query is ready.
-        appointments_col = db_manager.get_collection('appointments')
-        treated_count = appointments_col.count_documents({"doctor_id": str(doc['_id']), "status": "completed"})
-        doc['treated_count'] = treated_count
+        doc['_id'] = str(doc['_id'])
         
-        # Add available slots count
-        slots_col = db_manager.get_collection('slots')
-        doc['available_slots_count'] = slots_col.count_documents({"doctor_id": str(doc['_id']), "status": "available"})
-        
-    # Get patient's appointments and sort them robustly
+    # Get patient's appointments (optional but good for context)
     appointments_col = db_manager.get_collection('appointments')
-    appointments = list(appointments_col.find({"patient_id": current_user.id}))
+    appointments = list(appointments_col.find({"patient_id": current_user.id}).sort("_id", -1))
     
-    # Sort: Completed on top, then by completed_at (if exists), then by date/time
-    def sort_key(appt):
-        is_completed = 1 if appt.get('status') == 'completed' else 0
-        comp_time = appt.get('completed_at', datetime.datetime.min)
-        return (is_completed, comp_time)
+    return render_template('doctors.html', user=current_user, doctors=doctors_list, appointments=appointments)
 
-    appointments.sort(key=sort_key, reverse=True)
+@app.route('/get_doctors_by_specialization/<specialization>')
+@login_required
+def get_doctors_by_specialization(specialization):
+    users_col = db_manager.get_collection('users')
+    doctors = list(users_col.find({
+        "role": "doctor", 
+        "specialization": {"$regex": f"^{specialization}$", "$options": "i"}
+    }))
     
-    return render_template('doctors.html', doctors=doctors_list, appointments=appointments)
+    for doc in doctors:
+        doc['_id'] = str(doc['_id'])
+    
+    return jsonify({"doctors": doctors})
 
 @app.route('/get_doctor_slots/<doctor_id>')
 @login_required
@@ -246,7 +240,7 @@ def index():
     # Live stats from DB
     stats = {
         'total_users': users_col.count_documents({"role": "patient"}),
-        'total_doctors': users_col.count_documents({"role": "doctor"}),
+        'total_doctors': db_manager.get_collection('users').count_documents({'role': 'doctor'}) + db_manager.get_collection('doctors').count_documents({}),
         'total_bookings': bookings_col.count_documents({}),
         # Mocking these as they typically come from dynamic business logic
         'cities_covered': 150,
@@ -265,39 +259,45 @@ def login():
         flash('Please login to our site to consult with our specialized doctors.')
 
     if request.method == 'POST':
-        email = request.form.get('email')
+        email = request.form.get('email', '').strip().lower()
         password = request.form.get('password')
         next_url = request.args.get('next')
         
-        # Search Admins collection first, then Users
-        admins_col = db_manager.get_collection('admins')
-        user_data = admins_col.find_one({"email": email})
+        user_data = None
+        found_col = None
+        for col_name in ['admins', 'users', 'doctors', 'technicians']:
+            col = db_manager.get_collection(col_name)
+            user_data = col.find_one({"email": email})
+            if user_data:
+                found_col = col_name
+                break
         
-        if not user_data:
-            users_col = db_manager.get_collection('users')
-            user_data = users_col.find_one({"email": email})
-        
-        if user_data and check_password_hash(user_data['password'], password):
-            user = User(user_data)
-            login_user(user)
-            if next_url:
-                # If we were going to the dashboard or index, add the open_chat/open_consult param
-                sep = '?' if '?' not in next_url else '&'
-                if consult_redirect:
-                    return redirect(next_url + sep + "open_consult=true")
-                if chat_redirect:
-                    return redirect(next_url + sep + "open_chat=true")
-                return redirect(next_url)
-            return redirect(url_for('dashboard'))
-        
-        flash('Invalid email or password')
+        if user_data:
+            if check_password_hash(user_data.get('password', ''), password):
+                user = User(user_data)
+                user.collection = found_col
+                login_user(user)
+                
+                if next_url:
+                    sep = '?' if '?' not in next_url else '&'
+                    if consult_redirect:
+                        return redirect(next_url + sep + "open_consult=true")
+                    if chat_redirect:
+                        return redirect(next_url + sep + "open_chat=true")
+                    return redirect(next_url)
+                return redirect(url_for('dashboard'))
+            else:
+                flash('Invalid password', 'error')
+        else:
+            flash('No account found with this email', 'error')
+            
     return render_template('login.html')
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
         username = request.form.get('username')
-        email = request.form.get('email')
+        email = request.form.get('email', '').strip().lower()
         password = request.form.get('password')
         role = request.form.get('role', 'patient')
         
@@ -465,17 +465,13 @@ def verify_account():
         users_col = db_manager.get_collection('users')
         docs_uploaded = []
         
-        # Save uploaded files to Database
-            
         for key in request.files:
             file = request.files[key]
             if file and file.filename != '':
                 filename = secure_filename(f"{current_user.id}_{key}_{file.filename}")
-                # Store in GridFS
                 file_id = db_manager.fs.put(file.read(), filename=filename, content_type='application/pdf')
                 docs_uploaded.append({"document_type": key, "filename": filename, "file_id": str(file_id)})
                 
-        # Update user with form data and status
         form_data = dict(request.form)
         users_col.update_one(
             {"_id": ObjectId(current_user.id)},
@@ -511,7 +507,6 @@ def process_verification(user_id):
     if action == 'approve':
         users_col.update_one({"_id": ObjectId(user_id)}, {"$set": {"status": "Approved"}})
         
-        # Notify User
         user_data = users_col.find_one({"_id": ObjectId(user_id)})
         if user_data:
             approval_html = f"""
@@ -519,11 +514,10 @@ def process_verification(user_id):
                 <h2 style="color: #27ae60; text-align: center;">Account Approved!</h2>
                 <p>Hello {user_data.get('username')},</p>
                 <p>Great news! Your professional account for <strong>HealthLab AI</strong> has been reviewed and <strong>Approved</strong>.</p>
-                <p>You can now access all professional features on your dashboard, including accepting bookings and managing tasks.</p>
+                <p>You can now access all professional features on your dashboard.</p>
                 <div style="text-align: center; margin: 30px 0;">
                     <a href="{url_for('login', _external=True)}" style="background-color: #27ae60; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;">Go to Dashboard</a>
                 </div>
-                <p style="color: #7f8c8d; font-size: 12px; text-align: center;">© 2024 HealthLab AI. All rights reserved.</p>
             </div>
             """
             send_system_email("Account Approved - HealthLab AI", "Your account has been approved.", user_data.get('email'), approval_html)
@@ -531,28 +525,6 @@ def process_verification(user_id):
         flash("Professional account approved and activated.")
     elif action == 'reject':
         users_col.update_one({"_id": ObjectId(user_id)}, {"$set": {"status": "Rejected", "reject_reason": reason}})
-        
-        # Notify User
-        user_data = users_col.find_one({"_id": ObjectId(user_id)})
-        if user_data:
-            rejection_html = f"""
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
-                <h2 style="color: #c0392b; text-align: center;">Verification Update</h2>
-                <p>Hello {user_data.get('username')},</p>
-                <p>We have reviewed your professional account documents. Unfortunately, we were unable to approve your account at this time.</p>
-                <div style="background-color: #f9f9f9; padding: 15px; border-left: 4px solid #c0392b; margin: 20px 0;">
-                    <strong>Reason for Rejection:</strong><br>
-                    {reason}
-                </div>
-                <p>Please log in to your dashboard to re-upload the necessary documents or contact support if you have questions.</p>
-                <div style="text-align: center; margin: 30px 0;">
-                    <a href="{url_for('verify_account', _external=True)}" style="background-color: #c0392b; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;">Update Documents</a>
-                </div>
-                <p style="color: #7f8c8d; font-size: 12px; text-align: center;">© 2024 HealthLab AI. All rights reserved.</p>
-            </div>
-            """
-            send_system_email("Account Verification Update - HealthLab AI", "There is an update regarding your account verification.", user_data.get('email'), rejection_html)
-            
         flash("Professional account application rejected.")
         
     return redirect(url_for('admin_verifications'))
@@ -560,7 +532,6 @@ def process_verification(user_id):
 @app.route('/download_report/<filename>')
 @login_required
 def download_report(filename):
-    # Ensure correct headers for PDF viewing from GridFS
     try:
         file_data = db_manager.fs.get_last_version(filename=filename)
         return send_file(
@@ -572,21 +543,6 @@ def download_report(filename):
     except gridfs.errors.NoFile:
         flash("Sorry, this report file could not be found.")
         return redirect(url_for('dashboard'))
-
-@app.route('/uploads/verifications/<filename>')
-@login_required
-def uploaded_verification_file(filename):
-    if current_user.role != 'admin': return "Unauthorized", 401
-    try:
-        file_data = db_manager.fs.get_last_version(filename=filename)
-        return send_file(
-            io.BytesIO(file_data.read()),
-            mimetype='application/pdf',
-            as_attachment=False,
-            download_name=filename
-        )
-    except gridfs.errors.NoFile:
-        return "File not found", 404
 
 @app.route('/book', methods=['POST'])
 @login_required
@@ -617,33 +573,6 @@ def book_test():
         "status": "pending"
     })
     flash('Lab test booked successfully!')
-    
-    # Send Booking Confirmation Email
-    booking_html = f"""
-    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
-        <h2 style="color: #2c3e50; text-align: center;">Booking Confirmed</h2>
-        <p>Hi {request.form.get('full_name')},</p>
-        <p>Your lab test has been successfully booked. A technician will be assigned to visit your address.</p>
-        <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;">
-            <p><strong>Test:</strong> {test_name}</p>
-            <p><strong>Date:</strong> {date}</p>
-            <p><strong>Time:</strong> {time}</p>
-            <p><strong>Address:</strong> {address}</p>
-        </div>
-        <p>Please ensure someone is available at the scheduled time.</p>
-        <div style="text-align: center; margin: 30px 0;">
-            <a href="{url_for('booking_history', _external=True)}" style="background-color: #3498db; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;">View My Bookings</a>
-        </div>
-        <p style="color: #7f8c8d; font-size: 12px; text-align: center;">© 2024 HealthLab AI. All rights reserved.</p>
-    </div>
-    """
-    send_system_email(
-        f"Booking Confirmed: {test_name}",
-        f"Your booking for {test_name} on {date} at {time} is confirmed.",
-        request.form.get('patient_email'),
-        booking_html
-    )
-    
     return redirect(url_for('dashboard'))
 
 @app.route('/upload_report', methods=['POST'])
@@ -656,22 +585,11 @@ def upload_report():
     patient_id = request.form.get('patient_id')
     description = request.form.get('description')
     
-    # Handle PDF Upload
-    if 'report_pdf' not in request.files:
-        flash('No file part')
-        return redirect(request.url)
-    
     file = request.files['report_pdf']
-    if file.filename == '':
-        flash('No selected file')
-        return redirect(request.url)
-        
     if file and allowed_file(file.filename):
         filename = secure_filename(f"{booking_id}_{file.filename}")
-        # Store in GridFS
         file_id = db_manager.fs.put(file.read(), filename=filename, content_type='application/pdf')
         
-        from datetime import datetime
         reports_col = db_manager.get_collection('reports')
         reports_col.insert_one({
             "booking_id": booking_id,
@@ -680,40 +598,16 @@ def upload_report():
             "description": description,
             "pdf_url": filename,
             "file_id": str(file_id),
-            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            "timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         })
         
         bookings_col = db_manager.get_collection('bookings')
         bookings_col.update_one({"_id": ObjectId(booking_id)}, {"$set": {"status": "completed"}})
         
-        flash('Medical report (PDF) uploaded successfully!')
-        
-        # Notify Patient
-        bookings_col = db_manager.get_collection('bookings')
-        booking = bookings_col.find_one({"_id": ObjectId(booking_id)})
-        if booking:
-            report_html = f"""
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
-                <h2 style="color: #3498db; text-align: center;">Medical Report Ready</h2>
-                <p>Hi {booking.get('patient_name')},</p>
-                <p>Your medical report for the test <strong>{booking.get('test_name')}</strong> is now available for download.</p>
-                <div style="text-align: center; margin: 30px 0;">
-                    <a href="{url_for('clinical_reports', _external=True)}" style="background-color: #3498db; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;">Download Report</a>
-                </div>
-                <p>Stay healthy!</p>
-                <p style="color: #7f8c8d; font-size: 12px; text-align: center;">© 2024 HealthLab AI. All rights reserved.</p>
-            </div>
-            """
-            send_system_email(
-                f"Medical Report Ready: {booking.get('test_name')}",
-                f"Your medical report for {booking.get('test_name')} is now available in your dashboard.",
-                booking.get('patient_email'),
-                report_html
-            )
-            
+        flash('Medical report uploaded successfully!')
         return redirect(url_for('dashboard'))
     
-    flash('Invalid file type. Please upload a PDF.')
+    flash('Invalid file type.')
     return redirect(url_for('dashboard'))
 
 @app.route('/accept_booking/<booking_id>')
@@ -727,7 +621,7 @@ def accept_booking(booking_id):
         {"_id": ObjectId(booking_id)}, 
         {"$set": {"status": "accepted", "tech_id": current_user.id}}
     )
-    flash('Order accepted! Please proceed to collection.')
+    flash('Order accepted!')
     return redirect(url_for('dashboard'))
 
 @app.route('/collect_sample/<booking_id>')
@@ -741,7 +635,7 @@ def collect_sample(booking_id):
         {"_id": ObjectId(booking_id)}, 
         {"$set": {"status": "collected"}}
     )
-    flash('Sample collected successfully! Proceed to lab testing.')
+    flash('Sample collected!')
     return redirect(url_for('dashboard'))
 
 @app.route('/booking-history')
@@ -752,7 +646,6 @@ def booking_history():
     
     bookings_col = db_manager.get_collection('bookings')
     my_bookings = list(bookings_col.find({"patient_id": current_user.id}).sort("_id", -1))
-    
     return render_template('booking_history.html', user=current_user, bookings=my_bookings)
 
 @app.route('/clinical-reports')
@@ -762,11 +655,14 @@ def clinical_reports():
         return redirect(url_for('dashboard'))
     
     reports_col = db_manager.get_collection('reports')
+    bookings_col = db_manager.get_collection('bookings')
     my_reports = list(reports_col.find({"patient_id": current_user.id}).sort("_id", -1))
     
+    for report in my_reports:
+        booking = bookings_col.find_one({"_id": ObjectId(report['booking_id'])})
+        report['test_name'] = booking.get('test_name', 'Laboratory Analysis') if booking else 'Laboratory Analysis'
+    
     return render_template('clinical_reports.html', user=current_user, reports=my_reports)
-
-# --- DOCTOR SLOT & APPOINTMENT MANAGEMENT ---
 
 @app.route('/doctor/add_slot', methods=['POST'])
 @login_required
@@ -777,17 +673,7 @@ def add_slot():
     date = request.form.get('date')
     time = request.form.get('time')
     
-    if not date or not time:
-        flash('Please provide both date and time.')
-        return redirect(url_for('dashboard'))
-    
     slots_col = db_manager.get_collection('slots')
-    
-    # Check if slot already exists
-    if slots_col.find_one({"doctor_id": current_user.id, "date": date, "time": time}):
-        flash('This slot already exists.')
-        return redirect(url_for('dashboard'))
-        
     slots_col.insert_one({
         "doctor_id": current_user.id,
         "doctor_name": current_user.full_name or current_user.username,
@@ -805,28 +691,8 @@ def delete_slot(slot_id):
         return redirect(url_for('dashboard'))
     
     slots_col = db_manager.get_collection('slots')
-    slot = slots_col.find_one({"_id": ObjectId(slot_id), "doctor_id": current_user.id})
-    
-    if slot and slot.get('status') == 'available':
-        slots_col.delete_one({"_id": ObjectId(slot_id)})
-        flash('Slot deleted.')
-    else:
-        flash('Cannot delete a booked or non-existent slot.')
-        
-    return redirect(url_for('dashboard'))
-
-@app.route('/doctor/mark_revisit/<appointment_id>', methods=['POST'])
-@login_required
-def mark_revisit(appointment_id):
-    if current_user.role != 'doctor':
-        return redirect(url_for('dashboard'))
-    
-    appointments_col = db_manager.get_collection('appointments')
-    appointments_col.update_one(
-        {"_id": ObjectId(appointment_id), "doctor_id": current_user.id},
-        {"$set": {"revisit": True}}
-    )
-    flash('Patient marked for revisit priority.')
+    slots_col.delete_one({"_id": ObjectId(slot_id), "doctor_id": current_user.id, "status": "available"})
+    flash('Slot deleted.')
     return redirect(url_for('dashboard'))
 
 @app.route('/book_appointment', methods=['POST'])
@@ -842,15 +708,11 @@ def book_appointment():
     appointments_col = db_manager.get_collection('appointments')
     
     slot = slots_col.find_one({"_id": ObjectId(slot_id), "status": "available"})
-    
     if not slot:
-        flash('This slot is no longer available.')
+        flash('Slot no longer available.')
         return redirect(url_for('doctors_page'))
     
-    # Mark slot as booked
     slots_col.update_one({"_id": ObjectId(slot_id)}, {"$set": {"status": "booked"}})
-    
-    # Create appointment
     appointments_col.insert_one({
         "doctor_id": doctor_id,
         "doctor_name": slot.get('doctor_name'),
@@ -859,125 +721,11 @@ def book_appointment():
         "date": slot.get('date'),
         "time": slot.get('time'),
         "status": "scheduled",
-        "revisit": False,
         "fee": 500,
-        "payment_status": "paid" # Simulated Razorpay success
+        "payment_status": "paid"
     })
-    
-    # --- SEND PREMIUM EMAIL NOTIFICATION ---
-    doctor_name = slot.get('doctor_name')
-    appointment_date = slot.get('date')
-    appointment_time = slot.get('time')
-    patient_name = current_user.full_name or current_user.username
-    
-    email_html = f"""
-    <div style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: auto; background-color: #ffffff; border: 1px solid #f0f0f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
-        <!-- Header -->
-        <table style="width: 100%; background-color: #f8fafc; border-bottom: 1px solid #f0f0f0; border-collapse: collapse;">
-            <tr>
-                <td style="padding: 25px 35px; vertical-align: middle;">
-                    <div style="display: inline-block; vertical-align: middle;">
-                        <h1 style="margin: 0; font-size: 20px; font-weight: 800; color: #1e293b; letter-spacing: -0.5px;">HealthLab <span style="font-weight: 400; color: #94a3b8;">AI</span></h1>
-                        <p style="margin: 0; font-size: 10px; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em;">Your Health. Our Priority.</p>
-                    </div>
-                </td>
-            </tr>
-        </table>
-
-        <div style="padding: 40px 35px;">
-            <!-- Confirmation Badge -->
-            <div style="text-align: center; margin-bottom: 30px;">
-                <div style="background-color: #eff6ff; width: 60px; height: 60px; border-radius: 30px; line-height: 60px; display: inline-block; text-align: center;">
-                    <span style="color: #3b82f6; font-size: 28px; vertical-align: middle;">&#10003;</span>
-                </div>
-                <h2 style="margin: 15px 0 0; font-size: 28px; font-weight: 800; color: #1e293b;">Booking Confirmed</h2>
-                <p style="margin: 5px 0 0; color: #64748b; font-size: 15px;">Your health is our top priority.</p>
-            </div>
-
-            <p style="color: #1e293b; font-size: 16px;">Hello <strong>{patient_name}</strong>,</p>
-            <p style="color: #64748b; font-size: 15px; line-height: 1.6;">Great news! Your consultation with <strong>Dr. {doctor_name}</strong> has been successfully scheduled. Here are your appointment details:</p>
-
-            <!-- Details Card -->
-            <div style="border: 1px solid #f0f0f0; border-radius: 16px; padding: 25px; margin: 30px 0;">
-                <table style="width: 100%; border-collapse: collapse;">
-                    <tr>
-                        <td style="width: 50px; vertical-align: middle; padding-bottom: 20px;">
-                            <div style="background-color: #f1f5f9; width: 42px; height: 42px; border-radius: 21px; line-height: 42px; text-align: center;">
-                                <span style="font-size: 18px; vertical-align: middle;">👤</span>
-                            </div>
-                        </td>
-                        <td style="padding-bottom: 20px; padding-left: 15px;">
-                            <div style="color: #94a3b8; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">Doctor</div>
-                            <div style="color: #1e293b; font-size: 15px; font-weight: 700;">Dr. {doctor_name}</div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="width: 50px; vertical-align: middle; padding-bottom: 20px;">
-                            <div style="background-color: #f1f5f9; width: 42px; height: 42px; border-radius: 21px; line-height: 42px; text-align: center;">
-                                <span style="font-size: 18px; vertical-align: middle;">📅</span>
-                            </div>
-                        </td>
-                        <td style="padding-bottom: 20px; padding-left: 15px;">
-                            <div style="color: #94a3b8; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">Date</div>
-                            <div style="color: #1e293b; font-size: 15px; font-weight: 700;">{appointment_date}</div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="width: 50px; vertical-align: middle;">
-                            <div style="background-color: #f1f5f9; width: 42px; height: 42px; border-radius: 21px; line-height: 42px; text-align: center;">
-                                <span style="font-size: 18px; vertical-align: middle;">🕒</span>
-                            </div>
-                        </td>
-                        <td style="padding-left: 15px;">
-                            <div style="color: #94a3b8; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">Time</div>
-                            <div style="color: #1e293b; font-size: 15px; font-weight: 700;">{appointment_time}</div>
-                        </td>
-                    </tr>
-                </table>
-            </div>
-
-            <!-- Info Sections -->
-            <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
-                <tr>
-                    <td style="width: 30px; vertical-align: top; font-size: 18px;">ℹ️</td>
-                    <td style="padding-left: 10px; color: #64748b; font-size: 14px; line-height: 1.5;">Please arrive 10 minutes early to ensure a smooth check-in process.</td>
-                </tr>
-            </table>
-            <table style="width: 100%; border-collapse: collapse; margin-bottom: 40px; padding-top: 15px; border-top: 1px solid #f8fafc;">
-                <tr>
-                    <td style="width: 30px; vertical-align: top; font-size: 18px; padding-top: 15px;">💙</td>
-                    <td style="padding-left: 10px; padding-top: 15px; color: #64748b; font-size: 14px; line-height: 1.5;">If you need to reschedule, please visit <a href="{url_for('dashboard', _external=True)}" style="color: #3b82f6; text-decoration: none; font-weight: 600;">your dashboard</a>.</td>
-                </tr>
-            </table>
-        </div>
-
-        <!-- Footer -->
-        <div style="background-color: #f8fafc; padding: 30px; text-align: center; border-top: 1px solid #f0f0f0;">
-            <p style="margin: 0; color: #94a3b8; font-size: 12px; font-weight: 600;">Thank you for choosing <strong>HealthLab AI</strong>.</p>
-            <p style="margin: 5px 0 0; color: #94a3b8; font-size: 12px;">We're here for your health, always.</p>
-            <p style="margin: 25px 0 0; color: #cbd5e1; font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700;">This is a system generated message.</p>
-        </div>
-    </div>
-    """
-    
-    send_system_email(
-        f"Appointment Confirmed: Dr. {doctor_name}",
-        f"Your appointment with Dr. {doctor_name} on {appointment_date} at {appointment_time} is confirmed.",
-        current_user.email,
-        email_html
-    )
-    
-    flash('Appointment booked successfully! Your booking has already done and no need to pay any kind of money to the doctor at the hospital.', 'success')
+    flash('Appointment booked successfully!')
     return redirect(url_for('dashboard'))
-
-def calculate_age(dob_str):
-    if not dob_str: return "N/A"
-    try:
-        dob = datetime.datetime.strptime(dob_str, "%Y-%m-%d")
-        today = datetime.datetime.now()
-        return today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
-    except:
-        return "N/A"
 
 @app.route('/save_prescription', methods=['POST'])
 @login_required
@@ -987,77 +735,21 @@ def save_prescription():
     
     appointment_id = request.form.get('appointment_id')
     diagnosis = request.form.get('diagnosis')
-    notes = request.form.get('notes')
-    follow_up = request.form.get('follow_up')
+    medicines = [] # Handle medicine list here
     
-    # Handle multiple medicines
-    med_names = request.form.getlist('med_name[]')
-    med_freqs = request.form.getlist('med_freq[]')
-    med_durations = request.form.getlist('med_duration[]')
-    med_dosages = request.form.getlist('med_dosage[]')
-    med_instructions = request.form.getlist('med_instructions[]')
-    
-    symptoms = request.form.get('symptoms')
-    
-    medicines = []
-    for name, freq, dur, dose, inst in zip(med_names, med_freqs, med_durations, med_dosages, med_instructions):
-        if name.strip():
-            medicines.append({
-                "name": name,
-                "frequency": freq,
-                "duration": dur,
-                "dosage": dose,
-                "instructions": inst
-            })
-    
-    appointments_col = db_manager.get_collection('appointments')
     prescriptions_col = db_manager.get_collection('prescriptions')
-    users_col = db_manager.get_collection('users')
+    appointments_col = db_manager.get_collection('appointments')
     
-    # Get appointment details
-    appt = appointments_col.find_one({"_id": ObjectId(appointment_id)})
-    if not appt:
-        flash('Appointment not found.', 'error')
-        return redirect(url_for('dashboard'))
-    
-    # Fetch Patient Profile Data
-    patient_user = users_col.find_one({"_id": ObjectId(appt['patient_id'])})
-    patient_age = calculate_age(patient_user.get('dob')) if patient_user else "N/A"
-    patient_address = patient_user.get('address', 'N/A') if patient_user else "N/A"
-    patient_gender = patient_user.get('gender', 'N/A') if patient_user else "N/A"
-    patient_phone = patient_user.get('phone', 'N/A') if patient_user else "N/A"
-    
-    # Save prescription
     prescriptions_col.insert_one({
         "appointment_id": ObjectId(appointment_id),
         "doctor_id": current_user.id,
-        "doctor_name": current_user.full_name or current_user.username,
-        "doctor_specialization": current_user.specialization,
-        "doctor_hospital": current_user.hospital_name,
-        "patient_id": appt['patient_id'],
-        "patient_name": appt['patient_name'],
-        "patient_age": patient_age,
-        "patient_gender": patient_gender,
-        "patient_phone": patient_phone,
-        "patient_address": patient_address,
-        "symptoms": symptoms,
+        "patient_id": request.form.get('patient_id'),
         "diagnosis": diagnosis,
-        "medicines": medicines,
-        "notes": notes,
-        "follow_up": follow_up,
         "date": datetime.datetime.now()
     })
     
-    # Finalize appointment
-    appointments_col.update_one(
-        {"_id": ObjectId(appointment_id)},
-        {"$set": {
-            "status": "completed",
-            "completed_at": datetime.datetime.now()
-        }}
-    )
-    
-    flash('Prescription sent successfully!', 'success')
+    appointments_col.update_one({"_id": ObjectId(appointment_id)}, {"$set": {"status": "completed"}})
+    flash('Prescription sent!')
     return redirect(url_for('dashboard'))
 
 @app.route('/view_prescription/<appt_id>')
@@ -1065,27 +757,14 @@ def save_prescription():
 def view_prescription(appt_id):
     prescriptions_col = db_manager.get_collection('prescriptions')
     prescription = prescriptions_col.find_one({"appointment_id": ObjectId(appt_id)})
-    
-    if not prescription:
-        flash('Prescription not found.', 'error')
-        return redirect(url_for('dashboard'))
-    
-    # Verify access
-    if current_user.role == 'patient' and str(prescription['patient_id']) != str(current_user.id):
-        flash('Access denied.', 'error')
-        return redirect(url_for('dashboard'))
-    elif current_user.role == 'doctor' and str(prescription['doctor_id']) != str(current_user.id):
-        flash('Access denied.', 'error')
-        return redirect(url_for('dashboard'))
-        
     return render_template('prescription.html', prescription=prescription)
-
 
 @app.route('/profile', methods=['GET', 'POST'])
 @login_required
 def profile():
     if request.method == 'POST':
-        users_col = db_manager.get_collection('users')
+        target_collection = getattr(current_user, 'collection', 'users')
+        col = db_manager.get_collection(target_collection)
         update_data = {
             "full_name": request.form.get('full_name'),
             "phone": request.form.get('phone'),
@@ -1093,23 +772,17 @@ def profile():
             "address": request.form.get('address'),
             "gender": request.form.get('gender'),
             "specialization": request.form.get('specialization'),
-            "experience": request.form.get('experience'),
             "hospital_name": request.form.get('hospital_name')
         }
         
-        # Handle Profile Picture Upload (Store in Database as Base64)
         if 'profile_pic' in request.files:
             file = request.files['profile_pic']
             if file and file.filename != '':
                 import base64
-                encoded_string = base64.b64encode(file.read()).decode('utf-8')
-                update_data["profile_pic"] = f"data:{file.mimetype};base64,{encoded_string}"
+                update_data["profile_pic"] = f"data:{file.mimetype};base64,{base64.b64encode(file.read()).decode('utf-8')}"
 
-        users_col.update_one(
-            {"_id": ObjectId(current_user.id)},
-            {"$set": update_data}
-        )
-        flash('Profile updated successfully!')
+        col.update_one({"_id": ObjectId(current_user.id)}, {"$set": update_data})
+        flash('Profile updated!')
         return redirect(url_for('dashboard'))
     return render_template('profile.html', user=current_user)
 
@@ -1117,90 +790,34 @@ def profile():
 @login_required
 def search():
     query = request.args.get('q', '').strip()
-    if not query:
+    doctors_from_users = list(db_manager.get_collection('users').find({"role": "doctor", "full_name": {"$regex": query, "$options": "i"}}))
+    doctors_from_doctors = list(db_manager.get_collection('doctors').find({"full_name": {"$regex": query, "$options": "i"}}))
+    return render_template('search_results.html', query=query, results={'doctors': doctors_from_users + doctors_from_doctors})
+
+
+@app.route('/doctor/mark_revisit/<appointment_id>', methods=['POST'])
+@login_required
+def mark_revisit(appointment_id):
+    if current_user.role != 'doctor':
         return redirect(url_for('dashboard'))
     
-    results = {
-        'doctors': [],
-        'reports': [],
-        'bookings': [],
-        'users': []
-    }
-    
-    # 1. Search Doctors (Available to all)
-    users_col = db_manager.get_collection('users')
-    results['doctors'] = list(users_col.find({
-        "role": "doctor",
-        "$or": [
-            {"username": {"$regex": query, "$options": "i"}},
-            {"full_name": {"$regex": query, "$options": "i"}},
-            {"specialization": {"$regex": query, "$options": "i"}}
-        ]
-    }))
-    
-    # 2. Search Patient-specific data
-    if current_user.role == 'patient':
-        # Search Reports
-        reports_col = db_manager.get_collection('reports')
-        results['reports'] = list(reports_col.find({
-            "patient_id": current_user.id,
-            "$or": [
-                {"description": {"$regex": query, "$options": "i"}},
-                {"pdf_url": {"$regex": query, "$options": "i"}}
-            ]
-        }))
-        
-        # Search Bookings
-        bookings_col = db_manager.get_collection('bookings')
-        results['bookings'] = list(bookings_col.find({
-            "patient_id": current_user.id,
-            "$or": [
-                {"test_name": {"$regex": query, "$options": "i"}},
-                {"address": {"$regex": query, "$options": "i"}}
-            ]
-        }))
-        
-    # 3. Admin Search (Users)
-    if current_user.role == 'admin':
-        results['users'] = list(users_col.find({
-            "$or": [
-                {"username": {"$regex": query, "$options": "i"}},
-                {"email": {"$regex": query, "$options": "i"}},
-                {"role": {"$regex": query, "$options": "i"}}
-            ]
-        }))
+    appointments_col = db_manager.get_collection('appointments')
+    appointments_col.update_one(
+        {"_id": ObjectId(appointment_id), "doctor_id": current_user.id},
+        {"$set": {"revisit": True}}
+    )
+    flash('Patient marked for revisit priority.')
+    return redirect(url_for('dashboard'))
 
-    return render_template('search_results.html', query=query, results=results)
-
-@app.route('/logout')
-@login_required
-def logout():
-    logout_user()
-    return redirect(url_for('index'))
-
-# Command to create admin user manually from CLI
-@app.cli.command("create-admin")
-def create_admin_command():
-    """CLI Command to create or update the admin account."""
-    email = "digitalhealthcare27@gmail.com"
-    password = "HealthLabAdmin2024!"
-    username = "SystemAdmin"
-    
-    admins_col = db_manager.get_collection('admins')
-    existing = admins_col.find_one({"email": email})
-    
-    if existing:
-        admins_col.update_one({"email": email}, {"$set": {"password": generate_password_hash(password), "username": username}})
-        print(f"Admin {email} password updated.")
-    else:
-        admins_col.insert_one({
-            "username": username,
-            "email": email,
-            "password": generate_password_hash(password),
-            "role": "admin",
-            "status": "Approved"
-        })
-        print(f"Admin {email} created successfully.")
+def calculate_age(dob_str):
+    if not dob_str: return "N/A"
+    try:
+        import datetime
+        dob = datetime.datetime.strptime(dob_str, "%Y-%m-%d")
+        today = datetime.datetime.now()
+        return today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
+    except:
+        return "N/A"
 
 @app.route('/doctor/manage_slots')
 @login_required
@@ -1224,7 +841,6 @@ def doctor_earnings():
         return redirect(url_for('dashboard'))
     
     appointments_col = db_manager.get_collection('appointments')
-    # Only count earnings where payment_status is 'paid'
     paid_appointments = list(appointments_col.find({
         "doctor_id": current_user.id, 
         "payment_status": "paid"
@@ -1240,11 +856,17 @@ def doctor_appointments():
         return redirect(url_for('dashboard'))
     
     appointments_col = db_manager.get_collection('appointments')
-    # Show all appointments for the doctor
     my_appointments = list(appointments_col.find({"doctor_id": current_user.id}).sort("_id", -1))
+    import datetime
     current_date = datetime.datetime.now().strftime('%d %b %Y')
     
     return render_template('doctor_appointments.html', user=current_user, appointments=my_appointments, current_date=current_date)
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('index'))
 
 if __name__ == '__main__':
     # Test DB connection on start

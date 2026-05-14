@@ -223,7 +223,9 @@ body.auth-fixed-page {
     object-fit: cover;
 }
 
-.proof-avatar:first-child { margin-left: 0; }
+.proof-avatar:first-child {
+    margin-left: 0;
+}
 
 .proof-avatar.count {
     background: #dcfce7;
@@ -307,8 +309,15 @@ body.auth-fixed-page {
 }
 
 @keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
 }
 
 /* NAVBAR HEALAI */
@@ -554,11 +563,15 @@ body.auth-fixed-page {
     max-width: 35vw;
     display: flex;
     align-items: center;
-    background: #f1f5f9;  /* Darker base background */
+    background: #f1f5f9;
+    /* Darker base background */
     border-radius: 100px;
-    padding: 0.65rem 1.25rem; /* Thicker vertical padding */
-    border: 2px solid #e2e8f0; /* Thicker border */
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02); /* Subtle inner shadow for depth */
+    padding: 0.65rem 1.25rem;
+    /* Thicker vertical padding */
+    border: 2px solid #e2e8f0;
+    /* Thicker border */
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
+    /* Subtle inner shadow for depth */
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -569,8 +582,10 @@ body.auth-fixed-page {
 }
 
 .header-search-container .search-icon {
-    color: #64748b; /* Darker initial icon color */
-    width: 20px;   /* Slightly larger icon */
+    color: #64748b;
+    /* Darker initial icon color */
+    width: 20px;
+    /* Slightly larger icon */
     height: 20px;
     min-width: 20px;
     transition: color 0.3s;
@@ -586,14 +601,16 @@ body.auth-fixed-page {
     padding: 0.25rem 0.85rem;
     width: 100%;
     outline: none;
-    font-size: 0.95rem; /* Slightly larger text */
+    font-size: 0.95rem;
+    /* Slightly larger text */
     color: #0f172a;
     font-family: inherit;
     font-weight: 500;
 }
 
 .header-search-container .global-search-input::placeholder {
-    color: #64748b; /* Darker placeholder text */
+    color: #64748b;
+    /* Darker placeholder text */
     font-weight: 500;
 }
 

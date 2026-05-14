@@ -10,7 +10,7 @@ body {
 }
 
 .main-content {
-    padding: 1.25rem 1rem !important;
+    padding: 0.75rem 1rem !important; /* Reduced top padding */
     width: 100% !important;
     max-width: 100% !important;
     box-sizing: border-box !important;
@@ -26,7 +26,7 @@ body {
     align-items: center !important;
     justify-content: space-between !important;
     height: auto !important;
-    padding: 1rem !important;
+    padding: 1rem 1rem 0.5rem !important; /* Reduced bottom padding */
     background: white !important;
     border-bottom: none !important;
     position: sticky !important;
@@ -38,13 +38,13 @@ body {
 
 .dashboard-search-row-mobile {
     display: flex !important;
-    padding: 0 1rem 1rem !important;
-    gap: 8px !important; 
+    padding: 0 1rem 0.5rem !important; /* Reduced bottom padding */
+    gap: 8px !important;
     align-items: center !important;
     justify-content: space-between !important;
     background: white !important;
     position: sticky !important;
-    top: 60px !important; 
+    top: 60px !important;
     z-index: 999 !important;
     width: 100% !important;
     box-sizing: border-box !important;
@@ -57,21 +57,24 @@ body {
     position: relative !important;
     left: 0 !important;
     transform: none !important;
-    background: #f1f5f9 !important;
+    background: #f8fafc !important;
     border-radius: 12px !important;
-    padding: 0.6rem 1rem !important; /* Decreased size */
-    height: 44px !important; /* Decreased size */
+    padding: 0 1rem !important;
+    height: 34px !important;
+    /* Super slim search */
     display: flex !important;
     align-items: center !important;
     min-width: 0 !important;
+    border: 1px solid #e2e8f0 !important;
 }
 
 .dashboard-search-row-mobile .mobile-menu-btn {
     display: flex !important;
-    width: 44px !important; /* Decreased size */
-    height: 44px !important; /* Decreased size */
-    background: #f1f5f9 !important;
-    border: none !important;
+    width: 34px !important;
+    /* Match search height */
+    height: 34px !important;
+    background: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
     border-radius: 12px !important;
     align-items: center !important;
     justify-content: center !important;
@@ -80,18 +83,24 @@ body {
     flex-shrink: 0 !important;
 }
 
+
 .mobile-bottom-nav {
     display: flex !important;
     position: fixed !important;
     bottom: 0 !important;
     left: 0 !important;
     width: 100% !important;
+    height: 65px !important;
+    /* Forced slim height */
     background: white !important;
-    padding: 0.5rem 0 !important;
+    padding: 0 !important;
+    /* Removed padding that was causing the height issue */
     border-top: 1px solid var(--border-light) !important;
-    box-shadow: 0 -4px 20px rgba(0,0,0,0.05) !important;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05) !important;
     z-index: 1001 !important;
     justify-content: space-around !important;
+    align-items: center !important;
+    /* Center icons vertically */
     box-sizing: border-box !important;
 }
 
@@ -99,11 +108,17 @@ body {
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
+    justify-content: center !important;
+    /* Center icon and text */
     text-decoration: none !important;
     color: #64748b !important;
     gap: 4px !important;
     font-size: 0.7rem !important;
     font-weight: 600 !important;
+    height: 100% !important;
+    /* Fill the 65px bar */
+    width: 25% !important;
+    /* Even distribution */
 }
 
 .mobile-nav-item i {
@@ -126,7 +141,7 @@ body {
     flex-direction: column !important;
     position: fixed !important;
     top: 0 !important;
-    right: -100% !important; 
+    right: -100% !important;
     width: 75% !important;
     max-width: 320px !important;
     height: 100vh !important;
@@ -142,16 +157,77 @@ body {
     right: 0 !important;
 }
 
+.dashboard-nav.mobile-active .nav-row {
+    flex-direction: column !important;
+    width: 100% !important;
+    padding: 1rem 0 !important;
+    display: flex !important;
+    gap: 0 !important;
+}
+
+.dashboard-nav.mobile-active .nav-row>div:first-child {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.75rem !important;
+    width: 100% !important;
+}
+
+.dashboard-nav.mobile-active .nav-link {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 1.25rem 0.5rem !important;
+    background: #f8fafc !important;
+    border: 1px solid #f1f5f9 !important;
+    border-radius: 16px !important;
+    gap: 0.5rem !important;
+    color: #475569 !important;
+    text-align: center !important;
+    font-size: 0.75rem !important;
+    height: auto !important;
+}
+
+.dashboard-nav.mobile-active .nav-link i {
+    width: 24px !important;
+    height: 24px !important;
+    color: var(--primary) !important;
+}
+
+.dashboard-nav.mobile-active .nav-link.active {
+    background: #eff6ff !important;
+    border-color: #dbeafe !important;
+    color: var(--primary) !important;
+    border-bottom: 1px solid #dbeafe !important;
+}
+
+.dashboard-nav.mobile-active .nav-link.sign-out {
+    position: static !important;
+    width: 100% !important;
+    grid-column: span 2 !important;
+    margin-top: 1rem !important;
+    background: #fff1f2 !important;
+    border-color: #ffe4e6 !important;
+    color: #e11d48 !important;
+    flex-direction: row !important;
+}
+
+.dashboard-nav.mobile-active .nav-link.sign-out i {
+    color: #e11d48 !important;
+}
+
+
 /* Profile Mobile Styles */
-#profile-view, #profile-edit {
-    padding: 0 !important; 
+#profile-view,
+#profile-edit {
     background: transparent !important;
     border: none !important;
     box-shadow: none !important;
     margin-top: 1rem !important;
 }
 
-#profile-view h3, #profile-edit h3 {
+#profile-view h3,
+#profile-edit h3 {
     font-size: 1.2rem !important;
     font-weight: 800 !important;
     color: #0f172a !important;
@@ -159,25 +235,27 @@ body {
 }
 
 /* Profile Header Centering */
-#profile-view > div:nth-child(2) {
+#profile-view>div:nth-child(2) {
     flex-direction: column !important;
     align-items: center !important;
     text-align: center !important;
     gap: 1rem !important;
     margin-bottom: 2.5rem !important;
     display: flex !important;
-    background: white !important; /* Add a nice clean white box for header info if needed, or transparent */
+    background: white !important;
+    /* Add a nice clean white box for header info if needed, or transparent */
     padding: 2rem 1rem !important;
     border-radius: 30px !important;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.05) !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05) !important;
 }
 
-#profile-view > div:nth-child(2) > div:first-child {
+#profile-view>div:nth-child(2)>div:first-child {
     width: 130px !important;
     height: 130px !important;
-    border-radius: 50% !important; /* Circular profile pic */
+    border-radius: 50% !important;
+    /* Circular profile pic */
     border: 4px solid white !important;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
 }
 
 #profile-view h2 {
@@ -215,7 +293,7 @@ body {
     align-items: center !important;
     justify-content: center !important;
     color: var(--primary) !important;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.03) !important;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03) !important;
     flex-shrink: 0 !important;
 }
 
@@ -255,89 +333,77 @@ body {
 }
 
 .profile-text-info {
-    display: none !important; /* Hide name in top header on small mobile */
+    display: none !important;
+    /* Hide name in top header on small mobile */
 }
 
-/* Beautify Tests Page Header */
-.main-content > header {
+/* Beautify Dashboard Header Spacing */
+.main-content>header {
     flex-direction: column !important;
     align-items: center !important;
     text-align: center !important;
-    gap: 1rem !important;
-    margin-bottom: 2.5rem !important;
-    background: linear-gradient(to bottom, rgba(255,255,255,0.8), transparent) !important;
-    padding: 2rem 1rem !important;
-    border-radius: 30px !important;
+    gap: 0 !important;
+    margin-top: 0 !important; /* Force zero top margin */
+    margin-bottom: 0.5rem !important;
+    background: transparent !important;
+    padding: 0 !important; /* Zero padding */
+    border-radius: 0 !important;
 }
 
-.main-content > header h1 {
-    font-size: 1.8rem !important;
+.main-content>header h1 {
+    font-size: 1.3rem !important;
     font-weight: 800 !important;
+    letter-spacing: -0.02em !important;
+    line-height: 1.2 !important;
+    margin-bottom: 4px !important;
 }
 
-.main-content > header p {
-    font-size: 0.9rem !important;
-    max-width: 250px !important;
+.main-content>header p {
+    font-size: 0.85rem !important;
+    max-width: 280px !important;
     margin: 0 auto !important;
+    color: #64748b !important;
+    line-height: 1.4 !important;
 }
 
-.main-content > header .btn-heal-light {
+
+.main-content>header .btn-heal-light {
     width: auto !important;
     min-width: 200px !important;
     justify-content: center !important;
-    margin: 0 auto !important; /* Force center */
+    margin: 0 auto !important;
+    /* Force center */
     display: flex !important;
 }
 
-/* AGGRESSIVE OVERLAP FIX */
-body, html {
-    overflow-y: auto !important;
+/* 2.5 Clean Bottom Clearance for Mobile Nav */
+.main-content,
+.dashboard-container,
+.content {
+    padding-bottom: 65px !important; /* EXACT height of the bottom nav */
+    min-height: auto !important;
+}
+
+/* Remove ONLY the redundant spacers, NOT the content */
+.mobile-bottom-spacer,
+.main-content::after {
+    display: none !important;
+}
+
+/* Reset excessive margins on last items */
+.main-content>*:last-child,
+.dashboard-container>*:last-child,
+form>*:last-child {
+    margin-bottom: 10px !important;
+}
+
+
+body,
+html {
     overflow-x: hidden !important;
     height: auto !important;
 }
 
-.main-content, .dashboard-container, .content {
-    overflow: visible !important;
-    height: auto !important;
-    min-height: unset !important;
-    padding-bottom: 180px !important; /* Extremely high padding */
-}
-
-/* Force every last element to have a massive bottom gap */
-.main-content > *:last-child, 
-.dashboard-container > *:last-child,
-form > *:last-child {
-    margin-bottom: 150px !important;
-}
-
-.mobile-bottom-spacer {
-    display: block !important;
-    height: 150px !important;
-    visibility: visible !important;
-}
-
-/* Specific fix for book test page button */
-form button[type="submit"] {
-    margin-bottom: 80px !important; /* Extra margin for the button itself */
-    display: block !important;
-    width: 100% !important;
-    position: relative !important;
-    z-index: 10 !important;
-}
-
-/* Ensure the main container doesn't trap the scroll */
-.dashboard-container, .main-content {
-    overflow: visible !important;
-    display: block !important;
-}
-
-/* Add a visual spacer at the very bottom of the main content */
-.main-content::after {
-    content: "";
-    display: block;
-    height: 150px;
-    width: 100%;
-}
 
 .dashboard-nav .sign-out i {
     color: #ef4444 !important;
@@ -377,9 +443,8 @@ form button[type="submit"] {
 .consult-banner,
 .frosted-card {
     flex-direction: column !important;
-    height: 200px !important;
-    /* Fixed height so they all match exactly */
-    min-height: unset !important;
+    height: auto !important; /* Back to auto */
+    min-height: 180px !important;
     padding: 1.25rem 1rem !important;
     text-align: center !important;
     align-items: center !important;
@@ -398,7 +463,6 @@ form button[type="submit"] {
 .consult-banner-content h2,
 .frosted-card h2 {
     font-size: 1.3rem !important;
-    /* Decreased font size */
     margin: 0.5rem 0 !important;
 }
 
@@ -413,7 +477,6 @@ form button[type="submit"] {
 .consult-banner-illustration {
     position: absolute !important;
     opacity: 0.05 !important;
-    /* Made even fainter so it doesn't clutter */
     z-index: 1 !important;
     right: -10px !important;
     bottom: -10px !important;
@@ -446,10 +509,8 @@ form button[type="submit"] {
 /* 4. Carousels (Crucial for Mobile Smoothness) */
 .carousel-main-wrapper {
     margin: 0 !important;
-    /* Removed negative margins */
     padding: 0 !important;
     width: 100% !important;
-    /* Removed 100vw to fix horizontal scroll */
 }
 
 .carousel-viewport {
@@ -522,7 +583,6 @@ form button[type="submit"] {
 
 .nav-pill {
     display: none !important;
-    /* Hide on mobile to save space */
 }
 
 /* 8. Doctor Profile Cards */
@@ -556,29 +616,69 @@ form button[type="submit"] {
     justify-content: center !important;
 }
 
-text-align: center !important;
-padding: 2rem 1.5rem !important;
+/* 9. Clinical Reports Page Redesign (Mobile) */
+.report-item {
+    display: flex !important;
+    flex-direction: column !important;
+    padding: 1.25rem !important;
+    background: white !important;
+    border: 1px solid #f1f5f9 !important;
+    border-radius: 20px !important;
+    margin-bottom: 1rem !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02) !important;
 }
 
-.doctor-card-landscape .doctor-avatar {
-    width: 120px !important;
-    height: 120px !important;
-    margin: 0 auto 1.5rem !important;
-}
-
-.doc-stats-row {
+.btn-download-circle {
+    width: 38px !important;
+    height: 38px !important;
+    background: #eff6ff !important; /* Soft blue background */
+    color: var(--primary) !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
     justify-content: center !important;
-    flex-wrap: wrap !important;
+    text-decoration: none !important;
+    transition: all 0.2s ease !important;
+    flex-shrink: 0 !important;
+    border: 1px solid #dbeafe !important;
+}
+
+.btn-download-circle:active {
+    transform: scale(0.9) !important;
+    background: var(--primary) !important;
+    color: white !important;
+}
+
+.report-content {
+    width: 100% !important;
+    display: flex !important;
+    align-items: flex-start !important;
     gap: 0.75rem !important;
 }
 
-.doc-actions {
-    width: 100% !important;
-    flex-direction: column !important;
+.item-details {
+    flex: 1 !important;
+    min-width: 0 !important; /* Allow flex to shrink properly */
 }
 
-.doc-actions .btn-primary,
-.doc-actions .btn-outline {
-    width: 100% !important;
+/* Header Adjustments for Reports */
+.main-content > header {
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    padding: 2rem 1rem !important;
+}
+
+.main-content > header .item-icon-circle {
+    margin: 1rem auto 0 !important;
+}
+
+.history-section-title {
     justify-content: center !important;
+    margin-bottom: 1.5rem !important;
+}
+
+/* FINAL PROFILE & REPORTS CLEARANCE */
+.main-content {
+    padding-bottom: 100px !important;
 }

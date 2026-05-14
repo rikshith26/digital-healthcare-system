@@ -44,9 +44,11 @@
             </div>
             <div class="profile-pic-header">
                 {% if current_user.profile_pic %}
-                <img src="{{ current_user.profile_pic }}" alt="Profile" style="width: 32px; height: 32px; border-radius: 10px; object-fit: cover;">
+                <img src="{{ current_user.profile_pic }}" alt="Profile"
+                    style="width: 32px; height: 32px; border-radius: 10px; object-fit: cover;">
                 {% else %}
-                <div style="width: 32px; height: 32px; border-radius: 10px; background: rgba(79, 70, 229, 0.1); display: flex; align-items: center; justify-content: center; color: var(--primary); border: 1px solid rgba(79, 70, 229, 0.2);">
+                <div
+                    style="width: 32px; height: 32px; border-radius: 10px; background: rgba(79, 70, 229, 0.1); display: flex; align-items: center; justify-content: center; color: var(--primary); border: 1px solid rgba(79, 70, 229, 0.2);">
                     <i data-lucide="user" style="width: 16px; height: 16px;"></i>
                 </div>
                 {% endif %}
@@ -67,19 +69,23 @@
     {% endif %}
 
     <div class="mobile-bottom-nav">
-        <a href="{{ url_for('dashboard') }}" class="mobile-nav-item {% if request.endpoint == 'dashboard' %}active{% endif %}">
+        <a href="{{ url_for('dashboard') }}"
+            class="mobile-nav-item {% if request.endpoint == 'dashboard' %}active{% endif %}">
             <i data-lucide="home"></i>
             <span>Home</span>
         </a>
-        <a href="{{ url_for('clinical_reports') }}" class="mobile-nav-item {% if request.endpoint == 'clinical_reports' %}active{% endif %}">
+        <a href="{{ url_for('clinical_reports') }}"
+            class="mobile-nav-item {% if request.endpoint == 'clinical_reports' %}active{% endif %}">
             <i data-lucide="file-text"></i>
             <span>Reports</span>
         </a>
-        <a href="{{ url_for('book_test_page') }}" class="mobile-nav-item {% if request.endpoint == 'book_test_page' %}active{% endif %}">
+        <a href="{{ url_for('book_test_page') }}"
+            class="mobile-nav-item {% if request.endpoint == 'book_test_page' %}active{% endif %}">
             <i data-lucide="flask-conical"></i>
             <span>Tests</span>
         </a>
-        <a href="{{ url_for('profile') }}" class="mobile-nav-item {% if request.endpoint == 'profile' %}active{% endif %}">
+        <a href="{{ url_for('profile') }}"
+            class="mobile-nav-item {% if request.endpoint == 'profile' %}active{% endif %}">
             <i data-lucide="user"></i>
             <span>Profile</span>
         </a>
@@ -90,63 +96,59 @@
             style="display: none; align-self: flex-end; background: none; border: none; padding: 0.5rem; cursor: pointer;">
             <i data-lucide="x" style="width: 24px; height: 24px; color: #0f172a;"></i>
         </button>
-        <div class="nav-row"
-            style="display: flex; justify-content: center; align-items: center; position: relative; width: 100%;">
-
-            <div style="display: flex; gap: 1rem; max-width: 100%; justify-content: center; flex-wrap: wrap;">
-                {% if current_user.status == 'Approved' or current_user.role in ['patient', 'admin'] %}
-                <a href="{{ url_for('dashboard') }}"
-                    class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}">
-                    <i data-lucide="layout-grid"></i>
-                    <span>Dashboard</span>
-                </a>
-                {% if current_user.role == 'admin' %}
-                <a href="{{ url_for('user_data_page') }}"
-                    class="nav-link {% if request.endpoint == 'user_data_page' %}active{% endif %}">
-                    <i data-lucide="database"></i>
-                    <span>User Data</span>
-                </a>
-                <a href="{{ url_for('admin_verifications') }}"
-                    class="nav-link {% if request.endpoint == 'admin_verifications' %}active{% endif %}">
-                    <i data-lucide="shield-check"></i>
-                    <span>Verifications</span>
-                </a>
-                {% else %}
-                <a href="{{ url_for('book_test_page') }}"
-                    class="nav-link {% if request.endpoint == 'book_test_page' %}active{% endif %}">
-                    <i data-lucide="microscope"></i>
-                    <span>Book a Test</span>
-                </a>
-                {% endif %}
-                {% if current_user.role == 'patient' %}
-                <a href="{{ url_for('doctors_page') }}"
-                    class="nav-link {% if request.endpoint == 'doctors_page' %}active{% endif %}">
-                    <i data-lucide="user-round"></i>
-                    <span>Doctors</span>
-                </a>
-                <a href="{{ url_for('clinical_reports') }}"
-                    class="nav-link {% if request.endpoint == 'clinical_reports' %}active{% endif %}">
-                    <i data-lucide="file-text"></i>
-                    <span>Clinical Reports</span>
-                </a>
-                {% endif %}
-                <a href="#" class="nav-link">
-                    <i data-lucide="settings"></i>
-                    <span>Settings</span>
-                </a>
-                <a href="#" class="nav-link">
-                    <i data-lucide="message-square"></i>
-                    <span>Feedback</span>
-                </a>
-                {% else %}
-                <div
-                    style="display: flex; align-items: center; justify-content: center; gap: 8px; color: #64748b; font-size: 0.85rem; font-weight: 700; padding: 0.5rem 1rem;">
-                    <i data-lucide="shield-alert" style="width: 16px;"></i> Feature access locked pending verification
-                </div>
-                {% endif %}
+        <div class="nav-row">
+            {% if current_user.status == 'Approved' or current_user.role in ['patient', 'admin'] %}
+            <a href="{{ url_for('dashboard') }}"
+                class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}">
+                <i data-lucide="layout-grid"></i>
+                <span>Dashboard</span>
+            </a>
+            {% if current_user.role == 'admin' %}
+            <a href="{{ url_for('user_data_page') }}"
+                class="nav-link {% if request.endpoint == 'user_data_page' %}active{% endif %}">
+                <i data-lucide="database"></i>
+                <span>User Data</span>
+            </a>
+            <a href="{{ url_for('admin_verifications') }}"
+                class="nav-link {% if request.endpoint == 'admin_verifications' %}active{% endif %}">
+                <i data-lucide="shield-check"></i>
+                <span>Verifications</span>
+            </a>
+            {% else %}
+            <a href="{{ url_for('book_test_page') }}"
+                class="nav-link {% if request.endpoint == 'book_test_page' %}active{% endif %}">
+                <i data-lucide="microscope"></i>
+                <span>Book a Test</span>
+            </a>
+            {% endif %}
+            {% if current_user.role == 'patient' %}
+            <a href="{{ url_for('doctors_page') }}"
+                class="nav-link {% if request.endpoint == 'doctors_page' %}active{% endif %}">
+                <i data-lucide="user-round"></i>
+                <span>Doctors</span>
+            </a>
+            <a href="{{ url_for('clinical_reports') }}"
+                class="nav-link {% if request.endpoint == 'clinical_reports' %}active{% endif %}">
+                <i data-lucide="file-text"></i>
+                <span>Clinical Reports</span>
+            </a>
+            {% endif %}
+            <a href="{{ url_for('profile') }}" class="nav-link">
+                <i data-lucide="settings"></i>
+                <span>Settings</span>
+            </a>
+            <a href="#" class="nav-link">
+                <i data-lucide="message-square"></i>
+                <span>Feedback</span>
+            </a>
+            {% else %}
+            <div
+                style="display: flex; align-items: center; justify-content: center; gap: 8px; color: #64748b; font-size: 0.85rem; font-weight: 700; padding: 0.5rem 1rem;">
+                <i data-lucide="shield-alert" style="width: 16px;"></i> Feature access locked pending verification
             </div>
+            {% endif %}
 
-            <a href="{{ url_for('logout') }}" class="nav-link sign-out" style="position: absolute; right: 0;">
+            <a href="{{ url_for('logout') }}" class="nav-link sign-out" style="margin-left: auto;">
                 <i data-lucide="log-out"></i>
                 <span>Sign Out</span>
             </a>
@@ -213,33 +215,54 @@
 
         {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
-        <div id="toast-container" style="position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 10px; width: 90%; max-width: 400px;">
+        <div id="toast-container"
+            style="position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 10px; width: 90%; max-width: 400px;">
             {% for category, message in messages %}
-            <div class="toast-notification {{ category }}" style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); padding: 1rem 1.5rem; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border-left: 5px solid {% if category == 'error' %}#ef4444{% else %}#10b981{% endif %}; display: flex; align-items: center; gap: 1rem; animation: slideInDown 0.5s ease-out forwards;">
-                <div style="background: {% if category == 'error' %}#fee2e2{% else %}#d1fae5{% endif %}; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                    <i data-lucide="{% if category == 'error' %}alert-circle{% else %}check-circle{% endif %}" style="width: 18px; color: {% if category == 'error' %}#ef4444{% else %}#10b981{% endif %};"></i>
+            <div class="toast-notification {{ category }}"
+                style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); padding: 1rem 1.5rem; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border-left: 5px solid {% if category == 'error' %}#ef4444{% else %}#10b981{% endif %}; display: flex; align-items: center; gap: 1rem; animation: slideInDown 0.5s ease-out forwards;">
+                <div
+                    style="background: {% if category == 'error' %}#fee2e2{% else %}#d1fae5{% endif %}; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                    <i data-lucide="{% if category == 'error' %}alert-circle{% else %}check-circle{% endif %}"
+                        style="width: 18px; color: {% if category == 'error' %}#ef4444{% else %}#10b981{% endif %};"></i>
                 </div>
-                <p style="margin: 0; font-size: 0.9rem; font-weight: 600; color: #1e293b; line-height: 1.4;">{{ message }}</p>
+                <p style="margin: 0; font-size: 0.9rem; font-weight: 600; color: #1e293b; line-height: 1.4;">{{ message
+                    }}</p>
             </div>
             {% endfor %}
         </div>
 
         <style>
             @keyframes slideInDown {
-                from { transform: translateY(-100%); opacity: 0; }
-                to { transform: translateY(0); opacity: 1; }
+                from {
+                    transform: translateY(-100%);
+                    opacity: 0;
+                }
+
+                to {
+                    transform: translateY(0);
+                    opacity: 1;
+                }
             }
+
             @keyframes fadeOut {
-                from { opacity: 1; transform: translateY(0); }
-                to { opacity: 0; transform: translateY(-20px); }
+                from {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+
+                to {
+                    opacity: 0;
+                    transform: translateY(-20px);
+                }
             }
+
             .toast-notification.hide {
                 animation: fadeOut 0.5s ease-in forwards;
             }
         </style>
 
         <script>
-            document.addEventListener('DOMContentLoaded', function() {
+            document.addEventListener('DOMContentLoaded', function () {
                 const toasts = document.querySelectorAll('.toast-notification');
                 toasts.forEach(toast => {
                     setTimeout(() => {
