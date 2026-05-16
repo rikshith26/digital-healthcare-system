@@ -1,7 +1,0 @@
-flask
-pymongo
-dnspython
-python-dotenv
-flask-login
-werkzeug
-certifi
