@@ -872,7 +872,8 @@ if __name__ == '__main__':
     # Test DB connection on start
     success, hint = db_manager.test_connection()
     if success:
-        app.run(debug=True, port=int(os.getenv("PORT", 5000)))
+        port = int(os.environ.get("PORT", 5000))
+        app.run(host='0.0.0.0', port=port)
     else:
         if hint:
             print(hint)
