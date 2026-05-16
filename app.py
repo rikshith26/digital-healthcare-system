@@ -869,12 +869,10 @@ def logout():
     return redirect(url_for('index'))
 
 if __name__ == '__main__':
-    # Test DB connection on start
+    # Test DB connection on start but don't block app startup
     success, hint = db_manager.test_connection()
-    if success:
-        port = int(os.environ.get("PORT", 5000))
-        app.run(host='0.0.0.0', port=port)
-    else:
-        if hint:
-            print(hint)
-        print("Could not start app: Database connection failed.")
+    if not success:
+        print(f"Warning: Database connection failed during startup: {hint}")
+    
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
