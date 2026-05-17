@@ -682,3 +682,9 @@ html {
 .main-content {
     padding-bottom: 100px !important;
 }
+
+/* Dashboard Layout Mobile Reordering */
+.hc-dashboard-layout {
+    display: flex !important;
+    flex-direction: column-reverse !important;
+}

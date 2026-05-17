@@ -10,124 +10,164 @@
         </header>
 
         {% if user.role == 'patient' %}
-        <div class="carousel-main-wrapper">
-            <div class="carousel-viewport" id="mainCarousel">
-                <div class="carousel-track">
-                    <div class="carousel-slide">
-                        <div class="ai-banner" onclick="toggleChat()">
-                            <div class="ai-banner-content">
-                                <h2>Ask anything about your health.</h2>
-                                <p>Get trusted answers directly from our intelligent AI Diagnostics assistant.</p>
-                                <button class="btn-ai-chat">
-                                    <i data-lucide="sparkles" style="width: 18px;"></i> Ask HealthLab AI
-                                </button>
-                            </div>
-                            <div class="ai-banner-illustration">
-                                <i data-lucide="brain-circuit"
-                                    style="width: 100px; height: 100px; opacity: 0.2; position: absolute;"></i>
-                                <i data-lucide="stethoscope" style="width: 120px; height: 120px; opacity: 0.1;"></i>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="carousel-slide">
-                        <div class="consult-banner" onclick="toggleConsult()">
-                            <div class="consult-banner-content">
-                                <h2>Expert Professional Consultation.</h2>
-                                <p>Book a checkup with our specialized doctors and get expert medical advice.</p>
-                                <button class="btn-consult">
-                                    <i data-lucide="user-round" style="width: 18px;"></i> Consult a Doctor
-                                </button>
-                            </div>
-                            <div class="consult-banner-illustration">
-                                <i data-lucide="stethoscope"
-                                    style="width: 100px; height: 100px; opacity: 0.2; position: absolute;"></i>
-                                <i data-lucide="heart-pulse" style="width: 120px; height: 120px; opacity: 0.1;"></i>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="carousel-slide">
-                        <div class="frosted-card"
-                            style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: white; position: relative; overflow: hidden; height: 240px; display: flex; align-items: center; margin: 0; padding: 2.5rem 3.5rem; box-sizing: border-box; border: none;">
-                            <div style="position: relative; z-index: 2;">
-                                <p style="opacity: 0.8; margin: 0;">Your Next Step</p>
-                                <h2 style="font-size: 2rem; margin: 0.5rem 0; color: white;">Ready for a Checkup?</h2>
-                                {% if not user.is_profile_complete %}
-                                <p style="max-width: 400px; opacity: 0.9; margin-bottom: 1rem;">Complete your profile to
-                                    enable one-click booking.</p>
-                                <a href="{{ url_for('profile') }}" class="btn-heal-light"
-                                    style="background: white; border: none;">Complete
-                                    Now</a>
-                                {% else %}
-                                <p style="max-width: 400px; opacity: 0.9; margin-bottom: 1rem;">Home sample collection
-                                    by pro technicians.</p>
-                                <a href="{{ url_for('book_test_page') }}" class="btn-checkup">
-                                    <i data-lucide="calendar" style="width: 18px;"></i> Book a Test
-                                </a>
-                                {% endif %}
-                            </div>
-                            <i data-lucide="activity"
-                                style="position: absolute; right: -20px; bottom: -20px; width: 180px; height: 180px; opacity: 0.1; color: white;"></i>
-                        </div>
-                    </div>
+        <!-- Live Status Header -->
+        <div class="hc-status-header">
+            <div class="hc-status-info">
+                <h2>Health Dashboard</h2>
+                <p>Your vitals are stable. All recent reports are normal.</p>
+                <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                    <button class="btn-modern" style="padding: 0.6rem 1.25rem; font-size: 0.85rem;" onclick="toggleChat()">
+                        <i data-lucide="sparkles" style="width: 16px; margin-right: 0.4rem; vertical-align: middle;"></i> AI Assistant
+                    </button>
+                    <a href="{{ url_for('book_test_page') }}" class="btn-modern" style="background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); padding: 0.6rem 1.25rem; font-size: 0.85rem; text-decoration: none;">
+                        Book Test
+                    </a>
                 </div>
-
-                <div class="carousel-controls">
-                    <button class="carousel-btn prev"><i data-lucide="chevron-left"></i></button>
-                    <button class="carousel-btn next"><i data-lucide="chevron-right"></i></button>
-                </div>
-
-                <div class="carousel-indicators">
-                    <button class="indicator active"></button>
-                    <button class="indicator"></button>
-                    <button class="indicator"></button>
-                </div>
+            </div>
+            <div class="hc-health-score">
+                <div class="score-circle">98</div>
+                <span>Health Score</span>
             </div>
         </div>
 
-        <!-- Quick Actions Navigation -->
-        <div class="quick-nav-grid">
-            <a href="#" class="quick-nav-card card-green">
-                <div class="nav-card-icon"><i data-lucide="pill" style="color: #10b981; width: 32px; height: 32px;"></i>
+        <div class="hc-dashboard-layout">
+            <!-- Left Column: Appointments & Timeline -->
+            <div class="hc-column-main">
+                <!-- Upcoming Appointments -->
+                <div class="hc-card">
+                    <div class="hc-card-header">
+                        <h3 class="hc-card-title"><i data-lucide="calendar-clock" style="color: #2563eb; width: 20px;"></i> Upcoming Appointments</h3>
+                        <a href="{{ url_for('doctors_page') }}" class="hc-card-action">View All</a>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 1rem;">
+                        {% set ns = namespace(found=false) %}
+                        {% for appt in appointments %}
+                        {% if appt.status == 'scheduled' %}
+                        {% set ns.found = true %}
+                        <div class="hc-appointment-card">
+                            <div class="hc-appointment-date">
+                                <span class="month">{{ appt.date.split('-')[1] }}</span>
+                                <span class="day">{{ appt.date.split('-')[2] }}</span>
+                            </div>
+                            <div class="hc-appointment-details">
+                                <h4>Dr. {{ appt.doctor_name }}</h4>
+                                <p><i data-lucide="stethoscope" style="width: 14px;"></i> Consultation • {{ appt.time }}</p>
+                            </div>
+                            <button class="btn-modern" style="padding: 0.5rem; background: transparent; color: #64748b; border: 1px solid #e2e8f0; border-radius: 12px;">
+                                <i data-lucide="chevron-right" style="width: 18px;"></i>
+                            </button>
+                        </div>
+                        {% endif %}
+                        {% endfor %}
+                        {% if not ns.found %}
+                        <p style="color: #64748b; font-size: 0.9rem;">No upcoming appointments.</p>
+                        {% endif %}
+                    </div>
                 </div>
-                <div class="nav-card-text">
-                    <h4>Pharmacy</h4>
-                    <span>BUY MEDICINES</span>
-                </div>
-                <i data-lucide="chevron-right" class="nav-card-arrow" style="width: 18px;"></i>
-            </a>
 
-            <a href="{{ url_for('doctors_page') }}" class="quick-nav-card card-yellow">
-                <div class="nav-card-icon"><i data-lucide="user-round"
-                        style="color: #f59e0b; width: 32px; height: 32px;"></i></div>
-                <div class="nav-card-text">
-                    <h4>Doctors</h4>
-                    <span>APPOINTMENTS</span>
+                <!-- Recent Reports -->
+                <div class="hc-card">
+                    <div class="hc-card-header">
+                        <h3 class="hc-card-title"><i data-lucide="file-text" style="color: #10b981; width: 20px;"></i> Recent Reports</h3>
+                        <a href="{{ url_for('clinical_reports') }}" class="hc-card-action">View All</a>
+                    </div>
+                    {% if reports %}
+                    {% for report in reports[:3] %}
+                    <div class="hc-appointment-card" style="margin-bottom: 1rem;">
+                        <div class="hc-appointment-date" style="background: #ecfdf5; color: #10b981; padding: 0.75rem;">
+                            <i data-lucide="file-check-2" style="width: 24px; height: 24px;"></i>
+                        </div>
+                        <div class="hc-appointment-details">
+                            <h4>{{ report.test_name }}</h4>
+                            <p>Reviewed. Uploaded on {{ report.timestamp.split(' ')[0] }}.</p>
+                        </div>
+                        <a href="{{ url_for('download_report', filename=report.pdf_url) }}" style="color: #2563eb; text-decoration: none; font-size: 0.85rem; font-weight: 600;">Download</a>
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <p style="color: #64748b; font-size: 0.9rem;">No recent reports available.</p>
+                    {% endif %}
                 </div>
-                <i data-lucide="chevron-right" class="nav-card-arrow" style="width: 18px;"></i>
-            </a>
 
-            <a href="{{ url_for('book_test_page') }}" class="quick-nav-card card-pink">
-                <div class="nav-card-icon"><i data-lucide="microscope"
-                        style="color: #ec4899; width: 32px; height: 32px;"></i></div>
-                <div class="nav-card-text">
-                    <h4>Lab Tests</h4>
-                    <span>BOOK AT HOME</span>
+                <!-- Health Activity Timeline -->
+                <div class="hc-card">
+                    <div class="hc-card-header">
+                        <h3 class="hc-card-title"><i data-lucide="activity" style="color: #f97316; width: 20px;"></i> Activity Timeline</h3>
+                    </div>
+                    <div class="hc-timeline">
+                        {% if timeline %}
+                        {% for item in timeline %}
+                        <div class="hc-timeline-item">
+                            <div class="hc-timeline-dot {% if item.type == 'report' %}green{% elif item.status == 'scheduled' %}orange{% endif %}"></div>
+                            <div class="hc-timeline-content">
+                                <h4>{{ item.title }}</h4>
+                                <p>{{ item.desc }}</p>
+                                <span>{{ item.time.strftime('%b %d, %Y %I:%M %p') }}</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        {% else %}
+                        <p style="color: #64748b; font-size: 0.9rem;">No recent activity.</p>
+                        {% endif %}
+                    </div>
                 </div>
-                <i data-lucide="chevron-right" class="nav-card-arrow" style="width: 18px;"></i>
-            </a>
+            </div>
 
-            <a href="javascript:void(0)" onclick="toggleChat()" class="quick-nav-card card-orange">
-                <div class="nav-card-icon"><i data-lucide="sparkles"
-                        style="color: #f97316; width: 32px; height: 32px;"></i></div>
-                <div class="nav-card-text">
-                    <h4>AI HealthLab</h4>
-                    <span>CHAT WITH AI</span>
+            <!-- Right Column: Quick Actions & Medicine -->
+            <div class="hc-column-side">
+                <!-- Quick Actions -->
+                <div class="hc-card">
+                    <div class="hc-card-header">
+                        <h3 class="hc-card-title"><i data-lucide="zap" style="color: #f59e0b; width: 20px;"></i> Quick Actions</h3>
+                    </div>
+                    <div class="hc-quick-grid">
+                        <a href="{{ url_for('doctors_page') }}" class="hc-quick-item blue">
+                            <i data-lucide="user-round"></i>
+                            <span>Find Doctor</span>
+                        </a>
+                        <a href="{{ url_for('book_test_page') }}" class="hc-quick-item green">
+                            <i data-lucide="microscope"></i>
+                            <span>Book Test</span>
+                        </a>
+                        <a href="#" class="hc-quick-item purple">
+                            <i data-lucide="pill"></i>
+                            <span>Pharmacy</span>
+                        </a>
+                        <a href="javascript:void(0)" onclick="toggleChat()" class="hc-quick-item orange">
+                            <i data-lucide="sparkles"></i>
+                            <span>AI Chat</span>
+                        </a>
+                    </div>
                 </div>
-                <i data-lucide="chevron-right" class="nav-card-arrow" style="width: 18px;"></i>
-            </a>
-        </div> <!-- End of nav grid -->
+
+                <!-- Medicine Reminders -->
+                <div class="hc-card">
+                    <div class="hc-card-header">
+                        <h3 class="hc-card-title"><i data-lucide="pill" style="color: #8b5cf6; width: 20px;"></i> Daily Medicines</h3>
+                    </div>
+                    <div class="hc-medicine-list">
+                        {% if daily_medicines %}
+                        {% for med in daily_medicines %}
+                        <div class="hc-medicine-item">
+                            <div class="hc-medicine-info">
+                                <div class="hc-medicine-icon {% if loop.index % 2 == 0 %}yellow{% endif %}">
+                                    <i data-lucide="pill"></i>
+                                </div>
+                                <div class="hc-medicine-text">
+                                    <h4>{{ med.name }}</h4>
+                                    <p>{{ med.dosage }} • {{ med.frequency }}</p>
+                                </div>
+                            </div>
+                            <div class="hc-medicine-check" onclick="this.classList.toggle('checked')"></div>
+                        </div>
+                        {% endfor %}
+                        {% else %}
+                        <p style="color: #64748b; font-size: 0.9rem; padding: 1rem 0;">No daily medicines prescribed.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
 
     {% elif current_user.role == 'doctor' %}
         <!-- Doctor Workspace Carousel -->

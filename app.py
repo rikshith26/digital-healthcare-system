@@ -361,10 +361,62 @@ def dashboard():
         # Create a list of doctor IDs where user has priority
         priority_doctors = [str(a['doctor_id']) for a in revisit_priorities]
         
-        # Get my appointments (scheduled and completed)
+        # Get my appointments
         my_appointments = list(appointments_col.find({"patient_id": current_user.id}).sort("_id", -1))
         
-        return render_template('dashboard.html', user=current_user, priority_doctors=priority_doctors, appointments=my_appointments)
+        # Get my reports
+        reports_col = db_manager.get_collection('reports')
+        my_reports = list(reports_col.find({"patient_id": current_user.id}).sort("_id", -1))
+        for report in my_reports:
+            booking = bookings_col.find_one({"_id": ObjectId(report['booking_id'])})
+            report['test_name'] = booking.get('test_name', 'Laboratory Analysis') if booking else 'Laboratory Analysis'
+            
+        # Get my prescriptions (for daily medicines)
+        prescriptions_col = db_manager.get_collection('prescriptions')
+        my_prescriptions = list(prescriptions_col.find({"patient_id": current_user.id}).sort("date", -1))
+        daily_medicines = []
+        for pres in my_prescriptions:
+            if 'medicines' in pres:
+                daily_medicines.extend(pres['medicines'])
+                
+        # Generate Activity Timeline
+        timeline = []
+        for appt in my_appointments:
+            try:
+                date_obj = datetime.datetime.strptime(f"{appt['date']} {appt['time']}", "%Y-%m-%d %H:%M")
+                timeline.append({
+                    "title": "Appointment Scheduled" if appt['status'] == 'scheduled' else "Appointment Completed",
+                    "desc": f"Consultation with {appt['doctor_name']}",
+                    "time": date_obj,
+                    "type": "appointment",
+                    "status": appt['status']
+                })
+            except:
+                pass
+        for rep in my_reports:
+            try:
+                date_obj = datetime.datetime.strptime(rep['timestamp'], "%Y-%m-%d %H:%M:%S")
+                timeline.append({
+                    "title": "Report Generated",
+                    "desc": f"{rep['test_name']} results uploaded.",
+                    "time": date_obj,
+                    "type": "report",
+                    "status": "completed"
+                })
+            except:
+                pass
+        # Sort timeline descending
+        timeline.sort(key=lambda x: x['time'], reverse=True)
+        # Only take top 5
+        timeline = timeline[:5]
+        
+        return render_template('dashboard.html', 
+                               user=current_user, 
+                               priority_doctors=priority_doctors, 
+                               appointments=my_appointments,
+                               reports=my_reports,
+                               daily_medicines=daily_medicines,
+                               timeline=timeline)
     elif current_user.role == 'doctor':
         # Doctor Dashboard View
         all_slots = list(slots_col.find({"doctor_id": current_user.id}).sort("date", 1))
@@ -735,16 +787,36 @@ def save_prescription():
     
     appointment_id = request.form.get('appointment_id')
     diagnosis = request.form.get('diagnosis')
-    medicines = [] # Handle medicine list here
+    
+    med_names = request.form.getlist('med_name[]')
+    med_dosages = request.form.getlist('med_dosage[]')
+    med_freqs = request.form.getlist('med_freq[]')
+    med_durations = request.form.getlist('med_duration[]')
+    med_instructions = request.form.getlist('med_instructions[]')
+    
+    medicines = []
+    for i in range(len(med_names)):
+        if med_names[i].strip():
+            medicines.append({
+                "name": med_names[i],
+                "dosage": med_dosages[i] if i < len(med_dosages) else '',
+                "frequency": med_freqs[i] if i < len(med_freqs) else '',
+                "duration": med_durations[i] if i < len(med_durations) else '',
+                "instructions": med_instructions[i] if i < len(med_instructions) else ''
+            })
     
     prescriptions_col = db_manager.get_collection('prescriptions')
     appointments_col = db_manager.get_collection('appointments')
     
+    appt = appointments_col.find_one({"_id": ObjectId(appointment_id)})
+    patient_id = appt.get('patient_id') if appt else request.form.get('patient_id')
+    
     prescriptions_col.insert_one({
         "appointment_id": ObjectId(appointment_id),
         "doctor_id": current_user.id,
-        "patient_id": request.form.get('patient_id'),
+        "patient_id": patient_id,
         "diagnosis": diagnosis,
+        "medicines": medicines,
         "date": datetime.datetime.now()
     })
     
@@ -758,6 +830,18 @@ def view_prescription(appt_id):
     prescriptions_col = db_manager.get_collection('prescriptions')
     prescription = prescriptions_col.find_one({"appointment_id": ObjectId(appt_id)})
     return render_template('prescription.html', prescription=prescription)
+
+@app.route('/profile_pic/<filename>')
+def get_profile_pic(filename):
+    try:
+        file_data = db_manager.fs.get_last_version(filename=filename)
+        return send_file(
+            io.BytesIO(file_data.read()),
+            mimetype=file_data.content_type,
+            as_attachment=False
+        )
+    except gridfs.errors.NoFile:
+        return "", 404
 
 @app.route('/profile', methods=['GET', 'POST'])
 @login_required
@@ -778,8 +862,9 @@ def profile():
         if 'profile_pic' in request.files:
             file = request.files['profile_pic']
             if file and file.filename != '':
-                import base64
-                update_data["profile_pic"] = f"data:{file.mimetype};base64,{base64.b64encode(file.read()).decode('utf-8')}"
+                filename = secure_filename(f"profile_{current_user.id}_{file.filename}")
+                db_manager.fs.put(file.read(), filename=filename, content_type=file.mimetype)
+                update_data["profile_pic"] = url_for('get_profile_pic', filename=filename)
 
         col.update_one({"_id": ObjectId(current_user.id)}, {"$set": update_data})
         flash('Profile updated!')
