@@ -23,6 +23,6 @@ HealthLab AI is a digital healthcare platform designed to facilitate coordinatio
 
 ### Access the Platform
 
-The application is currently available online for demonstration and testing purposes. It is hosted on a free cloud deployment service. An official, dedicated domain name will be secured prior to full production launch.
+The application is currently available online for demonstration purposes. It is currently deployed for free using Render. In the future, we will purchase a dedicated domain name for our application.
 
 **Live Link:** [https://healthlab-ai.onrender.com/](https://healthlab-ai.onrender.com/)
