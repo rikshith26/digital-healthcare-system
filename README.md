@@ -21,8 +21,8 @@ HealthLab AI is a digital healthcare platform designed to facilitate coordinatio
 * Request Management: Review and accept home sample collection requests.
 * Document Upload: Upload laboratory reports directly to patient profiles.
 
-### Setup Instructions
-1. Install dependencies: `pip install -r requirements.txt`
-2. Configure environment variables in `.env` (including MongoDB URI).
-3. Start the application: `python app.py`
-4. Access the platform at `http://127.0.0.1:5000`.
+### Access the Platform
+
+The application is currently available online for demonstration and testing purposes. It is hosted on a free cloud deployment service. An official, dedicated domain name will be secured prior to full production launch.
+
+**Live Link:** [https://healthlab-ai.onrender.com/](https://healthlab-ai.onrender.com/)
