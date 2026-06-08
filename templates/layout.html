@@ -277,6 +277,110 @@
 
         {% block content %}{% endblock %}
         <div class="mobile-bottom-spacer"></div>
+
+        {% if current_user.is_authenticated and not current_user.terms_accepted %}
+        <div id="terms-enforcement-modal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(8px); z-index: 99999; display: flex; align-items: center; justify-content: center; padding: 1rem;">
+            <div style="background: white; width: 100%; max-width: 800px; border-radius: 1.5rem; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); overflow: hidden; display: flex; flex-direction: column; max-height: 90vh;">
+                <div style="padding: 2rem 2.5rem; border-bottom: 1px solid #f1f5f9; flex-shrink: 0; text-align: center;">
+                    <div style="display: flex; justify-content: center; margin-bottom: 1rem;">
+                        <i data-lucide="shield-check" style="width: 48px; height: 48px; color: var(--landing-blue);"></i>
+                    </div>
+                    <h2 style="margin: 0 0 0.5rem; font-size: 1.75rem; font-weight: 900; color: #0f172a;">Action Required</h2>
+                    <p style="margin: 0; color: #64748b; font-size: 1rem; line-height: 1.5;">We have updated our Privacy Policy and Terms of Service. Please review and accept them to continue accessing your HealthLab AI dashboard.</p>
+                </div>
+                
+                <div style="padding: 3rem 2.5rem; background: #f8fafc; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.5rem;">
+                    <a href="{{ url_for('privacy_policy') }}" target="_blank" style="display: flex; align-items: center; justify-content: space-between; width: 100%; max-width: 400px; padding: 1.25rem 1.5rem; background: white; border: 1px solid #e2e8f0; border-radius: 1rem; text-decoration: none; color: #0f172a; font-weight: 700; transition: all 0.2s; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <i data-lucide="file-text" style="color: var(--landing-blue);"></i>
+                            <span>Read Privacy Policy</span>
+                        </div>
+                        <i data-lucide="external-link" style="color: #94a3b8; width: 18px; height: 18px;"></i>
+                    </a>
+                    
+                    <a href="{{ url_for('terms_and_conditions') }}" target="_blank" style="display: flex; align-items: center; justify-content: space-between; width: 100%; max-width: 400px; padding: 1.25rem 1.5rem; background: white; border: 1px solid #e2e8f0; border-radius: 1rem; text-decoration: none; color: #0f172a; font-weight: 700; transition: all 0.2s; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <i data-lucide="scale" style="color: var(--landing-blue);"></i>
+                            <span>Read Terms & Conditions</span>
+                        </div>
+                        <i data-lucide="external-link" style="color: #94a3b8; width: 18px; height: 18px;"></i>
+                    </a>
+                </div>
+
+                <div style="padding: 1.5rem 2.5rem; border-top: 1px solid #f1f5f9; background: white; flex-shrink: 0; display: flex; flex-direction: column; gap: 1rem;">
+                    <label style="display: flex; align-items: flex-start; gap: 0.75rem; cursor: pointer; user-select: none;">
+                        <input type="checkbox" id="terms-checkbox" style="margin-top: 0.25rem; width: 1.25rem; height: 1.25rem; cursor: pointer;">
+                        <span style="font-size: 0.9rem; color: #334155; font-weight: 600; line-height: 1.5;">I have read, understood, and agree to the Privacy Policy and Terms & Conditions.</span>
+                    </label>
+                    <button id="btn-accept-terms" disabled style="width: 100%; padding: 1rem; background: #e2e8f0; color: #94a3b8; font-weight: 900; border: none; border-radius: 0.75rem; cursor: not-allowed; transition: all 0.3s; font-size: 1rem; display: flex; justify-content: center; align-items: center; gap: 0.5rem;">
+                        <i data-lucide="check-circle" style="width: 20px;"></i> Proceed to Dashboard
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <style>
+            @keyframes spin { 100% { transform: rotate(360deg); } }
+            .lucide-spin { animation: spin 2s linear infinite; }
+            body:has(#terms-enforcement-modal) { overflow: hidden !important; }
+        </style>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const checkbox = document.getElementById('terms-checkbox');
+                const btn = document.getElementById('btn-accept-terms');
+                if(!checkbox || !btn) return;
+                
+                checkbox.addEventListener('change', (e) => {
+                    if(e.target.checked) {
+                        btn.disabled = false;
+                        btn.style.background = 'var(--landing-blue)';
+                        btn.style.color = 'white';
+                        btn.style.cursor = 'pointer';
+                        btn.style.boxShadow = '0 10px 15px -3px rgba(37, 99, 235, 0.2)';
+                    } else {
+                        btn.disabled = true;
+                        btn.style.background = '#e2e8f0';
+                        btn.style.color = '#94a3b8';
+                        btn.style.cursor = 'not-allowed';
+                        btn.style.boxShadow = 'none';
+                    }
+                });
+
+                btn.addEventListener('click', async () => {
+                    if(!checkbox.checked) return;
+                    
+                    btn.innerHTML = '<i data-lucide="loader" class="lucide-spin" style="width: 20px;"></i> Processing...';
+                    btn.disabled = true;
+                    lucide.createIcons();
+
+                    try {
+                        const res = await fetch("{{ url_for('accept_terms_api') }}", {
+                            method: 'POST',
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'Content-Type': 'application/json'
+                            }
+                        });
+                        const data = await res.json();
+                        if(data.success) {
+                            window.location.reload();
+                        } else {
+                            alert("Failed to accept terms: " + data.message);
+                            btn.disabled = false;
+                            btn.innerHTML = '<i data-lucide="check-circle" style="width: 20px;"></i> Proceed to Dashboard';
+                            lucide.createIcons();
+                        }
+                    } catch(err) {
+                        alert("An error occurred. Please try again.");
+                        btn.disabled = false;
+                        btn.innerHTML = '<i data-lucide="check-circle" style="width: 20px;"></i> Proceed to Dashboard';
+                        lucide.createIcons();
+                    }
+                });
+            });
+        </script>
+        {% endif %}
     </div>
 
     <script>

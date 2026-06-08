@@ -13,6 +13,7 @@ from dotenv import load_dotenv
 import datetime
 import gridfs
 import io
+import random
 from flask import send_file
 
 # Load Environment Variables
@@ -141,6 +142,8 @@ class User(UserMixin):
         self.profile_pic = user_data.get('profile_pic') # Base64 or Path
         self.hospital_name = user_data.get('hospital_name')
         self.specialization = user_data.get('specialization')
+        self.terms_accepted = user_data.get('terms_accepted', False)
+        self.terms_accepted_on = user_data.get('terms_accepted_on')
 
     @property
     def is_profile_complete(self):
@@ -184,6 +187,34 @@ def check_verification():
             allowed_endpoints = ['verify_account', 'logout', 'static']
             if request.endpoint and request.endpoint not in allowed_endpoints:
                 return redirect(url_for('verify_account'))
+
+@app.route('/api/accept_terms', methods=['POST'])
+@login_required
+def accept_terms_api():
+    try:
+        uid = ObjectId(current_user.id)
+        current_time = datetime.datetime.now()
+        
+        # Determine which collection the user belongs to
+        col_name = getattr(current_user, 'collection', None)
+        if not col_name:
+            for c in ['admins', 'users', 'doctors', 'technicians']:
+                if db_manager.get_collection(c).find_one({"_id": uid}):
+                    col_name = c
+                    break
+                    
+        if col_name:
+            db_manager.get_collection(col_name).update_one(
+                {"_id": uid},
+                {"$set": {
+                    "terms_accepted": True,
+                    "terms_accepted_on": current_time
+                }}
+            )
+            return jsonify({"success": True, "message": "Terms accepted successfully."})
+        return jsonify({"success": False, "message": "User collection not found."}), 400
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
 
 @app.route('/doctors')
 @login_required
@@ -249,6 +280,14 @@ def index():
     
     return render_template('index.html', stats=stats)
 
+@app.route('/privacy-policy')
+def privacy_policy():
+    return render_template('privacy_policy.html')
+
+@app.route('/terms-and-conditions')
+def terms_and_conditions():
+    return render_template('terms.html')
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     chat_redirect = request.args.get('chat_redirect')
@@ -278,17 +317,26 @@ def login():
                 user.collection = found_col
                 login_user(user)
                 
+                redirect_url = url_for('dashboard')
                 if next_url:
                     sep = '?' if '?' not in next_url else '&'
                     if consult_redirect:
-                        return redirect(next_url + sep + "open_consult=true")
-                    if chat_redirect:
-                        return redirect(next_url + sep + "open_chat=true")
-                    return redirect(next_url)
-                return redirect(url_for('dashboard'))
+                        redirect_url = next_url + sep + "open_consult=true"
+                    elif chat_redirect:
+                        redirect_url = next_url + sep + "open_chat=true"
+                    else:
+                        redirect_url = next_url
+
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return jsonify({"success": True, "redirect": redirect_url})
+                return redirect(redirect_url)
             else:
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return jsonify({"success": False, "message": "Invalid password"})
                 flash('Invalid password', 'error')
         else:
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return jsonify({"success": False, "message": "No account found with this email"})
             flash('No account found with this email', 'error')
             
     return render_template('login.html')
@@ -300,10 +348,15 @@ def register():
         email = request.form.get('email', '').strip().lower()
         password = request.form.get('password')
         role = request.form.get('role', 'patient')
+        terms_accepted_val = request.form.get('terms_accepted')
+        terms_accepted = True if terms_accepted_val in ['on', 'true', '1'] else False
+        terms_accepted_on = datetime.datetime.now() if terms_accepted else None
         
         admins_col = db_manager.get_collection('admins')
         users_col = db_manager.get_collection('users')
         if users_col.find_one({"email": email}) or admins_col.find_one({"email": email}):
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return jsonify({"success": False, "message": "Email already exists"})
             flash('Email already exists')
             return redirect(url_for('register'))
         
@@ -315,7 +368,9 @@ def register():
             "email": email,
             "password": hashed_password,
             "role": role,
-            "status": status
+            "status": status,
+            "terms_accepted": terms_accepted,
+            "terms_accepted_on": terms_accepted_on
         })
         # Send Welcome Email
         welcome_html = f"""
@@ -338,10 +393,132 @@ def register():
             welcome_html
         )
         
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({"success": True})
+            
         flash('Registration successful. Please login.')
         return redirect(url_for('login'))
         
     return render_template('register.html')
+
+@app.route('/forgot_password', methods=['GET', 'POST'])
+def forgot_password():
+    if request.method == 'POST':
+        email = request.form.get('email', '').strip().lower()
+        
+        user_data = None
+        for col_name in ['admins', 'users', 'doctors', 'technicians']:
+            user_data = db_manager.get_collection(col_name).find_one({"email": email})
+            if user_data:
+                break
+                
+        if user_data:
+            otp = str(random.randint(100000, 999999))
+            expires_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
+            
+            db_manager.get_collection('otps').update_one(
+                {"email": email},
+                {"$set": {"otp": otp, "expires_at": expires_at}},
+                upsert=True
+            )
+            
+            otp_html = f"""
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
+                <h2 style="color: #2c3e50; text-align: center;">Password Reset OTP</h2>
+                <p>You requested to reset your password.</p>
+                <p>Your 6-digit OTP is:</p>
+                <h1 style="text-align: center; color: #e74c3c; letter-spacing: 5px;">{otp}</h1>
+                <p>This OTP is valid for exactly <strong>60 seconds</strong>.</p>
+                <p>If you did not request this, please ignore this email.</p>
+            </div>
+            """
+            send_system_email("Your Password Reset OTP", f"Your OTP is {otp}", email, otp_html)
+            
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return jsonify({"success": True})
+            
+            flash('An OTP has been sent to your email. It will expire in 60 seconds.')
+            return render_template('forgot_password.html', otp_sent=True, email=email)
+        else:
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return jsonify({"success": False, "message": "No account found with this email."})
+            flash('No account found with this email.', 'error')
+            
+    return render_template('forgot_password.html', otp_sent=False)
+
+@app.route('/verify_otp', methods=['POST'])
+def verify_otp():
+    email = request.form.get('email')
+    otp = request.form.get('otp')
+    
+    otp_record = db_manager.get_collection('otps').find_one({"email": email})
+    
+    if otp_record:
+        if datetime.datetime.now() > otp_record['expires_at']:
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return jsonify({"success": False, "message": "OTP has expired. Please request a new one."})
+            flash('OTP has expired. Please request a new one.', 'error')
+            return redirect(url_for('forgot_password'))
+        elif otp_record['otp'] == otp:
+            db_manager.get_collection('otps').delete_one({"email": email})
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return jsonify({"success": True})
+            return render_template('reset_password.html', email=email)
+        else:
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return jsonify({"success": False, "message": "Invalid OTP. Please try again."})
+            flash('Invalid OTP. Please try again.', 'error')
+            return render_template('forgot_password.html', otp_sent=True, email=email)
+    else:
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({"success": False, "message": "Invalid request."})
+        flash('Invalid request.', 'error')
+        return redirect(url_for('forgot_password'))
+
+@app.route('/reset_password', methods=['POST'])
+def reset_password():
+    email = request.form.get('email')
+    password = request.form.get('password')
+    confirm_password = request.form.get('confirm_password')
+    
+    if password != confirm_password:
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({"success": False, "message": "Passwords do not match."})
+        flash('Passwords do not match.', 'error')
+        return render_template('reset_password.html', email=email)
+        
+    hashed_password = generate_password_hash(password)
+    
+    updated = False
+    for col_name in ['admins', 'users', 'doctors', 'technicians']:
+        col = db_manager.get_collection(col_name)
+        if col.find_one({"email": email}):
+            col.update_one({"email": email}, {"$set": {"password": hashed_password}})
+            updated = True
+            break
+            
+    if updated:
+        alert_html = f"""
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
+            <h2 style="color: #c0392b; text-align: center;">Security Alert: Password Changed</h2>
+            <p>Hello,</p>
+            <p>Your account password has been successfully updated.</p>
+            <p><strong>If you did not make this change, please check and secure your account immediately.</strong></p>
+            <p>Thank you,<br>HealthLab AI Security Team</p>
+        </div>
+        """
+        send_system_email("Security Alert: Password Changed", "Your password was changed. If it wasn't you, please secure your account.", email, alert_html)
+        
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({"success": True})
+            
+        flash('Password updated successfully. You can now login.')
+        return redirect(url_for('login'))
+    else:
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({"success": False, "message": "Error updating password."})
+        flash('Error updating password.', 'error')
+        return redirect(url_for('forgot_password'))
 
 @app.route('/dashboard')
 @login_required

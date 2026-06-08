@@ -25,11 +25,16 @@
         justify-content: space-between;
         align-items: center;
         padding: 1.5rem 8%;
-        background: var(--landing-white);
-        border-bottom: 1px solid #f1f5f9;
-        position: sticky;
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        position: absolute;
         top: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
         z-index: 1000;
+        box-sizing: border-box;
     }
 
     .v3-logo {
@@ -69,11 +74,12 @@
 
     .btn-v3-login {
         padding: 0.6rem 1.5rem;
-        border: 1px solid #e2e8f0;
+        border: none;
+        background: transparent;
         border-radius: 8px;
         text-decoration: none;
         color: var(--landing-text-dark);
-        font-weight: 600;
+        font-weight: 700;
     }
 
     .btn-v3-signup {
@@ -87,170 +93,117 @@
         font-weight: 600;
     }
 
-    /* Hero Section */
+    /* Hero Section (Redesigned with landing page slide background) */
     .hero-v3 {
+        position: relative;
         display: flex;
         align-items: center;
-        justify-content: space-between;
-        padding: 2rem 8% 6rem;
-        gap: 4rem;
+        justify-content: center;
+        text-align: center;
+        padding: 0 5%;
+        min-height: 100vh;
+        overflow: hidden;
+        background-image: url('{{ url_for("static", filename="img/landing_page_slide.png") }}');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
     }
 
+    /* Clean hero content with no background panel */
     .hero-v3-content {
-        flex: 1;
-        max-width: 600px;
-    }
-
-    .hero-v3-content .tag {
-        color: var(--landing-blue);
-        font-weight: 700;
-        font-size: 0.85rem;
+        position: relative;
+        z-index: 10;
+        max-width: 900px;
         display: flex;
+        flex-direction: column;
         align-items: center;
-        gap: 0.5rem;
-        margin-bottom: 1.5rem;
+        padding: 0;
+        margin-top: 6rem; /* account for fixed header */
     }
 
     .hero-v3-content h1 {
-        font-size: 4rem;
+        font-family: 'Inter', sans-serif;
+        font-size: 5.5rem;
         line-height: 1.1;
         margin-bottom: 1.5rem;
         font-weight: 900;
+        color: #0f172a;
+        letter-spacing: -0.03em;
+        text-shadow: 0 4px 20px rgba(255, 255, 255, 0.7);
     }
 
     .hero-v3-content h1 span {
-        color: #84cc16;
-        /* Original Green */
         color: var(--landing-blue);
-        /* Requested Blue */
     }
 
     .hero-v3-content p {
-        color: var(--landing-text-muted);
-        font-size: 1.1rem;
+        color: #1e293b;
+        font-size: 1.35rem;
         line-height: 1.6;
-        margin-bottom: 2.5rem;
+        margin-bottom: 3rem;
+        max-width: 680px;
+        font-weight: 500;
+        text-shadow: 0 2px 10px rgba(255, 255, 255, 0.8);
     }
 
     .hero-v3-btns {
         display: flex;
         gap: 1.5rem;
-        margin-bottom: 3rem;
+        justify-content: center;
     }
 
     .btn-v3-hero-primary {
         background: var(--landing-blue);
         color: white;
-        padding: 1rem 2rem;
-        border-radius: 8px;
+        padding: 1.25rem 2.75rem;
+        border-radius: 50px;
         text-decoration: none;
         font-weight: 700;
+        font-size: 1.1rem;
         display: flex;
         align-items: center;
         gap: 0.75rem;
+        box-shadow: 0 10px 25px rgba(37, 99, 235, 0.4);
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+    
+    .btn-v3-hero-primary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 30px rgba(37, 99, 235, 0.5);
     }
 
     .btn-v3-hero-outline {
-        border: 1px solid #e2e8f0;
-        color: var(--landing-text-dark);
-        padding: 1rem 2rem;
-        border-radius: 8px;
+        border: 2px solid var(--landing-blue);
+        background: transparent;
+        color: var(--landing-blue);
+        padding: 1.25rem 2.75rem;
+        border-radius: 50px;
         text-decoration: none;
         font-weight: 700;
+        font-size: 1.1rem;
         display: flex;
         align-items: center;
         gap: 0.75rem;
+        transition: background-color 0.3s, color 0.3s, transform 0.3s;
+    }
+    
+    .btn-v3-hero-outline:hover {
+        background: var(--landing-blue);
+        color: white;
+        transform: translateY(-3px);
     }
 
-    .hero-v3-stats {
-        display: flex;
-        gap: 2rem;
+    @media (max-width: 1024px) {
+        .hero-v3-content h1 { font-size: 4.5rem; }
+        .hero-v3-content p { font-size: 1.25rem; }
     }
 
-    .hero-v3-stats .stat-item {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        font-size: 0.85rem;
-        font-weight: 600;
-        color: var(--landing-text-muted);
-    }
-
-    .hero-v3-stats i {
-        color: var(--landing-blue);
-    }
-
-    .hero-v3-visual {
-        flex: 1;
-        position: relative;
-        display: flex;
-        justify-content: center;
-    }
-
-    .hero-v3-visual .doctor-image-container {
-        width: 100%;
-        max-width: 500px;
-        position: relative;
-        z-index: 10;
-        background: white;
-        border-radius: 40px;
-        overflow: hidden;
-    }
-
-    .doctor-main-img {
-        width: 100%;
-        display: block;
-        transition: transform 0.5s ease;
-    }
-
-    .doctor-image-container:hover .doctor-main-img {
-        transform: scale(1.05);
-    }
-
-    .trust-badge {
-        position: absolute;
-        bottom: 30px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: white;
-        padding: 0.75rem 1.5rem;
-        border-radius: 100px;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-        z-index: 30;
-        font-weight: 700;
-        color: var(--landing-blue);
-        white-space: nowrap;
-        border: 1px solid rgba(37, 99, 235, 0.1);
-    }
-
-    .floating-card-v3 {
-        position: absolute;
-        background: white;
-        padding: 1rem;
-        border-radius: 12px;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        z-index: 20;
-    }
-
-    .card-reports {
-        top: 20%;
-        right: 0;
-    }
-
-    .card-health {
-        top: 10%;
-        left: 0;
-    }
-
-    .card-delivered {
-        bottom: 20%;
-        right: -20px;
+    @media (max-width: 768px) {
+        .hero-v3-content { padding: 0 1.5rem; }
+        .hero-v3-content h1 { font-size: 3.25rem; }
+        .hero-v3-content p { font-size: 1.15rem; margin-bottom: 2.5rem; }
+        .hero-v3-btns { flex-direction: column; width: 100%; align-items: center; gap: 1rem; }
+        .btn-v3-hero-primary, .btn-v3-hero-outline { width: 100%; justify-content: center; padding: 1.1rem; }
     }
 
     /* Service Icons Row */
@@ -299,12 +252,13 @@
         color: var(--landing-blue);
     }
 
-    /* HOW IT WORKS */
+    /* HOW IT WORKS - ANIMATED */
     .how-it-works-v3 {
         padding: 4rem 8%;
         background: #0f172a;
         color: white;
         text-align: center;
+        overflow: hidden;
     }
 
     .how-steps-v3 {
@@ -314,34 +268,179 @@
         position: relative;
     }
 
-    .how-steps-v3::before {
-        content: '';
+    /* Timeline Tracks */
+    .timeline-track-container {
         position: absolute;
-        top: 30px;
+        top: 31px;
         left: 10%;
         right: 10%;
         height: 2px;
-        border-top: 2px dashed rgba(255, 255, 255, 0.1);
         z-index: 1;
     }
 
-    .step-v3-item {
+    .timeline-base {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: linear-gradient(to right, rgba(255, 255, 255, 0.2) 50%, transparent 50%);
+        background-size: 8px 2px;
+        background-repeat: repeat-x;
+        opacity: 0;
+        transition: opacity 0.5s ease 0.5s;
+    }
+
+    .how-it-works-v3.is-visible .timeline-base {
+        opacity: 1;
+    }
+
+    .timeline-fill {
+        position: absolute;
+        top: -1px;
+        left: 0;
+        width: 0%;
+        height: 4px;
+        background: var(--landing-blue);
+        box-shadow: 0 0 10px var(--landing-blue), 0 0 20px rgba(37, 99, 235, 0.4);
+        transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
         z-index: 2;
+        border-radius: 4px;
+    }
+
+    .timeline-beam {
+        position: absolute;
+        top: -2px;
+        left: 0;
+        width: 40px;
+        height: 6px;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 0 15px white, 0 0 30px var(--landing-blue);
+        opacity: 0;
+        z-index: 3;
+        transform: translateX(-100%);
+    }
+
+    .how-it-works-v3.all-visible .timeline-beam {
+        animation: beamTravel 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    @keyframes beamTravel {
+        0% {
+            left: 0%;
+            opacity: 0;
+        }
+
+        10% {
+            opacity: 1;
+        }
+
+        90% {
+            opacity: 1;
+        }
+
+        100% {
+            left: 100%;
+            opacity: 0;
+        }
+    }
+
+    /* Title Animation */
+    .step-anim-title {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .how-it-works-v3.is-visible .step-anim-title {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .glow-text {
+        color: #3b82f6 !important;
+        transition: text-shadow 1s ease-in-out;
+        position: relative;
+        display: inline-block;
+        overflow: hidden;
+        vertical-align: bottom;
+    }
+
+    .how-it-works-v3.is-visible .glow-text {
+        animation: textGlowPulse 3s infinite alternate;
+    }
+
+    @keyframes textGlowPulse {
+        0% {
+            text-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+        }
+
+        100% {
+            text-shadow: 0 0 25px rgba(59, 130, 246, 0.9), 0 0 40px rgba(59, 130, 246, 0.4);
+        }
+    }
+
+    .shine-effect {
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 50%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+        transform: skewX(-20deg);
+    }
+
+    .how-it-works-v3.is-visible .shine-effect {
+        animation: shinePass 1.5s cubic-bezier(0.16, 1, 0.3, 1) 0.8s forwards;
+    }
+
+    @keyframes shinePass {
+        0% {
+            left: -100%;
+        }
+
+        100% {
+            left: 200%;
+        }
+    }
+
+    /* Step Items */
+    .step-v3-item {
+        z-index: 5;
         flex: 1;
         display: flex;
         flex-direction: column;
         align-items: center;
+        position: relative;
+    }
+
+    .step-icon-wrapper {
+        position: relative;
+        width: 64px;
+        height: 64px;
+        margin-bottom: 1.5rem;
     }
 
     .step-v3-icon {
-        width: 64px;
-        height: 64px;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
         background: var(--landing-blue);
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        margin-bottom: 1.5rem;
+        z-index: 10;
+        opacity: 0;
+    }
+
+    .step-text {
+        opacity: 0;
+        transform: translateY(15px);
+        transition: opacity 0.5s ease, transform 0.5s ease;
     }
 
     .step-v3-item h4 {
@@ -353,6 +452,172 @@
         font-size: 0.75rem;
         opacity: 0.6;
         max-width: 160px;
+    }
+
+    /* Individual Icon Animations */
+    .step1-icon {
+        transform: scale(0);
+    }
+
+    .step-v3-item.active .step1-icon {
+        opacity: 1;
+        transform: scale(1);
+        transition: opacity 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .ripple {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        border: 2px solid var(--landing-blue);
+        opacity: 0;
+        z-index: 1;
+    }
+
+    .step-v3-item.active .ripple {
+        animation: ripplePulse 1.5s ease-out forwards;
+    }
+
+    @keyframes ripplePulse {
+        0% {
+            width: 64px;
+            height: 64px;
+            opacity: 1;
+        }
+
+        100% {
+            width: 140px;
+            height: 140px;
+            opacity: 0;
+        }
+    }
+
+    .step2-icon {
+        transform: rotate(-45deg) scale(0.8);
+    }
+
+    .step-v3-item.active .step2-icon {
+        opacity: 1;
+        transform: rotate(0) scale(1);
+        transition: opacity 0.5s ease, transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .step3-icon {
+        transform: translateY(30px);
+    }
+
+    .step-v3-item.active .step3-icon {
+        opacity: 1;
+        transform: translateY(0);
+        transition: opacity 0.5s ease, transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .step4-icon {
+        transform: translateY(20px);
+    }
+
+    .step-v3-item.active .step4-icon {
+        opacity: 1;
+        transform: translateY(0);
+        transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+
+    .icon-shimmer {
+        position: absolute;
+        top: -100%;
+        left: -100%;
+        width: 50%;
+        height: 300%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+        transform: rotate(45deg);
+        pointer-events: none;
+    }
+
+    .step-v3-item.active .icon-shimmer {
+        animation: shimmerSweep 1s ease-out 0.4s forwards;
+    }
+
+    @keyframes shimmerSweep {
+        0% {
+            left: -100%;
+            top: -100%;
+        }
+
+        100% {
+            left: 150%;
+            top: 150%;
+        }
+    }
+
+    .step5-icon {
+        transform: scale(0.9);
+    }
+
+    .step-v3-item.active .step5-icon {
+        opacity: 1;
+        transform: scale(1);
+        transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+
+    .step-v3-item.active .step5-icon.final-glow {
+        box-shadow: 0 0 30px rgba(37, 99, 235, 0.9);
+        animation: gentlePulse 2s infinite alternate;
+    }
+
+    @keyframes gentlePulse {
+        0% {
+            box-shadow: 0 0 20px rgba(37, 99, 235, 0.5);
+            transform: scale(1);
+        }
+
+        100% {
+            box-shadow: 0 0 40px rgba(37, 99, 235, 0.9);
+            transform: scale(1.05);
+        }
+    }
+
+    .step-v3-item.active .step-text {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .step-v3-icon.active-glow {
+        animation: breathingGlow 2.5s infinite alternate;
+    }
+
+    @keyframes breathingGlow {
+        0% {
+            box-shadow: 0 0 10px rgba(37, 99, 235, 0.4);
+        }
+
+        100% {
+            box-shadow: 0 0 25px rgba(37, 99, 235, 0.8);
+        }
+    }
+
+    .particle-burst {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        z-index: 5;
+        pointer-events: none;
+    }
+
+    .particle {
+        position: absolute;
+        width: 4px;
+        height: 4px;
+        background: #60a5fa;
+        border-radius: 50%;
+        top: -2px;
+        left: -2px;
+        opacity: 0;
     }
 
     /* SOLUTIONS CARDS */
@@ -726,16 +991,51 @@
         }
 
         /* Flow Chart (How It Works) */
+        .how-it-works-v3 {
+            padding: 3rem 0;
+            /* Remove horizontal padding for full bleed scroll */
+        }
+
+        .how-it-works-v3 .section-v3-title {
+            padding: 0 5%;
+        }
+
         .how-steps-v3 {
-            flex-direction: column;
-            gap: 2rem;
-            align-items: center;
-            overflow: visible;
+            flex-direction: row;
+            justify-content: flex-start;
+            gap: 0;
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding: 0 1.5rem 2rem;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+            /* Hide scrollbar for cleaner look */
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .how-steps-v3::-webkit-scrollbar {
+            display: none;
+        }
+
+        .how-steps-v3::after {
+            content: '';
+            flex: 0 0 1.5rem;
+            /* Space at the end of the scroll */
+        }
+
+        .timeline-track-container {
+            left: calc(1.5rem + 120px);
+            width: 960px;
+            /* 4 gaps * 240px */
+            right: auto;
         }
 
         .step-v3-item {
-            width: 100%;
-            max-width: 300px;
+            flex: 0 0 240px;
+            max-width: 240px;
+            width: 240px;
+            scroll-snap-align: center;
         }
 
         /* 4 Roles (Solutions) */
@@ -816,12 +1116,12 @@
                 style="font-weight: 400; color: #64748b; margin-left: -2px;">AI</span></span>
     </a>
     <nav class="v3-nav">
-        <a href="#" class="active">Home</a>
-        <a href="#">About Us</a>
-        <a href="#">Services</a>
-        <a href="#">For Business</a>
-        <a href="#">Pricing</a>
-        <a href="#">Contact Us</a>
+        <a href="#home" class="active">Home</a>
+        <a href="#about">About Us</a>
+        <a href="#services">Services</a>
+        <a href="#business">For Business</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#contact">Contact Us</a>
     </nav>
     <div class="v3-auth">
         <a href="{{ url_for('login') }}" class="btn-v3-login">Login</a>
@@ -830,46 +1130,24 @@
 </header>
 
 <!-- HERO -->
-<section class="hero-v3">
+<section class="hero-v3" id="home">
     <div class="hero-v3-content">
-        <div class="tag">
-            <i data-lucide="sparkles"></i> AI-Powered Healthcare Platform
-        </div>
-        <h1>Your Health.<br>Our Technology.<br><span>Better Tomorrow.</span></h1>
-        <p>HealthLab AI brings together advanced AI, certified professionals, and smart technology to make healthcare
-            simple, accessible and reliable for everyone.</p>
+        <h1>Your Health.<br>Powered by<br><span>Intelligence.</span></h1>
+        <p>AI-driven diagnostics, smart health monitoring and accessible healthcare for everyone, everywhere.</p>
 
         <div class="hero-v3-btns">
             <a href="{{ url_for('book_test_page') }}" class="btn-v3-hero-primary">
-                Book a Test Now <i data-lucide="arrow-right"></i>
+                Book a Test Now
             </a>
             <a href="#" class="btn-v3-hero-outline">
-                Try AI Health Check <i data-lucide="bot"></i>
+                Try AI Health Check
             </a>
-        </div>
-
-        <div class="hero-v3-stats">
-            <div class="stat-item"><i data-lucide="shield-check"></i> Secure & Private</div>
-            <div class="stat-item"><i data-lucide="user-check"></i> Verified Professionals</div>
-            <div class="stat-item"><i data-lucide="zap"></i> Quick & Reliable</div>
-        </div>
-    </div>
-
-    <div class="hero-v3-visual">
-
-        <div class="doctor-image-container">
-            <img src="{{ url_for('static', filename='img/doctor_v2.png') }}" alt="Professional HealthLab Doctor"
-                class="doctor-main-img">
-            <div class="trust-badge">
-                <i data-lucide="shield-check"></i>
-                <span>"We are here for you"</span>
-            </div>
         </div>
     </div>
 </section>
 
 <!-- SERVICES ROW -->
-<div class="services-row-v3">
+<div class="services-row-v3" id="services">
     <div class="service-v3-item">
         <i data-lucide="bot" style="width: 32px;"></i>
         <h4>AI Health Assistant</h4>
@@ -903,41 +1181,79 @@
 </div>
 
 <!-- HOW IT WORKS -->
-<section class="how-it-works-v3">
-    <div class="section-v3-title" style="margin-top: 0;">
-        <h2 style="color: white;">How <span>HealthLab AI</span> Works?</h2>
+<section class="how-it-works-v3" id="how-it-works-section">
+    <div class="section-v3-title step-anim-title" style="margin-top: 0;">
+        <h2 style="color: white;">
+            How <span class="glow-text">HealthLab AI<div class="shine-effect"></div></span> Works?
+        </h2>
     </div>
     <div class="how-steps-v3">
-        <div class="step-v3-item">
-            <div class="step-v3-icon"><i data-lucide="clipboard-list"></i></div>
-            <h4>1. Choose Service</h4>
-            <p>Select test, consultation or medicine</p>
+        <div class="timeline-track-container">
+            <div class="timeline-base"></div>
+            <div class="timeline-fill"></div>
+            <div class="timeline-beam"></div>
         </div>
-        <div class="step-v3-item">
-            <div class="step-v3-icon"><i data-lucide="calendar"></i></div>
-            <h4>2. Book & Schedule</h4>
-            <p>Pick a time slot that suits you</p>
+        <div class="step-v3-item" data-step="1">
+            <div class="step-icon-wrapper">
+                <div class="ripple"></div>
+                <div class="particle-burst"></div>
+                <div class="step-v3-icon step1-icon"><i data-lucide="clipboard-list"></i></div>
+            </div>
+            <div class="step-text">
+                <h4>1. Choose Service</h4>
+                <p>Select test, consultation or medicine</p>
+            </div>
         </div>
-        <div class="step-v3-item">
-            <div class="step-v3-icon"><i data-lucide="home"></i></div>
-            <h4>3. Sample Collection</h4>
-            <p>Technician visits your home</p>
+        <div class="step-v3-item" data-step="2">
+            <div class="step-icon-wrapper">
+                <div class="particle-burst"></div>
+                <div class="step-v3-icon step2-icon"><i data-lucide="calendar"></i></div>
+            </div>
+            <div class="step-text">
+                <h4>2. Book & Schedule</h4>
+                <p>Pick a time slot that suits you</p>
+            </div>
         </div>
-        <div class="step-v3-item">
-            <div class="step-v3-icon"><i data-lucide="file-check"></i></div>
-            <h4>4. Get Reports</h4>
-            <p>Receive digital reports on the app</p>
+        <div class="step-v3-item" data-step="3">
+            <div class="step-icon-wrapper">
+                <div class="particle-burst"></div>
+                <div class="step-v3-icon step3-icon"><i data-lucide="home"></i></div>
+            </div>
+            <div class="step-text">
+                <h4>3. Sample Collection</h4>
+                <p>Technician visits your home</p>
+            </div>
         </div>
-        <div class="step-v3-item">
-            <div class="step-v3-icon"><i data-lucide="stethoscope"></i></div>
-            <h4>5. Consult & Improve</h4>
-            <p>Take action & follow doctor's advice</p>
+        <div class="step-v3-item" data-step="4">
+            <div class="step-icon-wrapper">
+                <div class="particle-burst"></div>
+                <div class="step-v3-icon step4-icon">
+                    <div style="position: absolute; inset: 0; border-radius: 50%; overflow: hidden;">
+                        <div class="icon-shimmer"></div>
+                    </div>
+                    <i data-lucide="file-check" style="position: relative; z-index: 2;"></i>
+                </div>
+            </div>
+            <div class="step-text">
+                <h4>4. Get Reports</h4>
+                <p>Receive digital reports on the app</p>
+            </div>
+        </div>
+        <div class="step-v3-item" data-step="5">
+            <div class="step-icon-wrapper">
+                <div class="particle-burst"></div>
+                <div class="step-v3-icon step5-icon"><i data-lucide="stethoscope"></i></div>
+            </div>
+            <div class="step-text">
+                <h4>5. Consult & Improve</h4>
+                <p>Take action & follow doctor's advice</p>
+            </div>
         </div>
     </div>
 </section>
 
 <!-- SOLUTIONS -->
-<section class="solutions-v3">
+<section class="solutions-v3" id="business">
     <div class="section-v3-title">
         <h2>Health Solutions For <span>Everyone</span></h2>
     </div>
@@ -1021,7 +1337,7 @@
 </div>
 
 <!-- WHY CHOOSE -->
-<section class="why-choose-v3">
+<section class="why-choose-v3" id="about">
     <div class="why-v3-content">
         <h2>Why Choose <span>HealthLab AI</span>?</h2>
         <div class="why-features-v3">
@@ -1150,7 +1466,7 @@
 </section>
 
 <!-- FOOTER -->
-<footer class="v3-footer">
+<footer class="v3-footer" id="contact">
     <div class="footer-v3-grid">
         <div class="footer-v3-logo">
             <a href="/" class="v3-logo"
@@ -1217,6 +1533,904 @@
         if (typeof lucide !== 'undefined') {
             lucide.createIcons();
         }
+
+        // How it Works Animation Logic
+        const section = document.getElementById("how-it-works-section");
+        if (!section) return;
+
+        const steps = section.querySelectorAll(".step-v3-item");
+        const timelineFill = section.querySelector(".timeline-fill");
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && !section.classList.contains('is-animated')) {
+                    section.classList.add('is-animated');
+                    section.classList.add('is-visible');
+                    startAnimation();
+                }
+            });
+        }, { threshold: 0.4 });
+
+        observer.observe(section);
+
+        function startAnimation() {
+            const stepDelay = 300;
+
+            steps.forEach((step, index) => {
+                setTimeout(() => {
+                    step.classList.add('active');
+
+                    createParticles(step.querySelector('.particle-burst'));
+
+                    const progress = (index / (steps.length - 1)) * 100;
+                    timelineFill.style.width = `${progress}%`;
+
+                    setTimeout(() => {
+                        const icon = step.querySelector('.step-v3-icon');
+                        if (index === 4) {
+                            icon.classList.add('final-glow');
+                        } else {
+                            icon.classList.add('active-glow');
+                        }
+                    }, 500);
+
+                    if (index === steps.length - 1) {
+                        setTimeout(() => {
+                            section.classList.add('all-visible');
+                            steps.forEach(s => {
+                                const icon = s.querySelector('.step-v3-icon');
+                                icon.style.transform = 'scale(1.1)';
+                                setTimeout(() => icon.style.transform = '', 300);
+                            });
+                        }, 800);
+                    }
+
+                }, 800 + (index * stepDelay));
+            });
+        }
+
+        function createParticles(container) {
+            if (!container) return;
+            const particleCount = 6;
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+
+                const angle = (i / particleCount) * Math.PI * 2 + (Math.random() * 0.5);
+                const distance = 35 + Math.random() * 15;
+
+                const tx = Math.cos(angle) * distance;
+                const ty = Math.sin(angle) * distance;
+
+                container.appendChild(particle);
+
+                particle.animate([
+                    { transform: 'translate(0, 0) scale(1)', opacity: 1 },
+                    { transform: `translate(${tx}px, ${ty}px) scale(0)`, opacity: 0 }
+                ], {
+                    duration: 600 + Math.random() * 300,
+                    easing: 'cubic-bezier(0.25, 1, 0.5, 1)',
+                    fill: 'forwards'
+                });
+
+                setTimeout(() => particle.remove(), 1000);
+            }
+        }
+        // Cinematic Stats Animation Logic
+        const statsSection = document.getElementById('cinematic-stats');
+        if (statsSection) {
+            const statsCards = statsSection.querySelectorAll('.cinematic-stat-card');
+            const counters = statsSection.querySelectorAll('.counter');
+            let hasAnimatedStats = false;
+
+            const statsObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting && !hasAnimatedStats) {
+                        hasAnimatedStats = true;
+                        statsSection.classList.add('is-visible');
+                        
+                        // Counter animation
+                        counters.forEach(counter => {
+                            const target = +counter.getAttribute('data-target');
+                            const duration = 2000;
+                            const startTime = performance.now();
+                            
+                            function updateCounter(currentTime) {
+                                const elapsed = currentTime - startTime;
+                                const progress = Math.min(elapsed / duration, 1);
+                                const easeProgress = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+                                counter.innerText = Math.floor(easeProgress * target);
+                                
+                                if (progress < 1) requestAnimationFrame(updateCounter);
+                                else counter.innerText = target;
+                            }
+                            requestAnimationFrame(updateCounter);
+                        });
+
+                        setTimeout(() => {
+                            statsCards.forEach(card => card.classList.add('ready'));
+                        }, 1200);
+                    }
+                });
+            }, { threshold: 0.3 });
+
+            statsObserver.observe(statsSection);
+
+            statsSection.addEventListener('mousemove', (e) => {
+                if (window.innerWidth < 1024) return;
+                statsCards.forEach(card => {
+                    if (!card.classList.contains('ready')) return;
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left - rect.width / 2;
+                    const y = e.clientY - rect.top - rect.height / 2;
+                    card.style.setProperty('--r-x', `${(y / (rect.height / 2)) * -10}deg`);
+                    card.style.setProperty('--r-y', `${(x / (rect.width / 2)) * 10}deg`);
+                });
+            });
+
+            statsSection.addEventListener('mouseleave', () => {
+                statsCards.forEach(card => {
+                    card.style.setProperty('--r-x', '0deg');
+                    card.style.setProperty('--r-y', '0deg');
+                });
+            });
+        }
+    });
+</script>
+
+<style>
+/* MODAL CSS */
+.hidden {
+    display: none !important;
+}
+
+.auth-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    z-index: 9999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.auth-modal-overlay.flex {
+    display: flex;
+}
+
+.auth-modal-overlay.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.auth-modal-content {
+    background-color: #ffffff;
+    width: 100%;
+    max-width: 450px;
+    border-radius: 2rem;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    position: relative;
+    overflow: hidden;
+    transform: scale(0.95);
+    transition: transform 0.3s ease;
+    max-height: 90vh;
+    overflow-y: auto;
+    scrollbar-width: none;
+    box-sizing: border-box;
+}
+
+.auth-modal-content::-webkit-scrollbar {
+    display: none;
+}
+
+.auth-modal-overlay.show .auth-modal-content {
+    transform: scale(1);
+}
+
+.btn-close-modal {
+    position: absolute;
+    top: 1.25rem;
+    right: 1.25rem;
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    cursor: pointer;
+    z-index: 20;
+    transition: color 0.2s;
+}
+
+.btn-close-modal:hover {
+    color: #1e293b;
+}
+
+.auth-modal-body {
+    padding: 2.5rem;
+}
+
+.auth-view {
+    display: none;
+}
+
+.auth-view:not(.hidden) {
+    display: block;
+}
+
+.auth-header {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 2rem;
+}
+
+.auth-header i {
+    color: var(--landing-blue);
+    width: 32px;
+    height: 32px;
+}
+
+.auth-header h1 {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: #0f172a;
+    margin: 0;
+}
+
+.auth-title {
+    font-size: 1.875rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 0.5rem;
+}
+
+.auth-subtitle {
+    color: #64748b;
+    font-size: 0.875rem;
+    margin-bottom: 2rem;
+}
+
+.auth-form-group {
+    margin-bottom: 1.25rem;
+    position: relative;
+}
+
+.auth-form-group label {
+    display: block;
+    font-size: 0.65rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #94a3b8;
+    margin-bottom: 0.35rem;
+    margin-left: 0.25rem;
+}
+
+.auth-form-group-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.35rem;
+    margin-left: 0.25rem;
+}
+
+.auth-form-group-header label {
+    margin: 0;
+}
+
+.auth-link-small {
+    font-size: 0.65rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--landing-blue);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.auth-link-small:hover {
+    color: #1d4ed8;
+}
+
+.auth-input {
+    width: 100%;
+    padding: 0.85rem 1.25rem;
+    background-color: #f8fafc;
+    border: 1px solid #f1f5f9;
+    border-radius: 0.75rem;
+    outline: none;
+    color: #0f172a;
+    font-weight: 500;
+    transition: all 0.2s;
+    box-sizing: border-box;
+}
+
+.auth-input:focus {
+    background-color: #ffffff;
+    border-color: var(--landing-blue);
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
+.auth-input::placeholder {
+    color: #94a3b8;
+}
+
+.btn-auth-submit {
+    width: 100%;
+    background-color: var(--landing-blue);
+    color: #ffffff;
+    font-weight: 900;
+    padding: 1rem;
+    border: none;
+    border-radius: 0.75rem;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-size: 0.75rem;
+    margin-top: 1.5rem;
+    box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.2);
+    transition: all 0.2s;
+}
+
+.btn-auth-submit:hover {
+    background-color: #1d4ed8;
+    transform: scale(1.02);
+}
+
+.btn-auth-submit:active {
+    transform: scale(0.98);
+}
+
+.auth-footer-text {
+    margin-top: 1.5rem;
+    text-align: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #94a3b8;
+}
+
+.auth-footer-text a {
+    color: var(--landing-blue);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.auth-alert {
+    display: none;
+    margin-bottom: 1.5rem;
+    padding: 0.75rem 1rem;
+    border-radius: 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-align: center;
+}
+
+.auth-alert.error {
+    display: block;
+    background-color: #fef2f2;
+    color: #dc2626;
+    border: 1px solid #fee2e2;
+}
+
+.auth-alert.success {
+    display: block;
+    background-color: #f0fdf4;
+    color: #15803d;
+    border: 1px solid #dcfce7;
+}
+
+.auth-icon-circle {
+    width: 4rem;
+    height: 4rem;
+    background-color: var(--landing-blue-light);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+}
+
+.auth-icon-circle i {
+    width: 2rem;
+    height: 2rem;
+    color: var(--landing-blue);
+}
+
+.otp-inputs {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.otp-input {
+    width: 3rem;
+    height: 3.5rem;
+    text-align: center;
+    font-size: 1.25rem;
+    font-weight: 700;
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    outline: none;
+    color: #0f172a;
+    transition: all 0.2s;
+}
+
+.otp-input:focus {
+    border-color: var(--landing-blue);
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
+.auth-legal {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #f1f5f9;
+    text-align: center;
+    font-size: 0.65rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #cbd5e1;
+}
+
+.auth-legal a {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.auth-legal a:hover {
+    color: var(--landing-blue);
+}
+
+.auth-legal span {
+    margin: 0 0.5rem;
+}
+</style>
+
+<!-- AUTH MODAL OVERLAY -->
+<div id="auth-modal" class="auth-modal-overlay hidden">
+    <div class="auth-modal-content" id="auth-modal-content">
+        <!-- Close Button -->
+        <button id="close-auth-modal" class="btn-close-modal">
+            <i data-lucide="x"></i>
+        </button>
+
+        <div class="auth-modal-body">
+            <div id="modal-alert" class="auth-alert"></div>
+
+            <!-- LOGIN VIEW -->
+            <div id="view-login" class="auth-view">
+                <div class="auth-header">
+                    <i data-lucide="activity"></i>
+                    <h1>HealthLab <span style="font-weight: 400; color: #64748b;">AI</span></h1>
+                </div>
+                <h2 class="auth-title">Welcome Back</h2>
+                <p class="auth-subtitle">Login to manage your health reports</p>
+
+                <form id="form-login">
+                    <div class="auth-form-group">
+                        <label>Email Account</label>
+                        <input class="auth-input" name="email" placeholder="name@hospital.com" type="email" required />
+                    </div>
+                    <div class="auth-form-group">
+                        <div class="auth-form-group-header">
+                            <label>Security Key</label>
+                            <a href="#" onclick="switchAuthView('forgot'); return false;" class="auth-link-small">Forgot Password?</a>
+                        </div>
+                        <input class="auth-input" id="modal-login-password" name="password" placeholder="••••••••" type="password" required />
+                        <button type="button" class="password-toggle" onclick="toggleModalPassword('modal-login-password', 'modal-eye-login')">
+                            <i data-lucide="eye" id="modal-eye-login"></i>
+                        </button>
+                    </div>
+                    <button class="btn-auth-submit" type="submit">Access Dashboard</button>
+                </form>
+                <p class="auth-footer-text">
+                    New to platform? <a href="#" onclick="switchAuthView('register'); return false;">Join HealAI</a>
+                </p>
+            </div>
+
+            <!-- REGISTER VIEW -->
+            <div id="view-register" class="auth-view hidden">
+                <div class="auth-header">
+                    <i data-lucide="activity"></i>
+                    <h1>HealthLab <span style="font-weight: 400; color: #64748b;">AI</span></h1>
+                </div>
+                <h2 class="auth-title">Create Identity</h2>
+                <p class="auth-subtitle">Join the future of healthcare today</p>
+
+                <form id="form-register">
+                    <div class="auth-form-group">
+                        <label>Full Name</label>
+                        <input class="auth-input" name="username" placeholder="Enter a Name" type="text" required />
+                    </div>
+                    <div class="auth-form-group">
+                        <label>Email Address</label>
+                        <input class="auth-input" name="email" placeholder="name@hospital.com" type="email" required />
+                    </div>
+                    <div class="auth-form-group">
+                        <label>Security Key</label>
+                        <input class="auth-input" id="modal-reg-password" name="password" placeholder="••••••••" type="password" required />
+                        <button type="button" class="password-toggle" onclick="toggleModalPassword('modal-reg-password', 'modal-eye-reg')">
+                            <i data-lucide="eye" id="modal-eye-reg"></i>
+                        </button>
+                    </div>
+                    <div class="auth-form-group">
+                        <label>Account Type</label>
+                        <select class="auth-input" name="role" required>
+                            <option value="patient">Patient</option>
+                            <option value="doctor">Doctor</option>
+                            <option value="technician">Technician</option>
+                        </select>
+                    <div class="auth-form-group">
+                        <label style="display: flex; flex-direction: row; gap: 0.5rem; align-items: flex-start; text-transform: none; letter-spacing: normal; font-weight: 500; font-size: 0.75rem; color: #475569;">
+                            <input type="checkbox" required name="terms_accepted" style="margin-top: 0.15rem; cursor: pointer; width: 1rem; height: 1rem;">
+                            <span style="margin: 0; line-height: 1.4;">I have read and agree to the <a href="{{ url_for('terms_and_conditions') }}" target="_blank" style="color: var(--landing-blue); text-decoration: none; font-weight: 700;">Terms & Conditions</a> and <a href="{{ url_for('privacy_policy') }}" target="_blank" style="color: var(--landing-blue); text-decoration: none; font-weight: 700;">Privacy Policy</a>.</span>
+                        </label>
+                    </div>
+                    <button class="btn-auth-submit" type="submit">Join Network</button>
+                </form>
+                <p class="auth-footer-text">
+                    Already registered? <a href="#" onclick="switchAuthView('login'); return false;">Member Login</a>
+                </p>
+            </div>
+
+            <!-- FORGOT PASSWORD VIEW -->
+            <div id="view-forgot" class="auth-view hidden">
+                <div class="auth-icon-circle">
+                    <i data-lucide="mail"></i>
+                </div>
+                <div style="text-align: center;">
+                    <h2 class="auth-title" style="font-size: 1.5rem;">Forgot Password?</h2>
+                    <p class="auth-subtitle">No worries, we'll send you reset instructions.</p>
+                </div>
+                <form id="form-forgot">
+                    <div class="auth-form-group">
+                        <label>Email</label>
+                        <input class="auth-input" id="forgot-email-input" name="email" placeholder="Enter your email" type="email" required />
+                    </div>
+                    <button class="btn-auth-submit" type="submit">Reset Password</button>
+                </form>
+                <div style="text-align: center; margin-top: 1.5rem;">
+                    <a href="#" onclick="switchAuthView('login'); return false;" class="auth-link-small" style="display: inline-flex; align-items: center; gap: 0.5rem; color: #64748b;">
+                        <i data-lucide="arrow-left" style="width: 16px; height: 16px;"></i> Back to log in
+                    </a>
+                </div>
+            </div>
+
+            <!-- OTP VERIFY VIEW -->
+            <div id="view-otp" class="auth-view hidden">
+                <div class="auth-icon-circle">
+                    <i data-lucide="shield-check"></i>
+                </div>
+                <div style="text-align: center;">
+                    <h2 class="auth-title" style="font-size: 1.5rem;">Check your email</h2>
+                    <p class="auth-subtitle">We sent a verification code to<br><span style="font-weight: 700; color: #334155;" id="otp-target-email"></span></p>
+                </div>
+                <form id="form-otp">
+                    <input type="hidden" name="otp" id="modal-final-otp" required>
+                    <div class="otp-inputs" id="modal-otp-inputs">
+                        <input class="otp-input" type="text" maxlength="1" pattern="\d" required />
+                        <input class="otp-input" type="text" maxlength="1" pattern="\d" required />
+                        <input class="otp-input" type="text" maxlength="1" pattern="\d" required />
+                        <input class="otp-input" type="text" maxlength="1" pattern="\d" required />
+                        <input class="otp-input" type="text" maxlength="1" pattern="\d" required />
+                        <input class="otp-input" type="text" maxlength="1" pattern="\d" required />
+                    </div>
+                    <button class="btn-auth-submit" type="submit">Verify Code</button>
+                    <p style="text-align: center; font-size: 0.875rem; color: #64748b; font-weight: 500; margin-top: 1rem;">
+                        Code expires in <span id="modal-timer" style="color: var(--landing-blue); font-weight: 700;">01:00</span>
+                    </p>
+                </form>
+            </div>
+
+            <!-- RESET PASSWORD VIEW -->
+            <div id="view-reset" class="auth-view hidden">
+                <div class="auth-icon-circle">
+                    <i data-lucide="key"></i>
+                </div>
+                <div style="text-align: center;">
+                    <h2 class="auth-title" style="font-size: 1.5rem;">Create Password</h2>
+                    <p class="auth-subtitle">Please enter your new security key</p>
+                </div>
+                <form id="form-reset">
+                    <div class="auth-form-group">
+                        <label>New Security Key</label>
+                        <input class="auth-input" id="modal-reset-p1" name="password" placeholder="••••••••" type="password" required minlength="6" />
+                        <button type="button" class="password-toggle" onclick="toggleModalPassword('modal-reset-p1', 'modal-eye-p1')">
+                            <i data-lucide="eye" id="modal-eye-p1"></i>
+                        </button>
+                    </div>
+                    <div class="auth-form-group">
+                        <label>Verify Security Key</label>
+                        <input class="auth-input" id="modal-reset-p2" name="confirm_password" placeholder="••••••••" type="password" required minlength="6" />
+                        <button type="button" class="password-toggle" onclick="toggleModalPassword('modal-reset-p2', 'modal-eye-p2')">
+                            <i data-lucide="eye" id="modal-eye-p2"></i>
+                        </button>
+                    </div>
+                    <button class="btn-auth-submit" type="submit">Update Password</button>
+                </form>
+            </div>
+
+            <!-- Footer: Terms & Privacy -->
+            <div class="auth-legal">
+                <a href="{{ url_for('privacy_policy') }}" target="_blank">Privacy Policy</a>
+                <span>•</span>
+                <a href="{{ url_for('terms_and_conditions') }}" target="_blank">Terms & Conditions</a>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentAuthEmail = '';
+    let otpTimerInterval;
+
+    function openAuthModal(view = 'login') {
+        const modal = document.getElementById('auth-modal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        // trigger reflow
+        void modal.offsetWidth;
+        modal.classList.add('show');
+        switchAuthView(view);
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeAuthModal() {
+        const modal = document.getElementById('auth-modal');
+        modal.classList.remove('show');
+        setTimeout(() => {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.body.style.overflow = 'auto';
+        }, 300);
+    }
+
+    document.getElementById('close-auth-modal').addEventListener('click', closeAuthModal);
+    
+    // Close on backdrop click
+    document.getElementById('auth-modal').addEventListener('click', (e) => {
+        if (e.target === document.getElementById('auth-modal')) closeAuthModal();
+    });
+    
+    function switchAuthView(viewId) {
+        document.querySelectorAll('.auth-view').forEach(el => el.classList.add('hidden'));
+        document.getElementById('view-' + viewId).classList.remove('hidden');
+        hideModalAlert();
+        lucide.createIcons();
+    }
+
+    function showModalAlert(message, type = 'error') {
+        const alert = document.getElementById('modal-alert');
+        alert.textContent = message;
+        alert.className = 'auth-alert ' + type;
+        alert.classList.remove('hidden');
+    }
+
+    function hideModalAlert() {
+        const alert = document.getElementById('modal-alert');
+        alert.classList.add('hidden');
+        alert.className = 'auth-alert';
+    }
+
+    function toggleModalPassword(inputId, iconId) {
+        const input = document.getElementById(inputId);
+        const icon = document.getElementById(iconId);
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.setAttribute('data-lucide', 'eye-off');
+        } else {
+            input.type = 'password';
+            icon.setAttribute('data-lucide', 'eye');
+        }
+        lucide.createIcons();
+    }
+
+    // OTP Inputs logic
+    const modalOtpInputs = document.querySelectorAll('#modal-otp-inputs input');
+    const modalFinalOtp = document.getElementById('modal-final-otp');
+
+    modalOtpInputs.forEach((input, index) => {
+        input.addEventListener('input', (e) => {
+            if (e.target.value.length > 1) e.target.value = e.target.value.slice(0, 1);
+            if (e.target.value !== '' && index < modalOtpInputs.length - 1) modalOtpInputs[index + 1].focus();
+            updateModalFinalOtp();
+        });
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Backspace' && e.target.value === '' && index > 0) modalOtpInputs[index - 1].focus();
+        });
+        input.addEventListener('paste', (e) => {
+            e.preventDefault();
+            const pastedData = e.clipboardData.getData('text').slice(0, 6).replace(/\D/g, '');
+            if (pastedData) {
+                for (let i = 0; i < pastedData.length; i++) {
+                    if (i < modalOtpInputs.length) modalOtpInputs[i].value = pastedData[i];
+                }
+                if (pastedData.length < modalOtpInputs.length) modalOtpInputs[pastedData.length].focus();
+                else modalOtpInputs[modalOtpInputs.length - 1].focus();
+                updateModalFinalOtp();
+            }
+        });
+    });
+
+    function updateModalFinalOtp() {
+        let otpValue = '';
+        modalOtpInputs.forEach(input => otpValue += input.value);
+        modalFinalOtp.value = otpValue;
+    }
+
+    function startModalOtpTimer() {
+        clearInterval(otpTimerInterval);
+        let timeLeft = 60;
+        const timerElem = document.getElementById('modal-timer');
+        timerElem.style.color = 'var(--landing-blue)';
+        otpTimerInterval = setInterval(() => {
+            timeLeft--;
+            let seconds = timeLeft < 10 ? '0' + timeLeft : timeLeft;
+            timerElem.textContent = '00:' + seconds;
+            if (timeLeft <= 0) {
+                clearInterval(otpTimerInterval);
+                timerElem.textContent = "00:00";
+                timerElem.style.color = '#dc2626';
+            }
+        }, 1000);
+    }
+
+    // Bind Forms
+    document.getElementById('form-login').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        const btn = e.target.querySelector('button[type="submit"]');
+        btn.textContent = 'Processing...';
+        btn.disabled = true;
+        try {
+            const res = await fetch("{{ url_for('login') }}", {
+                method: 'POST',
+                body: fd,
+                headers: {'X-Requested-With': 'XMLHttpRequest'}
+            });
+            const data = await res.json();
+            if (data.success) window.location.href = data.redirect || "{{ url_for('dashboard') }}";
+            else showModalAlert(data.message, 'error');
+        } catch (err) {
+            showModalAlert('An error occurred. Please try again.', 'error');
+        }
+        btn.textContent = 'Access Dashboard';
+        btn.disabled = false;
+    });
+
+    document.getElementById('form-register').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        const btn = e.target.querySelector('button[type="submit"]');
+        btn.textContent = 'Processing...';
+        btn.disabled = true;
+        try {
+            const res = await fetch("{{ url_for('register') }}", {
+                method: 'POST',
+                body: fd,
+                headers: {'X-Requested-With': 'XMLHttpRequest'}
+            });
+            const data = await res.json();
+            if (data.success) {
+                showModalAlert("Registration successful! Please log in.", 'success');
+                setTimeout(() => switchAuthView('login'), 2000);
+            } else showModalAlert(data.message, 'error');
+        } catch (err) {
+            showModalAlert('An error occurred.', 'error');
+        }
+        btn.textContent = 'Join Network';
+        btn.disabled = false;
+    });
+
+    document.getElementById('form-forgot').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        currentAuthEmail = document.getElementById('forgot-email-input').value;
+        const btn = e.target.querySelector('button[type="submit"]');
+        btn.textContent = 'Sending...';
+        btn.disabled = true;
+        try {
+            const res = await fetch("{{ url_for('forgot_password') }}", {
+                method: 'POST',
+                body: fd,
+                headers: {'X-Requested-With': 'XMLHttpRequest'}
+            });
+            const data = await res.json();
+            if (data.success) {
+                document.getElementById('otp-target-email').textContent = currentAuthEmail;
+                switchAuthView('otp');
+                startModalOtpTimer();
+            } else showModalAlert(data.message, 'error');
+        } catch(err) {
+            showModalAlert('An error occurred.', 'error');
+        }
+        btn.textContent = 'Reset Password';
+        btn.disabled = false;
+    });
+
+    document.getElementById('form-otp').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const fd = new FormData();
+        fd.append('email', currentAuthEmail);
+        fd.append('otp', modalFinalOtp.value);
+        const btn = e.target.querySelector('button[type="submit"]');
+        btn.textContent = 'Verifying...';
+        btn.disabled = true;
+        try {
+            const res = await fetch("{{ url_for('verify_otp') }}", {
+                method: 'POST',
+                body: fd,
+                headers: {'X-Requested-With': 'XMLHttpRequest'}
+            });
+            const data = await res.json();
+            if (data.success) switchAuthView('reset');
+            else showModalAlert(data.message, 'error');
+        } catch (err) {
+            showModalAlert('An error occurred.', 'error');
+        }
+        btn.textContent = 'Verify Code';
+        btn.disabled = false;
+    });
+
+    document.getElementById('form-reset').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        fd.append('email', currentAuthEmail);
+        const btn = e.target.querySelector('button[type="submit"]');
+        btn.textContent = 'Updating...';
+        btn.disabled = true;
+        try {
+            const res = await fetch("{{ url_for('reset_password') }}", {
+                method: 'POST',
+                body: fd,
+                headers: {'X-Requested-With': 'XMLHttpRequest'}
+            });
+            const data = await res.json();
+            if (data.success) {
+                showModalAlert("Password updated successfully! You can now log in.", 'success');
+                setTimeout(() => switchAuthView('login'), 2000);
+            } else showModalAlert(data.message, 'error');
+        } catch (err) {
+            showModalAlert('An error occurred.', 'error');
+        }
+        btn.textContent = 'Update Password';
+        btn.disabled = false;
+    });
+
+    // Update login and signup buttons in header to open modal
+    document.querySelectorAll('.btn-v3-login').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            openAuthModal('login');
+        });
+    });
+    document.querySelectorAll('.btn-v3-signup').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            openAuthModal('register');
+        });
     });
 </script>
 {% endblock %}

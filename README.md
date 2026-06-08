@@ -1,25 +1,28 @@
 # HealthLab AI
-HealthLab AI is a simple and clean platform that helps doctors, patients, and lab technicians work together in one place. We built this to make healthcare easy for everyone.
 
-### What’s inside?
+HealthLab AI is a digital healthcare platform designed to facilitate coordination among medical professionals, patients, and laboratory technicians. The platform streamlines medical appointments, document management, and patient communication.
 
-**For Patients**
-*   **Easy Booking:** Find a doctor and book your slot in a few clicks.
-*   **Pay Online:** No need to pay at the hospital! Your booking is already handled online.
-*   **AI Helper:** A simple chat assistant to answer your health questions.
-*   **Digital Reports:** See your lab results and prescriptions on your phone.
+### Features
 
-**For Doctors**
-*   **Clean Dashboard:** A simple workspace to see your upcoming patients.
-*   **Professional Prescriptions:** Write and download prescriptions in a clean A4 format that looks great.
-*   **Track Earnings:** See exactly how much you've earned from online bookings.
-*   **Manage Slots:** Add or remove your available time easily.
+#### Patient Portal
+* Appointment Scheduling: Book consultations with available medical professionals.
+* Digital Payments: Process consultation fees securely online.
+* Automated Assistance: Basic health inquiries handled by an integrated AI interface.
+* Medical Records: Access laboratory results and digital prescriptions securely.
+* Legal Compliance: Integrated mandatory Terms and Conditions and Privacy Policy agreements.
 
-**For Lab Technicians**
-*   **Task List:** See who needs a home test and accept requests.
-*   **Easy Uploads:** Upload patient reports as PDFs directly.
+#### Medical Professional Portal
+* Dashboard Interface: Centralized view of upcoming appointments and schedules.
+* Prescription Management: Generate and download formatted digital prescriptions.
+* Financial Tracking: Monitor consultation revenue.
+* Schedule Management: Configure availability and consultation slots.
 
-### How to get started:
-1.  Install the requirements: `pip install -r requirements.txt`
-2.  Run the app: `python app.py`
-3.  Open `http://127.0.0.1:5000` in your browser.
+#### Laboratory Technician Portal
+* Request Management: Review and accept home sample collection requests.
+* Document Upload: Upload laboratory reports directly to patient profiles.
+
+### Setup Instructions
+1. Install dependencies: `pip install -r requirements.txt`
+2. Configure environment variables in `.env` (including MongoDB URI).
+3. Start the application: `python app.py`
+4. Access the platform at `http://127.0.0.1:5000`.
