@@ -404,8 +404,8 @@
                 window.location.href = "{{ url_for('login', next=request.path, chat_redirect='true') }}";
                 return;
             }
-            const chatOverlay = document.getElementById('chatOverlay');
-            chatOverlay.style.display = chatOverlay.style.display === 'flex' ? 'none' : 'flex';
+            // Open the full page AI Assistant
+            window.location.href = "{{ url_for('ai_assistant') }}";
         }
 
         function toggleConsult() {
@@ -418,27 +418,55 @@
             consultOverlay.style.display = consultOverlay.style.display === 'flex' ? 'none' : 'flex';
         }
 
-        function sendMessage() {
+        async function sendMessage() {
             const input = document.getElementById('chatInput');
             const messages = document.getElementById('chatMessages');
             if (input.value.trim() === '') return;
 
+            const query = input.value;
             const userMsg = document.createElement('div');
             userMsg.className = 'message user';
-            userMsg.textContent = input.value;
+            userMsg.textContent = query;
             messages.appendChild(userMsg);
 
             input.value = '';
             messages.scrollTop = messages.scrollHeight;
 
-            // Mock AI Response
-            setTimeout(() => {
+            // Show loading message
+            const loadingMsg = document.createElement('div');
+            loadingMsg.className = 'message ai';
+            loadingMsg.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Analyzing...';
+            messages.appendChild(loadingMsg);
+            messages.scrollTop = messages.scrollHeight;
+
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: query })
+                });
+
+                const data = await response.json();
+                messages.removeChild(loadingMsg);
+
                 const aiMsg = document.createElement('div');
                 aiMsg.className = 'message ai';
-                aiMsg.textContent = "Thank you for sharing. I'm processing your request regarding: " + userMsg.textContent;
+                if (response.ok) {
+                    aiMsg.innerHTML = data.reply.replace(/\n/g, '<br>');
+                } else {
+                    aiMsg.innerHTML = `<span style="color: red;">Error: ${data.error}</span><br><small>${data.details || ''}</small>`;
+                }
                 messages.appendChild(aiMsg);
                 messages.scrollTop = messages.scrollHeight;
-            }, 1000);
+
+            } catch (error) {
+                messages.removeChild(loadingMsg);
+                const errorMsg = document.createElement('div');
+                errorMsg.className = 'message ai';
+                errorMsg.innerHTML = `<span style="color: red;">Network Error: Could not connect to AI service.</span>`;
+                messages.appendChild(errorMsg);
+                messages.scrollTop = messages.scrollHeight;
+            }
         }
 
         // Carousel Logic

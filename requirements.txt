@@ -6,3 +6,4 @@ flask-login
 werkzeug
 certifi
 gunicorn
+requests

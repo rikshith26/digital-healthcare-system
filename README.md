@@ -21,7 +21,7 @@ HealthLab AI is a digital healthcare platform designed to facilitate coordinatio
 * Request Management: Review and accept home sample collection requests.
 * Document Upload: Upload laboratory reports directly to patient profiles.
 
-### Access the Platform
+### Access the Platform 
 
 The application is currently available online for demonstration purposes. It is currently deployed for free using Render. In the future, we will purchase a dedicated domain name for our application.
 

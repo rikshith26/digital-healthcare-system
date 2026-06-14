@@ -130,7 +130,7 @@
 <script>
     lucide.createIcons();
 
-    function sendFullAiMessage() {
+    async function sendFullAiMessage() {
         const input = document.getElementById('fullAiInput');
         const messages = document.getElementById('fullAiMessages');
         if (input.value.trim() === '') return;
@@ -144,14 +144,44 @@
         input.value = '';
         messages.scrollTop = messages.scrollHeight;
 
-        // Simulate AI
-        setTimeout(() => {
+        // Show loading message
+        const loadingMsg = document.createElement('div');
+        loadingMsg.className = 'ai-bubble bubble-ai';
+        loadingMsg.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Processing clinical query...';
+        messages.appendChild(loadingMsg);
+        messages.scrollTop = messages.scrollHeight;
+
+        try {
+            const response = await fetch('/api/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ message: query })
+            });
+
+            const data = await response.json();
+            messages.removeChild(loadingMsg);
+
             const aiMsg = document.createElement('div');
             aiMsg.className = 'ai-bubble bubble-ai';
-            aiMsg.textContent = "Processing clinical query: " + query + ". Please wait while I analyze the latest medical databases...";
+            if (response.ok) {
+                // Convert newlines to breaks for basic markdown formatting
+                aiMsg.innerHTML = data.reply.replace(/\n/g, '<br>');
+            } else {
+                aiMsg.innerHTML = `<span style="color: red;">Error: ${data.error}</span><br><small>${data.details || ''}</small>`;
+            }
             messages.appendChild(aiMsg);
             messages.scrollTop = messages.scrollHeight;
-        }, 800);
+
+        } catch (error) {
+            messages.removeChild(loadingMsg);
+            const errorMsg = document.createElement('div');
+            errorMsg.className = 'ai-bubble bubble-ai';
+            errorMsg.innerHTML = `<span style="color: red;">Network Error: Could not connect to AI service.</span>`;
+            messages.appendChild(errorMsg);
+            messages.scrollTop = messages.scrollHeight;
+        }
     }
 
     document.getElementById('fullAiInput').addEventListener('keypress', (e) => {

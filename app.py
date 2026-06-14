@@ -1096,6 +1096,64 @@ def manage_slots():
 def ai_assistant():
     return render_template('ai_assistant.html', user=current_user)
 
+chatbot_pipeline = None
+
+import requests
+
+@app.route('/api/chat', methods=['POST'])
+@login_required
+def api_chat():
+    data = request.get_json()
+    user_message = data.get('message') if data else None
+    
+    if not user_message:
+        return jsonify({"error": "No message provided"}), 400
+
+    try:
+        # Check for API Key
+        groq_token = os.getenv("GROQ_API_KEY")
+        if not groq_token:
+            return jsonify({"error": "Missing API Key", "details": "Please add GROQ_API_KEY to your .env file."}), 500
+
+        API_URL = "https://api.groq.com/openai/v1/chat/completions"
+        headers = {
+            "Authorization": f"Bearer {groq_token}",
+            "Content-Type": "application/json"
+        }
+
+        payload = {
+            "model": "llama-3.1-8b-instant",
+            "messages": [
+                {
+                    "role": "system",
+                    "content": "You are a highly intelligent, empathetic, and professional medical AI assistant for HealthLab AI. Greet the user naturally. Keep your answers EXTREMELY brief and concise (maximum 2-3 short sentences). Never write long paragraphs. Provide helpful medical insights, but always remind the user to consult a real doctor for serious issues."
+                },
+                {
+                    "role": "user",
+                    "content": user_message
+                }
+            ],
+            "temperature": 0.7,
+            "max_tokens": 256,
+            "top_p": 0.95
+        }
+
+        response = requests.post(API_URL, headers=headers, json=payload)
+        
+        if response.status_code != 200:
+            error_data = response.json()
+            return jsonify({"error": "API Error", "details": str(error_data)}), 500
+            
+        output_data = response.json()
+        reply = output_data["choices"][0]["message"]["content"].strip()
+            
+        return jsonify({"reply": reply})
+
+    except Exception as e:
+        print(f"Chatbot Error: {e}")
+        return jsonify({"error": "Network error while connecting to AI service.", "details": str(e)}), 500
+
+
 @app.route('/doctor/earnings')
 @login_required
 def doctor_earnings():
