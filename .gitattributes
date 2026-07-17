@@ -1,0 +1,4 @@
+# Tell GitHub's Linguist to ignore these file types for language statistics
+*.html linguist-detectable=false
+*.css linguist-detectable=false
+*.js linguist-detectable=false
