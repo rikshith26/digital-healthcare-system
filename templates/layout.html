@@ -32,7 +32,7 @@
         </form>
 
         <a href="{{ url_for('profile') }}"
-            style="display: flex; align-items: center; gap: 0.75rem; text-decoration: none; padding: 0.35rem 0.5rem; border-radius: 10px; transition: 0.3s; margin-right: -0.5rem;"
+            style="display: flex; align-items: center; gap: 0.75rem; text-decoration: none; padding: 0.35rem 0.5rem; border-radius: 4px; transition: 0.3s; margin-right: -0.5rem;"
             class="profile-route-link">
             <div style="text-align: right; line-height: 1.1;" class="profile-text-info">
                 <div
@@ -45,10 +45,10 @@
             <div class="profile-pic-header">
                 {% if current_user.profile_pic %}
                 <img src="{{ current_user.profile_pic }}" alt="Profile"
-                    style="width: 32px; height: 32px; border-radius: 10px; object-fit: cover;">
+                    style="width: 32px; height: 32px; border-radius: 4px; object-fit: cover;">
                 {% else %}
                 <div
-                    style="width: 32px; height: 32px; border-radius: 10px; background: rgba(79, 70, 229, 0.1); display: flex; align-items: center; justify-content: center; color: var(--primary); border: 1px solid rgba(79, 70, 229, 0.2);">
+                    style="width: 32px; height: 32px; border-radius: 4px; background: rgba(79, 70, 229, 0.1); display: flex; align-items: center; justify-content: center; color: var(--primary); border: 1px solid rgba(79, 70, 229, 0.2);">
                     <i data-lucide="user" style="width: 16px; height: 16px;"></i>
                 </div>
                 {% endif %}
@@ -219,9 +219,9 @@
             style="position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 10px; width: 90%; max-width: 400px;">
             {% for category, message in messages %}
             <div class="toast-notification {{ category }}"
-                style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); padding: 1rem 1.5rem; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border-left: 5px solid {% if category == 'error' %}#ef4444{% else %}#10b981{% endif %}; display: flex; align-items: center; gap: 1rem; animation: slideInDown 0.5s ease-out forwards;">
+                style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); padding: 1rem 1.5rem; border-radius: 4px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border-left: 5px solid {% if category == 'error' %}#ef4444{% else %}#10b981{% endif %}; display: flex; align-items: center; gap: 1rem; animation: slideInDown 0.5s ease-out forwards;">
                 <div
-                    style="background: {% if category == 'error' %}#fee2e2{% else %}#d1fae5{% endif %}; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                    style="background: {% if category == 'error' %}#fee2e2{% else %}#d1fae5{% endif %}; width: 32px; height: 32px; border-radius: 4px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
                     <i data-lucide="{% if category == 'error' %}alert-circle{% else %}check-circle{% endif %}"
                         style="width: 18px; color: {% if category == 'error' %}#ef4444{% else %}#10b981{% endif %};"></i>
                 </div>
@@ -280,39 +280,34 @@
 
         {% if current_user.is_authenticated and not current_user.terms_accepted %}
         <div id="terms-enforcement-modal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(8px); z-index: 99999; display: flex; align-items: center; justify-content: center; padding: 1rem;">
-            <div style="background: white; width: 100%; max-width: 800px; border-radius: 1.5rem; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); overflow: hidden; display: flex; flex-direction: column; max-height: 90vh;">
-                <div style="padding: 2rem 2.5rem; border-bottom: 1px solid #f1f5f9; flex-shrink: 0; text-align: center;">
-                    <div style="display: flex; justify-content: center; margin-bottom: 1rem;">
-                        <i data-lucide="shield-check" style="width: 48px; height: 48px; color: var(--landing-blue);"></i>
+            <div style="background: white; width: 100%; max-width: 800px; border-radius: 4px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); overflow: hidden; display: flex; flex-direction: column; max-height: 90vh;">
+                <div style="padding: 2rem; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                        <div style="background: #eff6ff; width: 44px; height: 44px; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #2563eb;">
+                            <i data-lucide="shield-check" style="width: 24px; height: 24px;"></i>
+                        </div>
+                        <div>
+                            <h3 style="margin: 0; font-size: 1.25rem; font-weight: 800; color: #0f172a;">Legal Terms & Privacy</h3>
+                            <p style="margin: 0; font-size: 0.85rem; color: #64748b;">Please review before continuing</p>
+                        </div>
                     </div>
-                    <h2 style="margin: 0 0 0.5rem; font-size: 1.75rem; font-weight: 900; color: #0f172a;">Action Required</h2>
-                    <p style="margin: 0; color: #64748b; font-size: 1rem; line-height: 1.5;">We have updated our Privacy Policy and Terms of Service. Please review and accept them to continue accessing your HealthLab AI dashboard.</p>
                 </div>
-                
-                <div style="padding: 3rem 2.5rem; background: #f8fafc; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.5rem;">
-                    <a href="{{ url_for('privacy_policy') }}" target="_blank" style="display: flex; align-items: center; justify-content: space-between; width: 100%; max-width: 400px; padding: 1.25rem 1.5rem; background: white; border: 1px solid #e2e8f0; border-radius: 1rem; text-decoration: none; color: #0f172a; font-weight: 700; transition: all 0.2s; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
-                        <div style="display: flex; align-items: center; gap: 0.75rem;">
-                            <i data-lucide="file-text" style="color: var(--landing-blue);"></i>
-                            <span>Read Privacy Policy</span>
-                        </div>
-                        <i data-lucide="external-link" style="color: #94a3b8; width: 18px; height: 18px;"></i>
+                <div style="padding: 2.5rem 2rem; overflow-y: auto; display: flex; flex-direction: column; gap: 1.5rem; align-items: center;">
+                    <a href="{{ url_for('privacy_policy') }}" target="_blank" style="display: flex; align-items: center; justify-content: space-between; width: 100%; max-width: 400px; padding: 1.25rem 1.5rem; background: white; border: 1px solid #e2e8f0; border-radius: 4px; text-decoration: none; color: #0f172a; font-weight: 700; transition: all 0.2s; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+                        <span style="display: flex; align-items: center; gap: 0.75rem;"><i data-lucide="lock" style="color: #2563eb;"></i> Privacy Policy</span>
+                        <i data-lucide="external-link" style="width: 18px; height: 18px; color: #94a3b8;"></i>
                     </a>
-                    
-                    <a href="{{ url_for('terms_and_conditions') }}" target="_blank" style="display: flex; align-items: center; justify-content: space-between; width: 100%; max-width: 400px; padding: 1.25rem 1.5rem; background: white; border: 1px solid #e2e8f0; border-radius: 1rem; text-decoration: none; color: #0f172a; font-weight: 700; transition: all 0.2s; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
-                        <div style="display: flex; align-items: center; gap: 0.75rem;">
-                            <i data-lucide="scale" style="color: var(--landing-blue);"></i>
-                            <span>Read Terms & Conditions</span>
-                        </div>
-                        <i data-lucide="external-link" style="color: #94a3b8; width: 18px; height: 18px;"></i>
+                    <a href="{{ url_for('terms_and_conditions') }}" target="_blank" style="display: flex; align-items: center; justify-content: space-between; width: 100%; max-width: 400px; padding: 1.25rem 1.5rem; background: white; border: 1px solid #e2e8f0; border-radius: 4px; text-decoration: none; color: #0f172a; font-weight: 700; transition: all 0.2s; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+                        <span style="display: flex; align-items: center; gap: 0.75rem;"><i data-lucide="file-text" style="color: #2563eb;"></i> Terms & Conditions</span>
+                        <i data-lucide="external-link" style="width: 18px; height: 18px; color: #94a3b8;"></i>
                     </a>
-                </div>
-
-                <div style="padding: 1.5rem 2.5rem; border-top: 1px solid #f1f5f9; background: white; flex-shrink: 0; display: flex; flex-direction: column; gap: 1rem;">
-                    <label style="display: flex; align-items: flex-start; gap: 0.75rem; cursor: pointer; user-select: none;">
-                        <input type="checkbox" id="terms-checkbox" style="margin-top: 0.25rem; width: 1.25rem; height: 1.25rem; cursor: pointer;">
-                        <span style="font-size: 0.9rem; color: #334155; font-weight: 600; line-height: 1.5;">I have read, understood, and agree to the Privacy Policy and Terms & Conditions.</span>
+                    <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer; margin-top: 1rem;">
+                        <input type="checkbox" id="terms-checkbox" onchange="toggleAcceptButton()" style="width: 18px; height: 18px; accent-color: #2563eb; cursor: pointer;">
+                        <span style="font-size: 0.95rem; font-weight: 600; color: #334155;">I agree to the Terms & Conditions and Privacy Policy</span>
                     </label>
-                    <button id="btn-accept-terms" disabled style="width: 100%; padding: 1rem; background: #e2e8f0; color: #94a3b8; font-weight: 900; border: none; border-radius: 0.75rem; cursor: not-allowed; transition: all 0.3s; font-size: 1rem; display: flex; justify-content: center; align-items: center; gap: 0.5rem;">
+                </div>
+                <div style="padding: 1.5rem 2rem; background: #f8fafc; border-top: 1px solid #f1f5f9; display: flex; justify-content: flex-end;">
+                    <button id="btn-accept-terms" disabled style="width: 100%; padding: 1rem; background: #e2e8f0; color: #94a3b8; font-weight: 900; border: none; border-radius: 4px; cursor: not-allowed; transition: all 0.3s; font-size: 1rem; display: flex; justify-content: center; align-items: center; gap: 0.5rem;">
                         <i data-lucide="check-circle" style="width: 20px;"></i> Proceed to Dashboard
                     </button>
                 </div>

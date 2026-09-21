@@ -234,16 +234,13 @@
                                         <td style="color: #475569;">{{ u.get('email', 'N/A') }}</td>
                                         <td>
                                             {% if u.get('terms_accepted') %}
-                                            <div style="font-size: 0.8rem; font-weight: 700; color: #16a34a; display: flex; align-items: center; gap: 4px;">
-                                                Yes âœ…
-                                            </div>
-                                            <div style="font-size: 0.7rem; color: #64748b; margin-top: 2px;">
-                                                {{ u.get('terms_accepted_on').strftime('%d %b %Y') if u.get('terms_accepted_on') else 'N/A' }}
-                                            </div>
+                                            <span style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 12px; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; background: #ecfdf5; color: #16a34a; border: 1px solid #bbf7d0;" {% if u.get('terms_accepted_on') %}title="Accepted on {{ u.get('terms_accepted_on').strftime('%d %b %Y') }}"{% endif %}>
+                                                Yes
+                                            </span>
                                             {% else %}
-                                            <div style="font-size: 0.8rem; font-weight: 700; color: #ef4444; display: flex; align-items: center; gap: 4px;">
-                                                No âŒ
-                                            </div>
+                                            <span style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 12px; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; background: #fef2f2; color: #ef4444; border: 1px solid #fecaca;">
+                                                No
+                                            </span>
                                             {% endif %}
                                         </td>
                                         <td><span style="background: {{ color }}20; color: {{ color }}; padding: 6px 12px; border-radius: 6px; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase;">{{ u.get('role', 'patient') }}</span></td>
@@ -251,14 +248,14 @@
                                     </tr>
                                     {% endfor %}
                                 {% else %}
-                                    <tr><td colspan="4" style="text-align: center; color: #94a3b8; padding: 3rem;">No profiles registered in this category.</td></tr>
+                                    <tr><td colspan="5" style="text-align: center; color: #94a3b8; padding: 3rem;">No profiles registered in this category.</td></tr>
                                 {% endif %}
                             </tbody>
                         </table>
                     </div>
 
                     <div class="pdf-footer">
-                        <p style="margin: 0; font-weight: 600; color: #64748b; font-size: 14px;">HealAI Digital Healthcare Administration â€¢ Automated System Extract</p>
+                        <p style="margin: 0; font-weight: 600; color: #64748b; font-size: 14px;">HealAI Digital Healthcare Administration &bull; Automated System Extract</p>
                         <p style="margin: 4px 0 0; color: #94a3b8; font-size: 12px;">This document contains sensitive PII data and must be handled securely.</p>
                     </div>
                     </div> <!-- End of wrapper -->

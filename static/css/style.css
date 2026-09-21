@@ -1754,24 +1754,124 @@ label {
 }
 
 /* PREMIUM CAROUSEL STYLES */
+.carousel-main-wrapper {
+    position: relative;
+    padding: 0;
+    margin: 1.25rem 0 1.5rem 0;
+    width: 100%;
+}
+
 .carousel-viewport {
     width: 100%;
     overflow: hidden;
     position: relative;
-    margin: 2rem 0;
-    border-radius: 30px;
+    margin: 0 !important;
+    border-radius: 24px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08);
 }
 
 .carousel-track {
     display: flex;
     transition: transform 0.6s cubic-bezier(0.65, 0, 0.35, 1);
     width: 100%;
+    height: 100%;
 }
 
 .carousel-slide {
     min-width: 100%;
+    width: 100%;
     box-sizing: border-box;
     padding: 0;
+    height: 100%;
+}
+
+/* Remove margins and standardize banners when inside carousel */
+.carousel-slide .ai-banner,
+.carousel-slide .consult-banner,
+.carousel-slide .frosted-card {
+    margin: 0 !important;
+    border-radius: 24px;
+    height: 210px !important;
+    min-height: 210px !important;
+    max-height: 210px !important;
+    box-sizing: border-box !important;
+    padding: 2.25rem 3.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+    cursor: default;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: none;
+    transform: none !important;
+}
+
+.carousel-slide .ai-banner-content,
+.carousel-slide .consult-banner-content {
+    position: relative;
+    z-index: 2;
+    max-width: 65%;
+}
+
+.carousel-slide .ai-banner-content h2,
+.carousel-slide .consult-banner-content h2 {
+    font-size: 1.85rem;
+    font-weight: 800;
+    margin: 0 0 0.4rem 0;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    color: white;
+}
+
+.carousel-slide .ai-banner-content p,
+.carousel-slide .consult-banner-content p {
+    font-size: 0.95rem;
+    margin: 0 0 1.25rem 0;
+    line-height: 1.45;
+    opacity: 0.85;
+}
+
+.carousel-slide .btn-ai-chat,
+.carousel-slide .btn-consult,
+.carousel-slide .btn-heal-light {
+    padding: 0.65rem 1.4rem;
+    border-radius: 12px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    width: fit-content;
+    border: none;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.carousel-slide .btn-ai-chat:hover,
+.carousel-slide .btn-consult:hover,
+.carousel-slide .btn-heal-light:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
+}
+
+.carousel-slide .ai-banner-illustration,
+.carousel-slide .consult-banner-illustration {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.carousel-slide .ai-banner-illustration i,
+.carousel-slide .consult-banner-illustration i {
+    width: 120px;
+    height: 120px;
+    opacity: 0.12;
+    color: white;
 }
 
 .carousel-controls {
@@ -1779,92 +1879,80 @@ label {
     top: 50%;
     transform: translateY(-50%);
     width: 100%;
+    left: 0;
     display: flex;
     justify-content: space-between;
-    padding: 0 1.5rem;
+    padding: 0 1.25rem;
     pointer-events: none;
     z-index: 10;
+    box-sizing: border-box;
 }
 
 .carousel-btn {
-    width: 45px;
-    height: 45px;
-    background: rgba(255, 255, 255, 0.9);
-    border: none;
+    width: 38px;
+    height: 38px;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.35);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    box-shadow: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     pointer-events: auto;
-    transition: 0.3s;
-    color: var(--primary);
+    transition: all 0.25s ease;
+    color: white;
+    opacity: 0.65;
+}
+
+.carousel-viewport:hover .carousel-btn {
+    opacity: 1;
 }
 
 .carousel-btn:hover {
-    background: white;
-    transform: scale(1.1);
-    box-shadow: none;
+    background: rgba(255, 255, 255, 0.95);
+    color: var(--primary);
+    transform: scale(1.08);
+    opacity: 1;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
 }
 
 .carousel-indicators {
+    position: absolute;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
     display: flex;
     justify-content: center;
-    gap: 0.5rem;
-    margin-top: 1rem;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    z-index: 10;
+    pointer-events: auto;
 }
 
 .indicator {
-    width: 10px;
-    height: 10px;
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
-    background: #E5E7EB;
+    background: rgba(255, 255, 255, 0.35);
     cursor: pointer;
-    transition: 0.3s;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     border: none;
     padding: 0;
 }
 
+.indicator:hover {
+    background: rgba(255, 255, 255, 0.7);
+}
+
 .indicator.active {
-    background: var(--primary);
-    width: 30px;
-    border-radius: 5px;
-}
-
-/* Remove margins from banners when inside carousel */
-.carousel-slide .ai-banner,
-.carousel-slide .consult-banner,
-.carousel-slide .frosted-card {
-    margin: 0 !important;
-}
-
-/* REFINED CAROUSEL ARROWS */
-.carousel-main-wrapper {
-    position: relative;
-    padding: 0 70px;
-    margin: 2rem 0;
-}
-
-.carousel-main-wrapper .carousel-viewport {
-    margin: 0 !important;
-}
-
-.carousel-main-wrapper .carousel-controls {
-    padding: 0;
-    left: -70px;
-    width: calc(100% + 140px);
-}
-
-.carousel-main-wrapper .carousel-btn {
-    border-radius: 12px;
-    /* Squared with curves */
-    width: 40px;
-    height: 40px;
     background: white;
-    color: var(--primary);
-    border: 1px solid var(--border-light);
-    box-shadow: none;
+    width: 24px;
+    border-radius: 4px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
 /* APOLLO-STYLE QUICK NAV CARDS */
@@ -1872,7 +1960,7 @@ label {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 1.5rem;
-    margin: 2.5rem 0;
+    margin: 1.5rem 0 2.25rem 0;
 }
 
 @media (max-width: 1280px) {
@@ -2118,7 +2206,7 @@ label {
     border-radius: 24px;
     padding: 2rem;
     border: 1px solid rgba(0, 0, 0, 0.04);
-    box-shadow: 0 10px 30px -10px rgba(0,0,0,0.03), 0 4px 6px -4px rgba(0,0,0,0.02);
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.03), 0 4px 6px -4px rgba(0, 0, 0, 0.02);
     margin-bottom: 2rem;
     transition: transform 0.3s cubic-bezier(0.165, 0.84, 0.44, 1), box-shadow 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
     position: relative;
@@ -2127,7 +2215,7 @@ label {
 
 .hc-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 20px 40px -15px rgba(0,0,0,0.05), 0 10px 15px -5px rgba(0,0,0,0.03);
+    box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.05), 0 10px 15px -5px rgba(0, 0, 0, 0.03);
 }
 
 .hc-card-header {
@@ -2241,7 +2329,7 @@ label {
 .hc-appointment-card:hover {
     background: #ffffff;
     border-color: #e2e8f0;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
 }
 
 .hc-appointment-date {
@@ -2400,7 +2488,7 @@ label {
     top: -50%;
     width: 400px;
     height: 400px;
-    background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 0%, transparent 70%);
     border-radius: 50%;
 }
 
@@ -2426,7 +2514,7 @@ label {
     width: 80px;
     height: 80px;
     border-radius: 50%;
-    background: rgba(255,255,255,0.1);
+    background: rgba(255, 255, 255, 0.1);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -2471,7 +2559,7 @@ label {
     background: #ffffff;
     border-color: #cbd5e1;
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
 }
 
 .hc-quick-item i {
@@ -2479,12 +2567,61 @@ label {
     height: 28px;
 }
 
-.hc-quick-item.blue i { color: #2563eb; }
-.hc-quick-item.green i { color: #10b981; }
-.hc-quick-item.orange i { color: #f97316; }
-.hc-quick-item.purple i { color: #a855f7; }
+.hc-quick-item.blue i {
+    color: #2563eb;
+}
+
+.hc-quick-item.green i {
+    color: #10b981;
+}
+
+.hc-quick-item.orange i {
+    color: #f97316;
+}
+
+.hc-quick-item.purple i {
+    color: #a855f7;
+}
 
 .hc-quick-item span {
     font-size: 0.85rem;
     font-weight: 700;
 }
+
+/* ============================================================
+   GLOBAL SHARP EDGES FOR APPLICATION BOXES, CARDS & BUTTONS
+   ============================================================ */
+.auth-card,
+.doc-card,
+.frosted-card,
+.hc-card,
+.quick-nav-card,
+.hc-appointment-card,
+.feature-card,
+.floating-accuracy-card,
+.hc-quick-item,
+.card,
+.box,
+.dashboard-card,
+.btn-heal-primary,
+.btn-heal-light,
+.btn-ref-login,
+.ref-input-group input,
+.ref-input-group select,
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="tel"],
+input[type="date"],
+select,
+textarea,
+button,
+.btn,
+.btn-primary,
+.btn-secondary,
+.modal-content,
+.badge,
+.tag {
+    border-radius: 4px !important;
+}

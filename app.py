@@ -80,6 +80,11 @@ db_manager = Database()
 
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "dev_key")
+
+# Enable automatic template reloading and disable caching for instant updates on refresh
+app.config['TEMPLATES_AUTO_RELOAD'] = True
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
+app.jinja_env.auto_reload = True
 # Configuration
 ALLOWED_EXTENSIONS = {'pdf'}
 
@@ -758,6 +763,32 @@ def process_verification(user_id):
         
     return redirect(url_for('admin_verifications'))
 
+@app.route('/uploaded_verification_file/<filename>')
+@login_required
+def uploaded_verification_file(filename):
+    if current_user.role != 'admin':
+        if not filename.startswith(str(current_user.id)):
+            flash("Unauthorized access to document.")
+            return redirect(url_for('dashboard'))
+            
+    try:
+        file_data = db_manager.fs.get_last_version(filename=filename)
+        content_type = getattr(file_data, 'content_type', None) or 'application/pdf'
+        if filename.lower().endswith('.png'):
+            content_type = 'image/png'
+        elif filename.lower().endswith(('.jpg', '.jpeg')):
+            content_type = 'image/jpeg'
+            
+        return send_file(
+            io.BytesIO(file_data.read()),
+            mimetype=content_type,
+            as_attachment=False,
+            download_name=filename
+        )
+    except Exception as e:
+        flash("Sorry, this verification document could not be found.")
+        return redirect(url_for('admin_verifications') if current_user.role == 'admin' else url_for('dashboard'))
+
 @app.route('/download_report/<filename>')
 @login_required
 def download_report(filename):
@@ -1121,33 +1152,49 @@ def api_chat():
             "Content-Type": "application/json"
         }
 
-        payload = {
-            "model": "llama-3.1-8b-instant",
-            "messages": [
-                {
-                    "role": "system",
-                    "content": "You are a highly intelligent, empathetic, and professional medical AI assistant for HealthLab AI. Greet the user naturally. Keep your answers EXTREMELY brief and concise (maximum 2-3 short sentences). Never write long paragraphs. Provide helpful medical insights, but always remind the user to consult a real doctor for serious issues."
-                },
-                {
-                    "role": "user",
-                    "content": user_message
-                }
-            ],
-            "temperature": 0.7,
-            "max_tokens": 256,
-            "top_p": 0.95
-        }
+        # Available high-performance models on Groq with fallback
+        default_model = os.getenv("GROQ_MODEL", "openai/gpt-oss-20b")
+        candidate_models = [default_model, "openai/gpt-oss-20b", "openai/gpt-oss-120b", "qwen/qwen3.8-27b", "groq/compound-mini"]
+        models_to_try = []
+        for m in candidate_models:
+            if m and m not in models_to_try:
+                models_to_try.append(m)
 
-        response = requests.post(API_URL, headers=headers, json=payload)
-        
-        if response.status_code != 200:
-            error_data = response.json()
-            return jsonify({"error": "API Error", "details": str(error_data)}), 500
+        last_error = None
+        for model in models_to_try:
+            payload = {
+                "model": model,
+                "messages": [
+                    {
+                        "role": "system",
+                        "content": "You are a highly intelligent, empathetic, and professional medical AI assistant for HealthLab AI. Greet the user naturally. Keep your answers EXTREMELY brief and concise (maximum 2-3 short sentences). Never write long paragraphs. Provide helpful medical insights, but always remind the user to consult a real doctor for serious issues."
+                    },
+                    {
+                        "role": "user",
+                        "content": user_message
+                    }
+                ],
+                "temperature": 0.7,
+                "max_tokens": 256,
+                "top_p": 0.95
+            }
+
+            response = requests.post(API_URL, headers=headers, json=payload)
             
-        output_data = response.json()
-        reply = output_data["choices"][0]["message"]["content"].strip()
-            
-        return jsonify({"reply": reply})
+            if response.status_code == 200:
+                output_data = response.json()
+                reply = output_data["choices"][0]["message"]["content"].strip()
+                return jsonify({"reply": reply, "model": model})
+            else:
+                last_error = response.json()
+                # If model not found, try next candidate model in list
+                error_code = last_error.get('error', {}).get('code', '')
+                if error_code == 'model_not_found':
+                    continue
+                else:
+                    return jsonify({"error": "API Error", "details": str(last_error)}), 500
+
+        return jsonify({"error": "API Error", "details": str(last_error)}), 500
 
     except Exception as e:
         print(f"Chatbot Error: {e}")
@@ -1195,4 +1242,4 @@ if __name__ == '__main__':
         print(f"Warning: Database connection failed during startup: {hint}")
     
     port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
+    app.run(host='0.0.0.0', port=port, debug=True, use_reloader=True)

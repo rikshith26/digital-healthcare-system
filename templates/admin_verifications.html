@@ -36,13 +36,13 @@
                                 {% endif %}
                             </div>
                             <h3 style="font-size: 1.5rem; font-weight: 800; color: #0f172a; margin: 0;">
-                                {{ p.verification_details.full_name if p.get('verification_details') else p.username }}
+                                {{ (p.verification_details.full_name if p.get('verification_details') and p.verification_details is mapping and p.verification_details.get('full_name') else p.get('username', 'User')) }}
                             </h3>
                             <a href="mailto:{{ p.email }}" style="color: #64748b; font-size: 0.9rem;">{{ p.email }}</a>
                         </div>
                     </div>
 
-                    {% if p.verification_details %}
+                    {% if p.verification_details and p.verification_details is mapping %}
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
                         {% for key, val in p.verification_details.items() %}
                         <div style="background: #f8fafc; padding: 1rem; border-radius: 8px;">
@@ -58,8 +58,10 @@
                         <h4 style="font-size: 0.9rem; font-weight: 800; color: #0f172a; margin: 0 0 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">Uploaded Documents</h4>
                         <div style="display: flex; flex-wrap: wrap; gap: 0.75rem;">
                             {% for doc in p.verification_docs %}
-                            <a href="{{ url_for('uploaded_verification_file', filename=doc.filename) }}" target="_blank" style="display: inline-flex; align-items: center; gap: 0.5rem; background: white; border: 1px solid #cbd5e1; padding: 0.5rem 1rem; border-radius: 8px; color: #2563eb; font-weight: 600; font-size: 0.85rem; text-decoration: none; transition: 0.2s;">
-                                <i data-lucide="file-text" style="width: 16px;"></i> {{ doc.document_type|replace('_', ' ')|title }}
+                            {% set doc_target = doc.filename if doc is mapping else doc %}
+                            {% set doc_name = (doc.document_type|string)|replace('_', ' ')|title if doc is mapping and doc.document_type else 'Document' %}
+                            <a href="{{ url_for('uploaded_verification_file', filename=doc_target) }}" target="_blank" style="display: inline-flex; align-items: center; gap: 0.5rem; background: white; border: 1px solid #cbd5e1; padding: 0.5rem 1rem; border-radius: 8px; color: #2563eb; font-weight: 600; font-size: 0.85rem; text-decoration: none; transition: 0.2s;">
+                                <i data-lucide="file-text" style="width: 16px;"></i> {{ doc_name }}
                             </a>
                             {% endfor %}
                         </div>
@@ -68,7 +70,7 @@
 
                     {% if p.status in ['Pending Verification', 'Under Review'] %}
                     <div style="display: flex; gap: 1rem; border-top: 1px solid #f1f5f9; padding-top: 1.5rem;">
-                        <form method="POST" action="{{ url_for('process_verification', user_id=p._id) }}" style="display: flex; gap: 1rem; width: 100%;">
+                        <form method="POST" action="{{ url_for('process_verification', user_id=p._id|string) }}" style="display: flex; gap: 1rem; width: 100%;">
                             <button type="submit" name="action" value="approve" style="background: #10b981; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; transition: 0.2s; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2);">
                                 <i data-lucide="check-circle" style="width: 18px;"></i> Approve Account
                             </button>
