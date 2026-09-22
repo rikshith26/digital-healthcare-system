@@ -36,16 +36,23 @@
                     <span
                         style="background: #a855f7; color: white; padding: 2px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 800;">AI</span>
                 </div>
-                <div style="position: relative;">
-                    <i data-lucide="search"
-                        style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); width: 18px; color: #94a3b8;"></i>
-                    <input type="text" id="aiSymptomSearch" placeholder="e.g. I have fever and headache since 2 days"
-                        style="width: 100%; padding: 0.9rem 1rem 0.9rem 3rem; border-radius: 16px; border: 1px solid #e2e8f0; background: white; font-size: 0.9rem; outline: none; box-sizing: border-box;">
-                    <i data-lucide="mic"
-                        style="position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); width: 18px; color: #6366f1;"></i>
+                <div style="display: flex; gap: 0.75rem; align-items: center;">
+                    <div style="position: relative; flex: 1;">
+                        <i data-lucide="search" onclick="handleSymptomSearch()"
+                            style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); width: 18px; color: #94a3b8; cursor: pointer;"></i>
+                        <input type="text" id="aiSymptomSearch" placeholder="e.g. toothache, dental cavity, fever since 2 days..."
+                            onkeydown="if(event.key === 'Enter'){ event.preventDefault(); handleSymptomSearch(); }"
+                            style="width: 100%; padding: 0.9rem 2.8rem 0.9rem 3rem; border-radius: 16px; border: 1px solid #e2e8f0; background: white; font-size: 0.9rem; outline: none; box-sizing: border-box; transition: 0.2s;">
+                        <i data-lucide="mic"
+                            style="position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); width: 18px; color: #6366f1; cursor: pointer;"></i>
+                    </div>
+                    <button type="button" id="aiSearchBtn" onclick="handleSymptomSearch()" class="btn-heal-primary"
+                        style="padding: 0.85rem 1.4rem; border-radius: 14px; font-weight: 800; font-size: 0.85rem; border: none; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25); white-space: nowrap;">
+                        <i data-lucide="search" style="width: 16px;"></i> Search
+                    </button>
                 </div>
                 <p style="margin: 0.75rem 0 0; color: #64748b; font-size: 0.75rem;">Our AI will suggest the right
-                    specialist for you</p>
+                    specialist for you (e.g. search "teeth", "dentist", "fever", or doctor name)</p>
             </div>
         </section>
 
@@ -54,11 +61,16 @@
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
                 <h2 style="font-size: 1.2rem; font-weight: 800; color: #0f172a; margin: 0;">Choose your health concern
                 </h2>
-                <a href="#" style="color: #6366f1; text-decoration: none; font-size: 0.85rem; font-weight: 700;">View
+                <a href="javascript:void(0)" onclick="showAllDoctors()" style="color: #6366f1; text-decoration: none; font-size: 0.85rem; font-weight: 700; cursor: pointer;">View
                     all</a>
             </div>
 
-            <div class="category-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
+            <div class="category-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(88px, 1fr)); gap: 10px;">
+                <div class="category-card" onclick="selectCategory('Dental Care', 'Dentist', 'smile')"
+                    style="background: #f0fdfa;">
+                    <div class="cat-icon"><i data-lucide="smile" style="color: #0d9488;"></i></div>
+                    <span>Dental</span>
+                </div>
                 <div class="category-card" onclick="selectCategory('Fever & Cold', 'General Physician', 'thermometer')"
                     style="background: #eff6ff;">
                     <div class="cat-icon"><i data-lucide="thermometer"></i></div>
@@ -367,14 +379,83 @@
         document.getElementById('resultSection').style.display = 'none';
     }
 
+    function showAllDoctors() {
+        document.getElementById('categorySection').style.display = 'none';
+        document.getElementById('howItWorks').style.display = 'none';
+        document.getElementById('emergencyBanner').style.display = 'none';
+
+        document.getElementById('resultSection').style.display = 'block';
+        document.getElementById('selectedCategoryTitle').innerText = 'All Specialists';
+        document.getElementById('suggestedSpecialist').innerText = 'Showing all verified medical experts';
+
+        fetchDoctors('all');
+    }
+
+    function handleSymptomSearch() {
+        const input = document.getElementById('aiSymptomSearch');
+        const query = (input.value || '').trim();
+        if (!query) {
+            showAllDoctors();
+            return;
+        }
+
+        const q = query.toLowerCase();
+        let suggestedCategory = 'Symptom Match';
+        let specialistType = 'all';
+
+        // Triage keyword mapping
+        if (q.includes('tooth') || q.includes('teeth') || q.includes('dent') || q.includes('gum') || q.includes('cavity') || q.includes('root canal') || q.includes('oral')) {
+            suggestedCategory = 'Dental Care';
+            specialistType = 'Dentist';
+        } else if (q.includes('fever') || q.includes('cold') || q.includes('cough') || q.includes('headache') || q.includes('flu') || q.includes('infection') || q.includes('chills')) {
+            suggestedCategory = 'Fever & Cold';
+            specialistType = 'General Physician';
+        } else if (q.includes('skin') || q.includes('rash') || q.includes('acne') || q.includes('itch') || q.includes('derma')) {
+            suggestedCategory = 'Skin Problems';
+            specialistType = 'Dermatologist';
+        } else if (q.includes('heart') || q.includes('chest') || q.includes('bp') || q.includes('cardio') || q.includes('hypertension')) {
+            suggestedCategory = 'Heart Issues';
+            specialistType = 'Cardiologist';
+        } else if (q.includes('kidney') || q.includes('urine') || q.includes('stone') || q.includes('uro')) {
+            suggestedCategory = 'Kidney Stones';
+            specialistType = 'Urologist';
+        } else if (q.includes('pregnan') || q.includes('period') || q.includes('gynec') || q.includes('baby birth')) {
+            suggestedCategory = 'Pregnancy Care';
+            specialistType = 'Gynecologist';
+        } else if (q.includes('child') || q.includes('kid') || q.includes('pedia') || q.includes('infant')) {
+            suggestedCategory = 'Child Care';
+            specialistType = 'Pediatrician';
+        } else if (q.includes('mental') || q.includes('depress') || q.includes('anxiety') || q.includes('stress') || q.includes('psych')) {
+            suggestedCategory = 'Mental Health';
+            specialistType = 'Psychiatrist';
+        } else if (q.includes('emerg') || q.includes('accident') || q.includes('trauma')) {
+            suggestedCategory = 'Emergency';
+            specialistType = 'Emergency Specialist';
+        } else {
+            suggestedCategory = `Search: "${query}"`;
+            specialistType = query;
+        }
+
+        document.getElementById('categorySection').style.display = 'none';
+        document.getElementById('howItWorks').style.display = 'none';
+        document.getElementById('emergencyBanner').style.display = 'none';
+
+        document.getElementById('resultSection').style.display = 'block';
+        document.getElementById('selectedCategoryTitle').innerText = suggestedCategory;
+        document.getElementById('suggestedSpecialist').innerText = (specialistType === query) ? `Searching "${query}"` : `AI Suggested Specialist: ${specialistType}`;
+
+        fetchDoctors(specialistType);
+    }
+
     function fetchDoctors(specialization) {
         const container = document.getElementById('doctorListContainer');
         const noDocs = document.getElementById('noDoctorsMsg');
 
-        container.innerHTML = '<div style="text-align: center; padding: 3rem; color: #64748b;">Finding experts...</div>';
+        container.innerHTML = '<div style="text-align: center; padding: 3rem; color: #64748b;"><i data-lucide="loader-2" class="spin" style="width: 28px; height: 28px; margin: 0 auto 0.75rem; color: #6366f1;"></i><p style="margin: 0; font-weight: 600;">Finding specialists...</p></div>';
         noDocs.style.display = 'none';
+        lucide.createIcons();
 
-        fetch(`/get_doctors_by_specialization/${specialization}`)
+        fetch(`/get_doctors_by_specialization/${encodeURIComponent(specialization)}`)
             .then(res => res.json())
             .then(data => {
                 container.innerHTML = '';
@@ -382,28 +463,30 @@
                     data.doctors.forEach(doc => {
                         const card = document.createElement('div');
                         card.className = 'doc-card-premium';
+                        const docImg = doc.profile_pic || ('https://ui-avatars.com/api/?name=Dr+' + encodeURIComponent(doc.full_name || doc.username) + '&background=e0e7ff&color=4338ca');
                         card.innerHTML = `
                             <div class="doc-header">
                                 <div class="doc-img">
-                                    <img src="${doc.profile_pic || 'https://ui-avatars.com/api/?name=Dr+' + doc.username}" alt="Dr">
+                                    <img src="${docImg}" alt="Dr" onerror="this.src='https://ui-avatars.com/api/?name=Dr+Doctor&background=e0e7ff&color=4338ca'">
                                 </div>
                                 <div class="doc-info">
                                     <h4>Dr. ${doc.full_name || doc.username}</h4>
-                                    <p>${doc.specialization}</p>
+                                    <p style="color: #6366f1; font-weight: 700;">${doc.specialization}</p>
+                                    ${doc.hospital_name ? `<p style="font-size: 0.75rem; color: #94a3b8;"><i data-lucide="building" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle;"></i> ${doc.hospital_name}</p>` : ''}
                                     <div style="display: flex; align-items: center; gap: 4px; margin-top: 4px;">
                                         <i data-lucide="star" style="width: 12px; height: 12px; fill: #fbbf24; color: #fbbf24;"></i>
-                                        <span style="font-size: 0.75rem; font-weight: 800; color: #0f172a;">4.8</span>
-                                        <span style="font-size: 0.7rem; color: #94a3b8;">(120+ reviews)</span>
+                                        <span style="font-size: 0.75rem; font-weight: 800; color: #0f172a;">4.9</span>
+                                        <span style="font-size: 0.7rem; color: #94a3b8;">(Verified Doctor)</span>
                                     </div>
                                 </div>
                                 <div style="text-align: right;">
-                                    <span style="font-size: 0.9rem; font-weight: 800; color: #0f172a;">₹${doc.fee || '500'}</span>
+                                    <span style="font-size: 0.95rem; font-weight: 800; color: #0f172a;">₹${doc.fee || '500'}</span>
                                     <span style="display: block; font-size: 0.6rem; color: #94a3b8; font-weight: 700;">Fee</span>
                                 </div>
                             </div>
                             <div class="doc-stats">
                                 <div class="stat-item">
-                                    <span class="stat-val">${doc.experience || '8'}+ yrs</span>
+                                    <span class="stat-val">${doc.experience || '5'}+ yrs</span>
                                     <span class="stat-label">Experience</span>
                                 </div>
                                 <div class="stat-item">
@@ -411,13 +494,13 @@
                                     <span class="stat-label">Success</span>
                                 </div>
                                 <div class="stat-item">
-                                    <span class="stat-val">Today</span>
-                                    <span class="stat-label">Available</span>
+                                    <span class="stat-val" style="color: #10b981;">Available</span>
+                                    <span class="stat-label">Slots</span>
                                 </div>
                             </div>
-                            <button onclick="openBooking('${doc._id}', 'Dr. ${doc.full_name || doc.username}')" 
-                                    class="btn-heal-primary" style="width: 100%; padding: 0.8rem; border-radius: 12px; font-weight: 800; font-size: 0.85rem;">
-                                Book Appointment
+                            <button onclick="openBooking('${doc._id}', 'Dr. ${encodeURIComponent(doc.full_name || doc.username)}')" 
+                                    class="btn-heal-primary" style="width: 100%; padding: 0.85rem; border-radius: 14px; font-weight: 800; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                <i data-lucide="calendar-check" style="width: 16px;"></i> Book Appointment
                             </button>
                         `;
                         container.appendChild(card);
@@ -428,20 +511,22 @@
                 }
             })
             .catch(err => {
-                container.innerHTML = '<div style="color: #ef4444; text-align: center;">Unable to fetch experts. Please try again.</div>';
+                container.innerHTML = '<div style="color: #ef4444; text-align: center; padding: 2rem;">Unable to fetch experts. Please try again.</div>';
             });
     }
 
-    // Modal Logic (Reused and polished)
-    function openBooking(doctorId, doctorName) {
+    // Modal Logic
+    function openBooking(doctorId, encodedDoctorName) {
+        const doctorName = decodeURIComponent(encodedDoctorName);
         const modal = document.getElementById('bookingModal');
         const container = document.getElementById('slotsContainer');
         const form = document.getElementById('bookingForm');
 
         document.getElementById('modalDoctorName').innerText = doctorName;
         modal.style.display = 'flex';
-        container.innerHTML = '<div style="text-align: center; padding: 2rem;">Loading slots...</div>';
+        container.innerHTML = '<div style="text-align: center; padding: 2rem; color: #64748b;"><i data-lucide="loader-2" class="spin" style="width: 24px; height: 24px; margin: 0 auto 0.5rem; color: #6366f1;"></i><p>Loading available slots...</p></div>';
         form.style.display = 'none';
+        lucide.createIcons();
 
         fetch(`/get_doctor_slots/${doctorId}`)
             .then(res => res.json())
@@ -451,26 +536,44 @@
                     data.slots.forEach(slot => {
                         const div = document.createElement('div');
                         div.className = 'slot-item';
-                        div.style.cssText = 'background: #f8fafc; border: 1px solid #e2e8f0; padding: 1rem; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer;';
+                        div.style.cssText = 'background: #f8fafc; border: 1.5px solid #e2e8f0; padding: 1rem 1.25rem; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s;';
                         div.onclick = () => selectSlot(slot._id, doctorId, div);
                         div.innerHTML = `
-                            <div>
-                                <div style="font-weight: 800; color: #0f172a;">${slot.date}</div>
-                                <div style="font-size: 0.8rem; color: #64748b; font-weight: 600;">${slot.time}</div>
+                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                <div style="width: 38px; height: 38px; background: white; border-radius: 10px; display: flex; align-items: center; justify-content: center; border: 1px solid #e2e8f0;">
+                                    <i data-lucide="clock" style="width: 18px; color: #6366f1;"></i>
+                                </div>
+                                <div>
+                                    <div style="font-weight: 800; color: #0f172a; font-size: 0.95rem;">${slot.date}</div>
+                                    <div style="font-size: 0.8rem; color: #64748b; font-weight: 600;">Time: ${slot.time}</div>
+                                </div>
                             </div>
-                            <i data-lucide="chevron-right" style="width: 18px; color: #6366f1;"></i>
+                            <span style="background: #dcfce7; color: #15803d; font-size: 0.7rem; font-weight: 800; padding: 4px 10px; border-radius: 8px;">Available</span>
                         `;
                         container.appendChild(div);
                     });
                     lucide.createIcons();
                 } else {
-                    container.innerHTML = '<div style="text-align: center; padding: 2rem; color: #64748b;">No slots available.</div>';
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 2.5rem 1rem;">
+                            <i data-lucide="calendar-x" style="width: 42px; height: 42px; color: #cbd5e1; margin: 0 auto 0.75rem;"></i>
+                            <h4 style="margin: 0; color: #0f172a; font-weight: 800;">No Available Slots</h4>
+                            <p style="color: #64748b; font-size: 0.85rem; margin-top: 4px;">This specialist currently has no active open slots. Please check back soon.</p>
+                        </div>
+                    `;
+                    lucide.createIcons();
                 }
+            })
+            .catch(err => {
+                container.innerHTML = '<div style="text-align: center; padding: 2rem; color: #ef4444;">Unable to load slots. Please try again.</div>';
             });
     }
 
     function selectSlot(slotId, doctorId, element) {
-        document.querySelectorAll('.slot-item').forEach(el => el.style.borderColor = '#e2e8f0');
+        document.querySelectorAll('.slot-item').forEach(el => {
+            el.style.borderColor = '#e2e8f0';
+            el.style.background = '#f8fafc';
+        });
         element.style.borderColor = '#6366f1';
         element.style.background = '#f5f3ff';
 
@@ -480,6 +583,19 @@
     }
 
     function closeBooking() { document.getElementById('bookingModal').style.display = 'none'; }
-    window.onclick = (e) => { if (e.target == document.getElementById('bookingModal')) closeBooking(); }
+    window.onclick = (e) => { if (e.target == document.getElementById('bookingModal')) closeBooking(); };
+
+    // Support URL params e.g. /doctors?specialization=Dentist or /doctors?q=dentist
+    window.addEventListener('DOMContentLoaded', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const spec = urlParams.get('specialization');
+        const q = urlParams.get('q');
+        if (spec) {
+            selectCategory(spec + ' Specialists', spec, 'stethoscope');
+        } else if (q) {
+            document.getElementById('aiSymptomSearch').value = q;
+            handleSymptomSearch();
+        }
+    });
 </script>
 {% endblock %}

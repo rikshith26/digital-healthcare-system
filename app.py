@@ -136,8 +136,10 @@ class User(UserMixin):
         self.username = user_data.get('username')
         self.role = user_data.get('role', 'patient')
         # Profile fields
-        self.full_name = user_data.get('full_name')
-        self.phone = user_data.get('phone')
+        verif = user_data.get('verification_details') or {}
+        if not isinstance(verif, dict): verif = {}
+        self.full_name = user_data.get('full_name') or verif.get('full_name')
+        self.phone = user_data.get('phone') or verif.get('phone_number')
         self.dob = user_data.get('dob')
         self.address = user_data.get('address')
         self.gender = user_data.get('gender')
@@ -145,8 +147,8 @@ class User(UserMixin):
         self.reject_reason = user_data.get('reject_reason', '')
         self.verification_docs = user_data.get('verification_docs', [])
         self.profile_pic = user_data.get('profile_pic') # Base64 or Path
-        self.hospital_name = user_data.get('hospital_name')
-        self.specialization = user_data.get('specialization')
+        self.hospital_name = user_data.get('hospital_name') or verif.get('previous_hospital')
+        self.specialization = user_data.get('specialization') or verif.get('specialization')
         self.terms_accepted = user_data.get('terms_accepted', False)
         self.terms_accepted_on = user_data.get('terms_accepted_on')
 
@@ -221,15 +223,51 @@ def accept_terms_api():
     except Exception as e:
         return jsonify({"success": False, "message": str(e)}), 500
 
+def normalize_doctor(doc):
+    verif = doc.get('verification_details') or {}
+    if not isinstance(verif, dict):
+        verif = {}
+    full_name = doc.get('full_name') or verif.get('full_name') or doc.get('username', 'Doctor')
+    specialization = doc.get('specialization') or verif.get('specialization') or 'General Physician'
+    experience = doc.get('experience') or verif.get('experience_years') or '5'
+    phone = doc.get('phone') or verif.get('phone_number') or ''
+    hospital = doc.get('hospital_name') or verif.get('previous_hospital') or ''
+    profile_pic = doc.get('profile_pic')
+    fee = doc.get('fee', 500)
+    
+    return {
+        '_id': str(doc.get('_id')),
+        'username': doc.get('username'),
+        'email': doc.get('email'),
+        'full_name': full_name,
+        'specialization': specialization,
+        'experience': experience,
+        'phone': phone,
+        'hospital_name': hospital,
+        'profile_pic': profile_pic,
+        'fee': fee,
+        'status': doc.get('status', 'Approved')
+    }
+
 @app.route('/doctors')
 @login_required
 def doctors_page():
     # Search for doctors in both 'users' and 'doctors' collections
-    doctors_from_users = list(db_manager.get_collection('users').find({"role": "doctor"}))
-    doctors_from_doctors = list(db_manager.get_collection('doctors').find())
-    doctors_list = doctors_from_users + doctors_from_doctors
-    for doc in doctors_list:
-        doc['_id'] = str(doc['_id'])
+    doctors_from_users = list(db_manager.get_collection('users').find({
+        "role": "doctor",
+        "status": {"$ne": "Rejected"}
+    }))
+    doctors_from_doctors = list(db_manager.get_collection('doctors').find({
+        "status": {"$ne": "Rejected"}
+    }))
+    
+    seen_ids = set()
+    doctors_list = []
+    for doc in doctors_from_users + doctors_from_doctors:
+        normalized = normalize_doctor(doc)
+        if normalized['_id'] not in seen_ids:
+            seen_ids.add(normalized['_id'])
+            doctors_list.append(normalized)
         
     # Get patient's appointments (optional but good for context)
     appointments_col = db_manager.get_collection('appointments')
@@ -240,14 +278,61 @@ def doctors_page():
 @app.route('/get_doctors_by_specialization/<specialization>')
 @login_required
 def get_doctors_by_specialization(specialization):
-    users_col = db_manager.get_collection('users')
-    doctors = list(users_col.find({
-        "role": "doctor", 
-        "specialization": {"$regex": f"^{specialization}$", "$options": "i"}
-    }))
+    specialization = specialization.strip()
+    is_all = specialization.lower() in ['all', 'any', 'all specialists', 'view all', 'all doctors']
     
-    for doc in doctors:
-        doc['_id'] = str(doc['_id'])
+    # Flexible matching patterns
+    if 'dent' in specialization.lower():
+        regex_pattern = r'dent'
+    elif 'fever' in specialization.lower() or 'physician' in specialization.lower() or 'cold' in specialization.lower():
+        regex_pattern = r'general|physician|mbbs|internal'
+    elif 'skin' in specialization.lower() or 'derma' in specialization.lower():
+        regex_pattern = r'derma|skin'
+    elif 'heart' in specialization.lower() or 'cardio' in specialization.lower():
+        regex_pattern = r'cardio|heart'
+    elif 'preg' in specialization.lower() or 'gynec' in specialization.lower():
+        regex_pattern = r'gynec|obstet'
+    elif 'kidney' in specialization.lower() or 'uro' in specialization.lower():
+        regex_pattern = r'uro|kidney|nephro'
+    elif 'child' in specialization.lower() or 'pedia' in specialization.lower():
+        regex_pattern = r'pedia|child'
+    elif 'mental' in specialization.lower() or 'psych' in specialization.lower():
+        regex_pattern = r'psych'
+    elif 'emerg' in specialization.lower():
+        regex_pattern = r'emerg'
+    else:
+        regex_pattern = specialization
+
+    users_col = db_manager.get_collection('users')
+    doctors_col = db_manager.get_collection('doctors')
+    
+    if is_all:
+        users_docs = list(users_col.find({"role": "doctor", "status": {"$ne": "Rejected"}}))
+        docs_docs = list(doctors_col.find({"status": {"$ne": "Rejected"}}))
+    else:
+        query_condition = {
+            "$or": [
+                {"specialization": {"$regex": regex_pattern, "$options": "i"}},
+                {"verification_details.specialization": {"$regex": regex_pattern, "$options": "i"}}
+            ]
+        }
+        users_docs = list(users_col.find({
+            "role": "doctor",
+            "status": {"$ne": "Rejected"},
+            **query_condition
+        }))
+        docs_docs = list(doctors_col.find({
+            "status": {"$ne": "Rejected"},
+            **query_condition
+        }))
+    
+    doctors = []
+    seen_ids = set()
+    for doc in users_docs + docs_docs:
+        normalized = normalize_doctor(doc)
+        if normalized['_id'] not in seen_ids:
+            seen_ids.add(normalized['_id'])
+            doctors.append(normalized)
     
     return jsonify({"doctors": doctors})
 
@@ -257,16 +342,24 @@ def get_doctor_slots(doctor_id):
     slots_col = db_manager.get_collection('slots')
     appointments_col = db_manager.get_collection('appointments')
     
-    slots = list(slots_col.find({"doctor_id": doctor_id, "status": "available"}).sort("date", 1))
+    query = {
+        "$or": [{"doctor_id": str(doctor_id)}]
+    }
+    if ObjectId.is_valid(doctor_id):
+        query["$or"].append({"doctor_id": ObjectId(doctor_id)})
+        
+    query["status"] = "available"
+    slots = list(slots_col.find(query).sort("date", 1))
     
     # Check if this specific patient has priority with this doctor
-    has_priority = appointments_col.find_one({"patient_id": current_user.id, "doctor_id": doctor_id, "revisit": True}) is not None
+    has_priority = appointments_col.find_one({"patient_id": current_user.id, "doctor_id": str(doctor_id), "revisit": True}) is not None
     
     # Convert ObjectId to string for JSON serialization
     for slot in slots:
         slot['_id'] = str(slot['_id'])
+        slot['doctor_id'] = str(slot.get('doctor_id', ''))
         
-    return {"slots": slots, "has_priority": has_priority}
+    return jsonify({"slots": slots, "has_priority": has_priority})
 
 @app.route('/')
 def index():
@@ -739,9 +832,24 @@ def process_verification(user_id):
     users_col = db_manager.get_collection('users')
     
     if action == 'approve':
-        users_col.update_one({"_id": ObjectId(user_id)}, {"$set": {"status": "Approved"}})
-        
         user_data = users_col.find_one({"_id": ObjectId(user_id)})
+        verif = user_data.get('verification_details') if user_data else {}
+        if not isinstance(verif, dict): verif = {}
+        
+        update_fields = {"status": "Approved"}
+        if verif.get('full_name'):
+            update_fields["full_name"] = verif.get('full_name')
+        if verif.get('specialization'):
+            update_fields["specialization"] = verif.get('specialization')
+        if verif.get('phone_number'):
+            update_fields["phone"] = verif.get('phone_number')
+        if verif.get('previous_hospital'):
+            update_fields["hospital_name"] = verif.get('previous_hospital')
+        if verif.get('experience_years'):
+            update_fields["experience"] = verif.get('experience_years')
+            
+        users_col.update_one({"_id": ObjectId(user_id)}, {"$set": update_fields})
+        
         if user_data:
             approval_html = f"""
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
@@ -1083,9 +1191,74 @@ def profile():
 @login_required
 def search():
     query = request.args.get('q', '').strip()
-    doctors_from_users = list(db_manager.get_collection('users').find({"role": "doctor", "full_name": {"$regex": query, "$options": "i"}}))
-    doctors_from_doctors = list(db_manager.get_collection('doctors').find({"full_name": {"$regex": query, "$options": "i"}}))
-    return render_template('search_results.html', query=query, results={'doctors': doctors_from_users + doctors_from_doctors})
+    if not query:
+        return render_template('search_results.html', query=query, results={'doctors': [], 'reports': [], 'bookings': [], 'users': []})
+        
+    search_regex = {"$regex": query, "$options": "i"}
+    or_conditions = [
+        {"full_name": search_regex},
+        {"username": search_regex},
+        {"specialization": search_regex},
+        {"hospital_name": search_regex},
+        {"verification_details.full_name": search_regex},
+        {"verification_details.specialization": search_regex},
+        {"verification_details.previous_hospital": search_regex}
+    ]
+    
+    # Also handle "dentist" / "dental" queries
+    if 'dent' in query.lower():
+        or_conditions.extend([
+            {"specialization": {"$regex": "dent", "$options": "i"}},
+            {"verification_details.specialization": {"$regex": "dent", "$options": "i"}}
+        ])
+        
+    doc_match_condition = {"$or": or_conditions}
+    
+    doctors_from_users = list(db_manager.get_collection('users').find({
+        "role": "doctor",
+        "status": {"$ne": "Rejected"},
+        **doc_match_condition
+    }))
+    doctors_from_doctors = list(db_manager.get_collection('doctors').find({
+        "status": {"$ne": "Rejected"},
+        **doc_match_condition
+    }))
+    
+    seen_ids = set()
+    doctors_results = []
+    for doc in doctors_from_users + doctors_from_doctors:
+        norm = normalize_doctor(doc)
+        if norm['_id'] not in seen_ids:
+            seen_ids.add(norm['_id'])
+            doctors_results.append(norm)
+            
+    reports = []
+    bookings = []
+    if current_user.role == 'patient':
+        try:
+            reports = list(db_manager.get_collection('reports').find({
+                "patient_id": current_user.id,
+                "description": search_regex
+            }))
+            for r in reports: r['_id'] = str(r['_id'])
+        except Exception:
+            reports = []
+            
+        try:
+            bookings = list(db_manager.get_collection('bookings').find({
+                "patient_id": current_user.id,
+                "test_name": search_regex
+            }))
+            for b in bookings: b['_id'] = str(b['_id'])
+        except Exception:
+            bookings = []
+        
+    return render_template('search_results.html', query=query, results={
+        'doctors': doctors_results,
+        'reports': reports,
+        'bookings': bookings,
+        'users': []
+    })
 
 
 @app.route('/doctor/mark_revisit/<appointment_id>', methods=['POST'])

@@ -713,36 +713,81 @@
         gap: 0.5rem;
     }
 
-    /* STATS STRIP */
+    /* STATS STRIP / CONTINUOUS MARQUEE */
     .stats-strip-v3 {
-        display: flex;
-        justify-content: space-between;
-        padding: 3rem 8%;
-        background: #f0fdf4;
-        /* Original Green bg, let's make it light blue */
+        width: 100%;
+        overflow: hidden;
+        position: relative;
+        padding: 2.25rem 0;
         background: var(--landing-blue-light);
+        display: flex;
+        align-items: center;
+        mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
+        -webkit-mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
+        user-select: none;
+    }
+
+    .stats-marquee-track {
+        display: flex;
+        width: max-content;
+        animation: marqueeScroll 35s linear infinite;
+        will-change: transform;
+    }
+
+    .stats-strip-v3:hover .stats-marquee-track {
+        animation-play-state: paused;
+    }
+
+    .stats-marquee-group {
+        display: flex;
+        align-items: center;
+        gap: 4rem;
+        padding-right: 4rem;
+        flex-shrink: 0;
     }
 
     .stat-v3-box {
         display: flex;
         align-items: center;
         gap: 1rem;
+        flex-shrink: 0;
+        transition: transform 0.25s ease;
+    }
+
+    .stat-v3-box:hover {
+        transform: translateY(-2px);
     }
 
     .stat-v3-box i {
         color: var(--landing-blue);
+        flex-shrink: 0;
     }
 
     .stat-v3-box h3 {
         font-size: 1.5rem;
         font-weight: 900;
         margin: 0;
+        color: var(--landing-text-dark);
+        letter-spacing: -0.02em;
+        line-height: 1.2;
     }
 
     .stat-v3-box p {
-        font-size: 0.8rem;
+        font-size: 0.85rem;
         color: var(--landing-text-muted);
-        margin: 0;
+        margin: 0.2rem 0 0 0;
+        font-weight: 500;
+        white-space: nowrap;
+    }
+
+    @keyframes marqueeScroll {
+        0% {
+            transform: translateX(0);
+        }
+
+        100% {
+            transform: translateX(-50%);
+        }
     }
 
     /* WHY CHOOSE */
@@ -873,6 +918,80 @@
         color: #fbbf24;
         font-size: 0.85rem;
         letter-spacing: 1px;
+    }
+
+    /* THE MINDS BEHIND HEALTHLAB AI - OFFICIAL TEAM BANNER */
+    .minds-v3 {
+        background: 
+            radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.95) 0%, transparent 65%),
+            radial-gradient(circle at 15% 90%, rgba(219, 234, 254, 0.45) 0%, transparent 50%),
+            radial-gradient(circle at 85% 90%, rgba(224, 231, 255, 0.45) 0%, transparent 50%),
+            linear-gradient(180deg, #eef2f6 0%, #e2e8f0 50%, #dbe3ed 100%);
+        padding: 4.5rem 1.5rem 5rem;
+        position: relative;
+        overflow: hidden;
+        border-top: 1px solid rgba(226, 232, 240, 0.9);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    /* Ambient studio key-light behind card */
+    .minds-v3::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 820px;
+        height: 400px;
+        background: radial-gradient(ellipse, rgba(255, 255, 255, 0.95) 0%, rgba(219, 234, 254, 0.35) 55%, transparent 75%);
+        filter: blur(40px);
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    .minds-card-wrapper {
+        width: 100%;
+        max-width: 960px;
+        margin: 0 auto;
+        position: relative;
+        z-index: 1;
+    }
+
+    .minds-image-card {
+        border-radius: 18px;
+        box-shadow: 
+            0 25px 60px -15px rgba(15, 23, 42, 0.14),
+            0 8px 24px -4px rgba(15, 23, 42, 0.06),
+            0 0 0 1px rgba(226, 232, 240, 0.85);
+        transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
+        overflow: hidden;
+        background: #ffffff;
+    }
+
+    .minds-image-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 
+            0 32px 70px -15px rgba(15, 23, 42, 0.18),
+            0 12px 30px -4px rgba(15, 23, 42, 0.08);
+    }
+
+    .minds-team-img {
+        width: 100%;
+        height: auto;
+        display: block;
+        border-radius: 18px;
+    }
+
+    @media (max-width: 768px) {
+        .minds-v3 {
+            padding: 3rem 1rem 3.5rem;
+        }
+        .minds-image-card,
+        .minds-team-img {
+            border-radius: 12px;
+        }
     }
 
     /* FOOTER */
@@ -1127,25 +1246,34 @@
             padding: 4rem 5%;
         }
 
-        /* Stats Strip */
+        /* Stats Strip Marquee on Mobile */
         .stats-strip-v3 {
-            display: grid !important;
-            grid-template-columns: repeat(2, 1fr) !important;
-            padding: 3rem 5%;
-            gap: 2rem 1rem;
-            align-items: center;
-            justify-content: center;
+            display: flex !important;
+            padding: 1.75rem 0 !important;
+            mask-image: linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%) !important;
+            -webkit-mask-image: linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%) !important;
         }
 
-        .stats-strip-v3 .stat-v3-box {
-            flex-direction: column;
-            text-align: center;
-            gap: 0.5rem;
+        .stats-marquee-group {
+            gap: 2.5rem !important;
+            padding-right: 2.5rem !important;
         }
 
-        .stats-strip-v3 .stat-v3-box:last-child {
-            grid-column: span 2;
-            justify-self: center;
+        .stat-v3-box {
+            gap: 0.75rem !important;
+        }
+
+        .stat-v3-box i {
+            width: 30px !important;
+            height: 30px !important;
+        }
+
+        .stat-v3-box h3 {
+            font-size: 1.25rem !important;
+        }
+
+        .stat-v3-box p {
+            font-size: 0.75rem !important;
         }
 
         /* Why Choose */
@@ -1377,41 +1505,85 @@
     </div>
 </section>
 
-<!-- STATS STRIP -->
+<!-- STATS STRIP / CONTINUOUS MARQUEE -->
 <div class="stats-strip-v3">
-    <div class="stat-v3-box">
-        <i data-lucide="users" style="width: 40px; height: 40px;"></i>
-        <div>
-            <h3>{{ stats.total_users }}+</h3>
-            <p>Happy Users</p>
+    <div class="stats-marquee-track">
+        <!-- Set 1 -->
+        <div class="stats-marquee-group">
+            <div class="stat-v3-box">
+                <i data-lucide="users" style="width: 38px; height: 38px;"></i>
+                <div>
+                    <h3>{{ stats.total_users }}+</h3>
+                    <p>Happy Users</p>
+                </div>
+            </div>
+            <div class="stat-v3-box">
+                <i data-lucide="user-check" style="width: 38px; height: 38px;"></i>
+                <div>
+                    <h3>{{ stats.total_doctors }}+</h3>
+                    <p>Verified Doctors</p>
+                </div>
+            </div>
+            <div class="stat-v3-box">
+                <i data-lucide="microscope" style="width: 38px; height: 38px;"></i>
+                <div>
+                    <h3>{{ stats.total_bookings }}+</h3>
+                    <p>Tests Booked</p>
+                </div>
+            </div>
+            <div class="stat-v3-box">
+                <i data-lucide="map-pin" style="width: 38px; height: 38px;"></i>
+                <div>
+                    <h3>{{ stats.cities_covered }}+</h3>
+                    <p>Cities Covered</p>
+                </div>
+            </div>
+            <div class="stat-v3-box">
+                <i data-lucide="smile" style="width: 38px; height: 38px;"></i>
+                <div>
+                    <h3>{{ stats.satisfaction_rate }}%</h3>
+                    <p>Satisfaction Rate</p>
+                </div>
+            </div>
         </div>
-    </div>
-    <div class="stat-v3-box">
-        <i data-lucide="user-check" style="width: 40px; height: 40px;"></i>
-        <div>
-            <h3>{{ stats.total_doctors }}+</h3>
-            <p>Verified Doctors</p>
-        </div>
-    </div>
-    <div class="stat-v3-box">
-        <i data-lucide="microscope" style="width: 40px; height: 40px;"></i>
-        <div>
-            <h3>{{ stats.total_bookings }}+</h3>
-            <p>Tests Booked</p>
-        </div>
-    </div>
-    <div class="stat-v3-box">
-        <i data-lucide="map-pin" style="width: 40px; height: 40px;"></i>
-        <div>
-            <h3>{{ stats.cities_covered }}+</h3>
-            <p>Cities Covered</p>
-        </div>
-    </div>
-    <div class="stat-v3-box">
-        <i data-lucide="smile" style="width: 40px; height: 40px;"></i>
-        <div>
-            <h3>{{ stats.satisfaction_rate }}%</h3>
-            <p>Satisfaction Rate</p>
+
+        <!-- Set 2 (Exact clone for seamless infinite loop) -->
+        <div class="stats-marquee-group" aria-hidden="true">
+            <div class="stat-v3-box">
+                <i data-lucide="users" style="width: 38px; height: 38px;"></i>
+                <div>
+                    <h3>{{ stats.total_users }}+</h3>
+                    <p>Happy Users</p>
+                </div>
+            </div>
+            <div class="stat-v3-box">
+                <i data-lucide="user-check" style="width: 38px; height: 38px;"></i>
+                <div>
+                    <h3>{{ stats.total_doctors }}+</h3>
+                    <p>Verified Doctors</p>
+                </div>
+            </div>
+            <div class="stat-v3-box">
+                <i data-lucide="microscope" style="width: 38px; height: 38px;"></i>
+                <div>
+                    <h3>{{ stats.total_bookings }}+</h3>
+                    <p>Tests Booked</p>
+                </div>
+            </div>
+            <div class="stat-v3-box">
+                <i data-lucide="map-pin" style="width: 38px; height: 38px;"></i>
+                <div>
+                    <h3>{{ stats.cities_covered }}+</h3>
+                    <p>Cities Covered</p>
+                </div>
+            </div>
+            <div class="stat-v3-box">
+                <i data-lucide="smile" style="width: 38px; height: 38px;"></i>
+                <div>
+                    <h3>{{ stats.satisfaction_rate }}%</h3>
+                    <p>Satisfaction Rate</p>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -1510,9 +1682,8 @@
     <div class="testimonial-v3-grid">
         <div class="testi-v3-card">
             <div class="testi-v3-user">
-                <img src="{{ url_for('static', filename='images/revanth_reddy.jpg') }}"
-                    alt="Revanth Reddy" id="testi-img-1"
-                    onerror="this.src='/static/images/revanth_reddy.jpg'">
+                <img src="{{ url_for('static', filename='images/revanth_reddy.jpg') }}" alt="Revanth Reddy"
+                    id="testi-img-1" onerror="this.src='/static/images/revanth_reddy.jpg'">
                 <div class="testi-v3-user-info">
                     <h4>Revanth Reddy</h4>
                     <span class="testi-role-badge">
@@ -1527,9 +1698,8 @@
         </div>
         <div class="testi-v3-card">
             <div class="testi-v3-user">
-                <img src="{{ url_for('static', filename='images/kalvakuntla_kavitha.jpg') }}"
-                    alt="Kalvakuntla Kavitha" id="testi-img-2"
-                    onerror="this.src='/static/images/kalvakuntla_kavitha.jpg'">
+                <img src="{{ url_for('static', filename='images/kalvakuntla_kavitha.jpg') }}" alt="Kalvakuntla Kavitha"
+                    id="testi-img-2" onerror="this.src='/static/images/kalvakuntla_kavitha.jpg'">
                 <div class="testi-v3-user-info">
                     <h4>Kalvakuntla Kavitha</h4>
                     <span class="testi-role-badge">
@@ -1544,8 +1714,7 @@
         </div>
         <div class="testi-v3-card">
             <div class="testi-v3-user">
-                <img src="{{ url_for('static', filename='images/rama_rao.jpg') }}"
-                    alt="Rama Rao" id="testi-img-3"
+                <img src="{{ url_for('static', filename='images/rama_rao.jpg') }}" alt="Rama Rao" id="testi-img-3"
                     onerror="this.src='/static/images/rama_rao.jpg'">
                 <div class="testi-v3-user-info">
                     <h4>Rama Rao</h4>
@@ -1558,6 +1727,18 @@
             <p style="font-size: 0.88rem; color: var(--landing-text-muted); line-height: 1.65; margin: 0;">"The AI
                 health assistant and instant digital report insights were spot on. It saved me hours of waiting at
                 diagnostic centers. Truly a game changer for digital healthcare!"</p>
+        </div>
+    </div>
+</section>
+
+<!-- THE MINDS BEHIND HEALTHLAB AI (OFFICIAL TEAM BANNER) -->
+<section class="minds-v3" id="team">
+    <div class="minds-card-wrapper">
+        <div class="minds-image-card">
+            <img src="{{ url_for('static', filename='images/HEALTHLAB_TEAM.jpeg') }}" 
+                 alt="The Minds Behind HealthLab AI" 
+                 class="minds-team-img"
+                 loading="lazy">
         </div>
     </div>
 </section>

@@ -10,26 +10,74 @@
         </header>
 
         {% if user.role == 'patient' %}
-        <!-- Live Status Header -->
-        <div class="hc-status-header">
-            <div class="hc-status-info">
-                <h2>Health Dashboard</h2>
-                <p>Your vitals are stable. All recent reports are normal.</p>
-                <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
-                    <button class="btn-modern" style="padding: 0.6rem 1.25rem; font-size: 0.85rem;"
-                        onclick="toggleChat()">
-                        <i data-lucide="sparkles"
-                            style="width: 16px; margin-right: 0.4rem; vertical-align: middle;"></i> AI Assistant
-                    </button>
-                    <a href="{{ url_for('book_test_page') }}" class="btn-modern"
-                        style="background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); padding: 0.6rem 1.25rem; font-size: 0.85rem; text-decoration: none;">
-                        Book Test
-                    </a>
+        <!-- Patient Workspace Carousel (3 Slides) -->
+        <div class="carousel-main-wrapper">
+            <div class="carousel-viewport" id="patientCarousel">
+                <div class="carousel-track">
+                    <!-- Slide 1: AI Health Assistant -->
+                    <div class="carousel-slide">
+                        <div class="ai-banner" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);">
+                            <div class="ai-banner-content">
+                                <h2 style="color: white;">AI Health Assistant.</h2>
+                                <p style="color: #94a3b8;">Analyze symptoms, decode clinical reports, and get 24/7 intelligent health guidance.</p>
+                                <button class="btn-ai-chat" onclick="toggleChat()" style="background: var(--primary); border: none;">
+                                    <i data-lucide="sparkles" style="width: 18px;"></i> Ask AI Assistant
+                                </button>
+                            </div>
+                            <div class="ai-banner-illustration">
+                                <i data-lucide="sparkles"
+                                    style="width: 120px; height: 120px; opacity: 0.12; color: white;"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Slide 2: Home Lab Tests -->
+                    <div class="carousel-slide">
+                        <div class="consult-banner"
+                            style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);">
+                            <div class="consult-banner-content">
+                                <h2 style="color: white;">Home Sample Collection.</h2>
+                                <p style="color: rgba(255,255,255,0.85);">Book diagnostic lab tests from home. Certified technicians collect samples safely at your doorstep.</p>
+                                <a href="{{ url_for('book_test_page') }}" class="btn-consult" style="background: white; color: #2563eb; text-decoration: none;">
+                                    <i data-lucide="flask-conical" style="width: 18px;"></i> Book Lab Test
+                                </a>
+                            </div>
+                            <div class="consult-banner-illustration">
+                                <i data-lucide="microscope"
+                                    style="width: 120px; height: 120px; opacity: 0.12; color: white;"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Slide 3: Consult Verified Doctors -->
+                    <div class="carousel-slide">
+                        <div class="ai-banner"
+                            style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                            <div class="ai-banner-content">
+                                <h2 style="color: white;">Consult Top Doctors.</h2>
+                                <p style="color: rgba(255,255,255,0.85);">Find verified specialists, check availability slots, and book in-clinic or online consultations.</p>
+                                <a href="{{ url_for('doctors_page') }}" class="btn-ai-chat" style="background: white; color: #059669; border: none; text-decoration: none;">
+                                    <i data-lucide="stethoscope" style="width: 18px;"></i> Find Doctors
+                                </a>
+                            </div>
+                            <div class="ai-banner-illustration">
+                                <i data-lucide="stethoscope"
+                                    style="width: 120px; height: 120px; opacity: 0.12; color: white;"></i>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div class="hc-health-score">
-                <div class="score-circle">98</div>
-                <span>Health Score</span>
+
+                <div class="carousel-controls">
+                    <button class="carousel-btn prev"><i data-lucide="chevron-left"></i></button>
+                    <button class="carousel-btn next"><i data-lucide="chevron-right"></i></button>
+                </div>
+
+                <div class="carousel-indicators">
+                    <button class="indicator active"></button>
+                    <button class="indicator"></button>
+                    <button class="indicator"></button>
+                </div>
             </div>
         </div>
 
@@ -181,7 +229,15 @@
                     </div>
                 </div>
             </div>
-        </div>
+        <script>
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', () => {
+                    initCarousel('patientCarousel');
+                });
+            } else {
+                initCarousel('patientCarousel');
+            }
+        </script>
 
         {% elif current_user.role == 'doctor' %}
         <!-- Doctor Workspace Carousel -->

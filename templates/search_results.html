@@ -24,18 +24,27 @@
         
         {% if results.doctors %}
         <section>
-            <h3 class="history-section-title"><i data-lucide="user-round"></i> Doctors</h3>
+            <h3 class="history-section-title"><i data-lucide="user-round"></i> Doctors & Specialists</h3>
             <div class="grid-2">
                 {% for doc in results.doctors %}
-                <div class="frosted-card" style="display: flex; gap: 1.5rem; align-items: center;">
-                    <div style="width: 60px; height: 60px; border-radius: 15px; background: var(--primary-light); display: flex; align-items: center; justify-content: center; color: var(--primary);">
-                        <i data-lucide="user"></i>
+                <div class="frosted-card" style="display: flex; justify-content: space-between; align-items: center; padding: 1.25rem;">
+                    <div style="display: flex; gap: 1rem; align-items: center;">
+                        <div style="width: 56px; height: 56px; border-radius: 14px; overflow: hidden; background: var(--primary-light); display: flex; align-items: center; justify-content: center; color: var(--primary); flex-shrink: 0;">
+                            {% if doc.profile_pic %}
+                            <img src="{{ doc.profile_pic }}" alt="Dr" style="width: 100%; height: 100%; object-fit: cover;">
+                            {% else %}
+                            <i data-lucide="user" style="width: 24px; height: 24px;"></i>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <h4 style="margin: 0; font-size: 1.05rem; font-weight: 800;">Dr. {{ doc.full_name or doc.username }}</h4>
+                            <p style="margin: 0.2rem 0; font-size: 0.85rem; color: var(--primary); font-weight: 700;">{{ doc.specialization or 'General Specialist' }}</p>
+                            <p style="margin: 0; font-size: 0.75rem; color: var(--text-muted);">{{ doc.experience or '5+' }} yrs exp {% if doc.hospital_name %}• {{ doc.hospital_name }}{% endif %}</p>
+                        </div>
                     </div>
-                    <div>
-                        <h4 style="margin: 0; font-size: 1.1rem;">{{ doc.full_name or doc.username }}</h4>
-                        <p style="margin: 0.25rem 0; font-size: 0.85rem; color: var(--primary); font-weight: 600;">{{ doc.specialization or 'General Specialist' }}</p>
-                        <p style="margin: 0; font-size: 0.8rem; color: var(--text-muted);">{{ doc.experience or '5+' }} Years Experience</p>
-                    </div>
+                    <a href="{{ url_for('doctors_page', specialization=doc.specialization) }}" class="btn-heal-primary" style="padding: 0.6rem 1rem; font-size: 0.8rem; border-radius: 10px; text-decoration: none; font-weight: 700; white-space: nowrap;">
+                        Book Appointment
+                    </a>
                 </div>
                 {% endfor %}
             </div>
