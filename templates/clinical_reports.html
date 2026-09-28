@@ -5,10 +5,13 @@
     <main class="main-content">
         <header style="margin-bottom: 3rem; display: flex; justify-content: space-between; align-items: flex-end;">
             <div>
-                <h1 style="font-size: 2.5rem; font-weight: 800; margin: 0; letter-spacing: -0.02em;">Clinical Reports</h1>
-                <p style="color: var(--text-muted); font-size: 1.1rem;">Access and download your official laboratory diagnostic reports.</p>
+                <h1 style="font-size: 2.5rem; font-weight: 800; margin: 0; letter-spacing: -0.02em;">Clinical Reports
+                </h1>
+                <p style="color: var(--text-muted); font-size: 1.1rem;">Access and download your official laboratory
+                    diagnostic reports.</p>
             </div>
-            <div class="item-icon-circle" style="background: rgba(16, 185, 129, 0.1); color: var(--secondary); width: 60px; height: 60px;">
+            <div class="item-icon-circle"
+                style="background: rgba(16, 185, 129, 0.1); color: var(--secondary); width: 60px; height: 60px;">
                 <i data-lucide="file-check" style="width: 32px; height: 32px;"></i>
             </div>
         </header>
@@ -24,25 +27,39 @@
                 {% for report in reports %}
                 <div class="clean-list-item report-item">
                     <div class="item-main report-content">
-                        <div class="item-icon-circle" style="background: rgba(16, 185, 129, 0.1); color: var(--secondary);">
+                        <div class="item-icon-circle"
+                            style="background: rgba(16, 185, 129, 0.1); color: var(--secondary);">
                             <i data-lucide="file-text" style="width: 20px;"></i>
                         </div>
                         <div class="item-details" style="width: 100%;">
-                            <div style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%;">
+                            <div
+                                style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%;">
                                 <div>
                                     <h4 style="margin: 0; font-size: 1.1rem; font-weight: 800; color: #0f172a;">
                                         {{ report.test_name }}
                                     </h4>
-                                    <span style="font-weight: 400; font-size: 0.75rem; color: var(--text-muted); opacity: 0.7; display: block; margin-top: 2px;">
+                                    <span
+                                        style="font-weight: 400; font-size: 0.75rem; color: var(--text-muted); opacity: 0.7; display: block; margin-top: 2px;">
                                         Issued {{ report.timestamp }}
                                     </span>
                                 </div>
-                                <a href="{{ url_for('download_report', filename=report.pdf_url) }}" class="btn-download-circle" 
-                                   download="{{ report.pdf_url }}" title="Download Report">
-                                    <i data-lucide="download"></i>
-                                </a>
+                                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                    <a href="{{ url_for('ai_assistant') }}?report_id={{ report._id }}&auto=true"
+                                        style="display: inline-block; background: #ffffff; color: #0f172a; border: 1px solid #cbd5e1; padding: 0.35rem 0.85rem; border-radius: 8px; font-size: 0.82rem; font-weight: 600; text-decoration: none; box-shadow: 0 1px 2px rgba(0,0,0,0.04); transition: all 0.15s ease;"
+                                        onmouseover="this.style.background='#f1f5f9'; this.style.borderColor='#94a3b8';"
+                                        onmouseout="this.style.background='#ffffff'; this.style.borderColor='#cbd5e1';"
+                                        title="Analyze report with AI">
+                                        Analyze
+                                    </a>
+                                    <a href="{{ url_for('download_report', filename=report.pdf_url) }}"
+                                        class="btn-download-circle" download="{{ report.pdf_url }}"
+                                        title="Download Report">
+                                        <i data-lucide="download"></i>
+                                    </a>
+                                </div>
                             </div>
-                            <p style="margin-top: 0.75rem; line-height: 1.5; color: var(--text-main); font-size: 0.9rem;">
+                            <p
+                                style="margin-top: 0.75rem; line-height: 1.5; color: var(--text-main); font-size: 0.9rem;">
                                 {{ report.get('description', 'Detailed medical summary and diagnostic parameters...') }}
                             </p>
                         </div>
@@ -51,7 +68,8 @@
                 {% endfor %}
                 {% else %}
                 <div style="padding: 5rem; text-align: center; color: var(--text-muted);">
-                    <i data-lucide="clipboard-x" style="width: 50px; height: 50px; margin-bottom: 1.5rem; opacity: 0.2;"></i>
+                    <i data-lucide="clipboard-x"
+                        style="width: 50px; height: 50px; margin-bottom: 1.5rem; opacity: 0.2;"></i>
                     <h3 style="margin-bottom: 0.5rem;">No Reports Issued</h3>
                     <p>Once your samples are processed, your digital reports will appear here.</p>
                 </div>

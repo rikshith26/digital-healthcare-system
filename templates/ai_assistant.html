@@ -4,94 +4,310 @@
 <style>
     .ai-container {
         height: calc(100vh - 120px);
-        max-width: 1000px;
-        margin: 1rem auto;
-        background: white;
-        border-radius: 30px;
-        border: 1px solid var(--border-light);
+        max-width: 1020px;
+        margin: 1.5rem auto;
+        background: #ffffff;
+        border-radius: 24px;
+        border: 1px solid #e2e8f0;
         display: flex;
         flex-direction: column;
         overflow: hidden;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.05);
+        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
     }
 
     .ai-chat-header {
-        padding: 1.5rem 2rem;
+        padding: 1.25rem 1.75rem;
         background: #0f172a;
-        color: white;
+        color: #ffffff;
         display: flex;
         justify-content: space-between;
         align-items: center;
+        border-bottom: 1px solid #1e293b;
+    }
+
+    .ai-chat-header-info {
+        display: flex;
+        align-items: center;
+        gap: 0.85rem;
+    }
+
+    .ai-chat-header-icon {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 0.6rem;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .ai-messages {
         flex: 1;
-        padding: 2rem;
+        padding: 1.75rem;
         overflow-y: auto;
         display: flex;
         flex-direction: column;
-        gap: 1.5rem;
+        gap: 1.25rem;
         background: #f8fafc;
     }
 
     .ai-bubble {
-        max-width: 80%;
-        padding: 1.25rem;
-        border-radius: 20px;
+        max-width: 82%;
+        padding: 1.15rem 1.4rem;
+        border-radius: 18px;
         font-size: 0.95rem;
-        line-height: 1.5;
+        line-height: 1.6;
         position: relative;
     }
 
     .bubble-ai {
         align-self: flex-start;
-        background: white;
+        background: #ffffff;
         color: #1e293b;
+        border: 1px solid #e2e8f0;
         border-bottom-left-radius: 4px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+    }
+
+    .bubble-ai h3,
+    .bubble-ai h4 {
+        margin: 0.5rem 0 0.25rem 0;
+        color: #0f172a;
+        font-size: 1rem;
+        font-weight: 700;
+    }
+
+    .bubble-ai ul {
+        margin: 0.4rem 0;
+        padding-left: 1.25rem;
+    }
+
+    .bubble-ai li {
+        margin-bottom: 0.25rem;
     }
 
     .bubble-user {
         align-self: flex-end;
-        background: var(--primary);
-        color: white;
+        background: #2563eb;
+        color: #ffffff;
         border-bottom-right-radius: 4px;
     }
 
-    .ai-input-wrapper {
-        padding: 1.5rem 2rem;
-        background: white;
+    .user-attached-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        background: rgba(255, 255, 255, 0.2);
+        color: #ffffff;
+        padding: 0.25rem 0.65rem;
+        border-radius: 8px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    /* Report Attachment Toolbar */
+    .ai-attachment-bar {
+        background: #ffffff;
         border-top: 1px solid #e2e8f0;
+        padding: 0.75rem 1.75rem 0 1.75rem;
         display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .attachment-controls {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
         gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .report-select-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex: 1;
+        min-width: 250px;
+    }
+
+    .report-select-input {
+        flex: 1;
+        padding: 0.45rem 0.85rem;
+        border: 1px solid #cbd5e1;
+        border-radius: 10px;
+        font-size: 0.85rem;
+        color: #334155;
+        background: #f8fafc;
+        outline: none;
+        cursor: pointer;
+        transition: border-color 0.15s ease;
+    }
+
+    .report-select-input:focus {
+        border-color: #2563eb;
+        background: #ffffff;
+    }
+
+    /* Attached Report Card */
+    .attached-report-card {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: #f1f5f9;
+        border: 1px solid #cbd5e1;
+        border-radius: 12px;
+        padding: 0.6rem 1rem;
+        gap: 1rem;
+    }
+
+    .report-card-left {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .report-card-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        background: #e0e7ff;
+        color: #4338ca;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .report-card-info h4 {
+        margin: 0;
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .report-card-info p {
+        margin: 0;
+        font-size: 0.75rem;
+        color: #64748b;
+    }
+
+    .report-card-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-quick-analyze {
+        background: #4338ca;
+        color: #ffffff;
+        border: none;
+        padding: 0.4rem 0.85rem;
+        border-radius: 8px;
+        font-size: 0.82rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        transition: background 0.15s ease;
+    }
+
+    .btn-quick-analyze:hover {
+        background: #3730a3;
+    }
+
+    .btn-remove-attachment {
+        background: none;
+        border: none;
+        color: #94a3b8;
+        cursor: pointer;
+        padding: 4px;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .btn-remove-attachment:hover {
+        color: #ef4444;
+        background: #fee2e2;
+    }
+
+    /* Quick Prompts */
+    .quick-prompts {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        padding-top: 0.25rem;
+    }
+
+    .prompt-chip {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        color: #475569;
+        font-size: 0.78rem;
+        font-weight: 500;
+        padding: 0.3rem 0.75rem;
+        border-radius: 9999px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .prompt-chip:hover {
+        background: #e2e8f0;
+        color: #0f172a;
+        border-color: #cbd5e1;
+    }
+
+    /* Input area */
+    .ai-input-wrapper {
+        padding: 1rem 1.75rem 1.25rem 1.75rem;
+        background: #ffffff;
+        display: flex;
+        gap: 0.75rem;
+        align-items: center;
     }
 
     .ai-input {
         flex: 1;
-        padding: 1rem 1.5rem;
-        border: 1px solid #e2e8f0;
-        border-radius: 15px;
-        font-size: 1rem;
+        padding: 0.85rem 1.25rem;
+        border: 1px solid #cbd5e1;
+        border-radius: 14px;
+        font-size: 0.95rem;
+        color: #0f172a;
         outline: none;
-        transition: 0.2s;
+        transition: all 0.15s ease;
     }
 
     .ai-input:focus {
-        border-color: var(--primary);
-        box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
     }
 
     .btn-send-ai {
-        background: var(--primary);
-        color: white;
+        background: #2563eb;
+        color: #ffffff;
         border: none;
-        width: 50px;
-        height: 50px;
-        border-radius: 15px;
+        width: 46px;
+        height: 46px;
+        border-radius: 14px;
         cursor: pointer;
         display: flex;
         align-items: center;
         justify-content: center;
+        transition: background 0.15s ease;
+    }
+
+    .btn-send-ai:hover {
+        background: #1d4ed8;
+    }
+
+    .btn-send-ai:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
     }
 </style>
 {% endblock %}
@@ -99,65 +315,246 @@
 {% block content %}
 <div class="ai-container">
     <div class="ai-chat-header">
-        <div style="display: flex; align-items: center; gap: 1rem;">
-            <div style="background: rgba(255,255,255,0.1); padding: 0.6rem; border-radius: 12px;">
-                <i data-lucide="sparkles" style="color: #fbbf24;"></i>
+        <div class="ai-chat-header-info">
+            <div class="ai-chat-header-icon">
+                <i data-lucide="sparkles" style="width: 20px; height: 20px; color: #fbbf24;"></i>
             </div>
             <div>
-                <h3 style="margin: 0; font-size: 1.1rem; font-weight: 800;">HealthLab AI Assistant</h3>
-                <p style="margin: 0; font-size: 0.75rem; opacity: 0.7;">Online & Ready for Diagnostics</p>
+                <h3 style="margin: 0; font-size: 1.05rem; font-weight: 700; letter-spacing: -0.01em;">HealthLab AI
+                    Clinical Assistant</h3>
+                <p style="margin: 0; font-size: 0.75rem; color: #94a3b8;">Intelligent diagnostics, health queries &
+                    report interpretation</p>
             </div>
         </div>
-        <a href="{{ url_for('dashboard') }}" style="color: white; opacity: 0.6; transition: 0.2s;">
-            <i data-lucide="x"></i>
+        <a href="{{ url_for('dashboard') }}" style="color: #94a3b8; transition: color 0.15s;"
+            title="Return to Dashboard">
+            <i data-lucide="x" style="width: 20px; height: 20px;"></i>
         </a>
     </div>
 
+    <!-- Messages Container -->
     <div class="ai-messages" id="fullAiMessages">
         <div class="ai-bubble bubble-ai">
-            Hello Dr. {{ user.full_name or user.username }}! I am your AI Clinical Assistant. How can I assist you with patient diagnostics, research, or drug interactions today?
+            {% if user.role == 'doctor' %}
+            Hello Dr. {{ user.full_name or user.username }}. I am your AI Clinical Assistant. How can I assist you with
+            patient diagnostic reviews, drug interactions, or medical research today?
+            {% else %}
+            Hello {{ user.full_name or user.username }}. I am your HealthLab AI Assistant. You can ask general health
+            questions or select any of your uploaded lab reports below for an instant, plain-language clinical analysis.
+            {% endif %}
         </div>
     </div>
 
+    <!-- Attachment & Suggestions Toolbar -->
+    <div class="ai-attachment-bar">
+        {% if user.role == 'patient' and reports %}
+        <div class="attachment-controls" id="reportControlsArea">
+            <!-- Active Attached Card (Visible when a report is selected) -->
+            <div id="attachedReportCard" class="attached-report-card" style="display: none; width: 100%;">
+                <div class="report-card-left">
+                    <div class="report-card-icon">
+                        <i data-lucide="file-text" style="width: 18px; height: 18px;"></i>
+                    </div>
+                    <div class="report-card-info">
+                        <h4 id="attachedReportTitle">Report</h4>
+                        <p id="attachedReportMeta">Uploaded</p>
+                    </div>
+                </div>
+                <div class="report-card-actions">
+                    <button type="button" class="btn-quick-analyze" onclick="triggerQuickReportAnalysis()">
+                        <i data-lucide="sparkles" style="width: 14px; height: 14px;"></i>
+                        <span>Analyze Report</span>
+                    </button>
+                    <button type="button" class="btn-remove-attachment" onclick="detachCurrentReport()"
+                        title="Detach report">
+                        <i data-lucide="x" style="width: 16px; height: 16px;"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Report Selector Dropdown -->
+            <div class="report-select-wrapper" id="selectorWrapper">
+                <label for="reportSelector"
+                    style="font-size: 0.82rem; font-weight: 600; color: #475569; display: flex; align-items: center; gap: 4px;">
+                    <i data-lucide="paperclip" style="width: 14px; height: 14px; color: #64748b;"></i>
+                    <span>Attach Report:</span>
+                </label>
+                <select id="reportSelector" class="report-select-input" onchange="onReportDropdownChange()">
+                    <option value="">No report attached (General Chat)</option>
+                    {% for rep in reports %}
+                    <option value="{{ rep._id }}" data-title="{{ rep.test_name }}" data-date="{{ rep.timestamp }}" {% if
+                        selected_report_id==rep._id %}selected{% endif %}>
+                        {{ rep.test_name }} ({{ rep.timestamp.split(' ')[0] if rep.timestamp else 'Recent' }})
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <!-- Quick Prompt Chips -->
+        <div class="quick-prompts" id="quickPromptsContainer">
+            <span style="font-size: 0.75rem; color: #94a3b8; align-self: center; margin-right: 2px;">Suggestions:</span>
+            <button type="button" class="prompt-chip"
+                onclick="applySuggestion('Explain my lab test results in simple words')">
+                <i data-lucide="file-search" style="width: 12px; height: 12px;"></i> Explain results
+            </button>
+            <button type="button" class="prompt-chip"
+                onclick="applySuggestion('Are any values in my report abnormal or concerning?')">
+                <i data-lucide="activity" style="width: 12px; height: 12px;"></i> Check normal ranges
+            </button>
+            <button type="button" class="prompt-chip"
+                onclick="applySuggestion('What dietary and lifestyle precautions should I take based on this?')">
+                <i data-lucide="heart-pulse" style="width: 12px; height: 12px;"></i> Diet & precautions
+            </button>
+        </div>
+        {% elif user.role == 'patient' and not reports %}
+        <div
+            style="font-size: 0.8rem; color: #94a3b8; display: flex; align-items: center; gap: 6px; padding-bottom: 0.25rem;">
+            <i data-lucide="info" style="width: 14px; height: 14px;"></i>
+            <span>No reports uploaded yet. Book a diagnostic test to receive digital reports and AI breakdown.</span>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Input Bar -->
     <div class="ai-input-wrapper">
-        <input type="text" id="fullAiInput" class="ai-input" placeholder="Ask about clinical cases, symptoms, or medications...">
-        <button class="btn-send-ai" onclick="sendFullAiMessage()">
-            <i data-lucide="send"></i>
+        <input type="text" id="fullAiInput" class="ai-input"
+            placeholder="Ask about clinical cases, symptoms, medications, or attached reports...">
+        <button class="btn-send-ai" id="btnSendAi" onclick="sendFullAiMessage()" title="Send Message">
+            <i data-lucide="send" style="width: 18px; height: 18px;"></i>
         </button>
     </div>
 </div>
 
-<script>
-    lucide.createIcons();
+<!-- Embedded Reports Data for JS -->
+<script id="reportsData" type="application/json">
+{{ reports|tojson|safe if reports else '[]' }}
+</script>
 
-    async function sendFullAiMessage() {
+<script>
+    const userReports = JSON.parse(document.getElementById('reportsData').textContent || '[]');
+    let currentAttachedReportId = "{{ selected_report_id or '' }}";
+
+    function updateAttachedReportUI() {
+        const selector = document.getElementById('reportSelector');
+        const card = document.getElementById('attachedReportCard');
+        const selectorWrapper = document.getElementById('selectorWrapper');
+        const titleEl = document.getElementById('attachedReportTitle');
+        const metaEl = document.getElementById('attachedReportMeta');
+
+        if (!selector || !card) return;
+
+        if (currentAttachedReportId) {
+            const report = userReports.find(r => r._id === currentAttachedReportId);
+            if (report) {
+                titleEl.textContent = report.test_name;
+                metaEl.textContent = `Uploaded on ${report.timestamp ? report.timestamp.split(' ')[0] : 'Recent'}`;
+                card.style.display = 'flex';
+                selectorWrapper.style.display = 'none';
+                selector.value = currentAttachedReportId;
+            } else {
+                card.style.display = 'none';
+                selectorWrapper.style.display = 'flex';
+            }
+        } else {
+            card.style.display = 'none';
+            selectorWrapper.style.display = 'flex';
+            selector.value = '';
+        }
+
+        if (window.lucide) lucide.createIcons();
+    }
+
+    function onReportDropdownChange() {
+        const selector = document.getElementById('reportSelector');
+        currentAttachedReportId = selector ? selector.value : '';
+        updateAttachedReportUI();
+    }
+
+    function detachCurrentReport() {
+        currentAttachedReportId = '';
+        updateAttachedReportUI();
+    }
+
+    function applySuggestion(text) {
+        const input = document.getElementById('fullAiInput');
+        if (input) {
+            input.value = text;
+            input.focus();
+        }
+    }
+
+    function triggerQuickReportAnalysis() {
+        const report = userReports.find(r => r._id === currentAttachedReportId);
+        const testName = report ? report.test_name : 'Diagnostic Test';
+        const query = `Please provide a clear and easy-to-understand clinical analysis of my ${testName} report. Explain the test purpose, whether the results are normal, and what steps I should take next.`;
+        sendFullAiMessage(query);
+    }
+
+    function formatMarkdown(text) {
+        if (!text) return '';
+        let escaped = text
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
+
+        // Bold
+        escaped = escaped.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        // Italic
+        escaped = escaped.replace(/\*(.*?)\*/g, '<em>$1</em>');
+        // Bullet points
+        escaped = escaped.replace(/^\s*[-•]\s+(.*)$/gm, '<li>$1</li>');
+        escaped = escaped.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
+        // Newlines
+        escaped = escaped.replace(/\n\n/g, '<br><br>').replace(/\n/g, '<br>');
+
+        return escaped;
+    }
+
+    async function sendFullAiMessage(customQuery = null) {
         const input = document.getElementById('fullAiInput');
         const messages = document.getElementById('fullAiMessages');
-        if (input.value.trim() === '') return;
+        const sendBtn = document.getElementById('btnSendAi');
+        const query = (customQuery !== null ? customQuery : input.value).trim();
 
+        if (!query && !currentAttachedReportId) return;
+
+        // Render user message bubble
         const userMsg = document.createElement('div');
         userMsg.className = 'ai-bubble bubble-user';
-        userMsg.textContent = input.value;
+
+        let attachedHtml = '';
+        if (currentAttachedReportId) {
+            const rep = userReports.find(r => r._id === currentAttachedReportId);
+            const repName = rep ? rep.test_name : 'Medical Report';
+            attachedHtml = `<div class="user-attached-pill"><i data-lucide="file-text" style="width: 12px; height: 12px;"></i> Attached: ${repName}</div><br>`;
+        }
+
+        userMsg.innerHTML = attachedHtml + (query || 'Analyze my attached report');
         messages.appendChild(userMsg);
 
-        const query = input.value;
-        input.value = '';
+        if (!customQuery) input.value = '';
         messages.scrollTop = messages.scrollHeight;
+        if (window.lucide) lucide.createIcons();
 
-        // Show loading message
+        // Show loading bubble
         const loadingMsg = document.createElement('div');
         loadingMsg.className = 'ai-bubble bubble-ai';
-        loadingMsg.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Processing clinical query...';
+        loadingMsg.innerHTML = `<span style="display: inline-flex; align-items: center; gap: 8px;"><i data-lucide="loader-2" class="spin" style="width: 16px; height: 16px; animation: spin 1s linear infinite;"></i> ${currentAttachedReportId ? 'Analyzing clinical report parameters...' : 'Processing query...'}</span>`;
         messages.appendChild(loadingMsg);
         messages.scrollTop = messages.scrollHeight;
+        if (window.lucide) lucide.createIcons();
+
+        if (sendBtn) sendBtn.disabled = true;
 
         try {
             const response = await fetch('/api/chat', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ message: query })
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    message: query,
+                    report_id: currentAttachedReportId || null
+                })
             });
 
             const data = await response.json();
@@ -166,10 +563,9 @@
             const aiMsg = document.createElement('div');
             aiMsg.className = 'ai-bubble bubble-ai';
             if (response.ok) {
-                // Convert newlines to breaks for basic markdown formatting
-                aiMsg.innerHTML = data.reply.replace(/\n/g, '<br>');
+                aiMsg.innerHTML = formatMarkdown(data.reply);
             } else {
-                aiMsg.innerHTML = `<span style="color: red;">Error: ${data.error}</span><br><small>${data.details || ''}</small>`;
+                aiMsg.innerHTML = `<span style="color: #ef4444; font-weight: 600;">Error: ${data.error || 'Request failed'}</span><br><small style="color: #64748b;">${data.details || ''}</small>`;
             }
             messages.appendChild(aiMsg);
             messages.scrollTop = messages.scrollHeight;
@@ -178,14 +574,181 @@
             messages.removeChild(loadingMsg);
             const errorMsg = document.createElement('div');
             errorMsg.className = 'ai-bubble bubble-ai';
-            errorMsg.innerHTML = `<span style="color: red;">Network Error: Could not connect to AI service.</span>`;
+            errorMsg.innerHTML = `<span style="color: #ef4444;">Network Error: Could not connect to AI service. Please check your connection.</span>`;
             messages.appendChild(errorMsg);
             messages.scrollTop = messages.scrollHeight;
+        } finally {
+            if (sendBtn) sendBtn.disabled = false;
+            if (window.lucide) lucide.createIcons();
         }
     }
 
     document.getElementById('fullAiInput').addEventListener('keypress', (e) => {
         if (e.key === 'Enter') sendFullAiMessage();
     });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        updateAttachedReportUI();
+        if (window.lucide) lucide.createIcons();
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const shouldAutoAnalyze = urlParams.get('auto') === 'true';
+        if (shouldAutoAnalyze && currentAttachedReportId) {
+            setTimeout(() => {
+                triggerQuickReportAnalysis();
+            }, 250);
+        }
+    });
+</script>
+<style>
+    @keyframes spin {
+        from {
+            transform: rotate(0deg);
+        }
+
+        to {
+            transform: rotate(360deg);
+        }
+    }
+</style>
+{% endblock %}
+
+async function sendChatMessage(customQuery = null) {
+const input = document.getElementById('chatInputField');
+const stream = document.getElementById('chatStream');
+const sendBtn = document.getElementById('btnSendChat');
+const query = (customQuery !== null ? customQuery : input.value).trim();
+
+if (!query && !currentAttachedReportId) return;
+
+// Render User Message
+const userRow = document.createElement('div');
+userRow.className = 'message-row message-user-wrap';
+
+let attachmentTag = '';
+if (currentAttachedReportId) {
+const rep = userReports.find(r => r._id === currentAttachedReportId);
+const repName = rep ? rep.test_name : 'Diagnostic Report';
+attachmentTag = `<div class="user-attachment-tag"><i data-lucide="file-text" style="width: 13px; height: 13px;"></i>
+    Attached: ${repName}</div><br>`;
+}
+
+userRow.innerHTML = `
+<div class="bubble-user">
+    ${attachmentTag}${query || 'Analyze my attached report'}
+</div>
+`;
+stream.appendChild(userRow);
+
+if (!customQuery) input.value = '';
+stream.scrollTop = stream.scrollHeight;
+if (window.lucide) lucide.createIcons();
+
+// Render Thinking / Loading Indicator
+const loadingRow = document.createElement('div');
+loadingRow.className = 'message-row';
+loadingRow.innerHTML = `
+<div class="ai-thinking-row">
+    <span class="typing-dots">
+        <span></span><span></span><span></span>
+    </span>
+    <span>${currentAttachedReportId ? 'Reading PDF & synthesizing clinical analysis...' : 'Consulting medical knowledge
+        base...'}</span>
+</div>
+`;
+stream.appendChild(loadingRow);
+stream.scrollTop = stream.scrollHeight;
+
+if (sendBtn) sendBtn.disabled = true;
+
+try {
+const response = await fetch('/api/chat', {
+method: 'POST',
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify({
+message: query,
+report_id: currentAttachedReportId || null
+})
+});
+
+const data = await response.json();
+stream.removeChild(loadingRow);
+
+const aiRow = document.createElement('div');
+aiRow.className = 'message-row message-ai-wrap';
+
+if (response.ok) {
+const formattedHtml = formatMarkdown(data.reply);
+aiRow.innerHTML = `
+<div class="bubble-ai">
+    <div class="ai-bubble-header">
+        <span class="ai-badge">
+            <span class="ai-badge-dot"></span>
+            HealthLab AI • Clinical Consultation
+        </span>
+        <button class="btn-copy-bubble"
+            onclick="copyToClipboard(this, \`${data.reply.replace(/`/g, '\\`').replace(/\\/g, '\\\\')}\`)">
+            <i data-lucide="copy" style="width: 12px; height: 12px;"></i> Copy
+        </button>
+    </div>
+    <div class="ai-bubble-body">
+        ${formattedHtml}
+    </div>
+    <div class="ai-disclaimer-box">
+        <i data-lucide="shield-alert"
+            style="width: 14px; height: 14px; flex-shrink: 0; margin-top: 2px; color: #64748b;"></i>
+        <span>Clinical guidance provided for patient education. Please review with your doctor for prescriptions or
+            treatment adjustments.</span>
+    </div>
+</div>
+`;
+} else {
+aiRow.innerHTML = `
+<div class="bubble-ai" style="border-color: #fecaca; background: #fffaf0;">
+    <div style="font-weight: 700; color: #b91c1c; margin-bottom: 0.35rem;">Clinical Consultation Notice</div>
+    <p style="margin: 0; font-size: 0.88rem; color: #475569;">${data.error || 'Unable to complete AI analysis.'}</p>
+    <small style="color: #64748b;">${data.details || ''}</small>
+</div>
+`;
+}
+
+stream.appendChild(aiRow);
+stream.scrollTop = stream.scrollHeight;
+
+} catch (error) {
+stream.removeChild(loadingRow);
+const errRow = document.createElement('div');
+errRow.className = 'message-row message-ai-wrap';
+errRow.innerHTML = `
+<div class="bubble-ai" style="border-color: #fecaca;">
+    <div style="color: #b91c1c; font-weight: 700;">Connection Error</div>
+    <p style="margin: 0; font-size: 0.88rem; color: #64748b;">Could not reach the clinical AI service. Please verify
+        your network connection and retry.</p>
+</div>
+`;
+stream.appendChild(errRow);
+stream.scrollTop = stream.scrollHeight;
+} finally {
+if (sendBtn) sendBtn.disabled = false;
+if (window.lucide) lucide.createIcons();
+}
+}
+
+document.getElementById('chatInputField').addEventListener('keypress', (e) => {
+if (e.key === 'Enter') sendChatMessage();
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+updateAttachedReportUI();
+if (window.lucide) lucide.createIcons();
+
+const urlParams = new URLSearchParams(window.location.search);
+const shouldAutoAnalyze = urlParams.get('auto') === 'true';
+if (shouldAutoAnalyze && currentAttachedReportId) {
+setTimeout(() => {
+triggerQuickReportAnalysis();
+}, 300);
+}
+});
 </script>
 {% endblock %}

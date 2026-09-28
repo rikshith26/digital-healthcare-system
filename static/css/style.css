@@ -2625,3 +2625,464 @@ button,
 .tag {
     border-radius: 4px !important;
 }
+
+/* ========================================================
+   LAB TEST BOOKING WORKFLOW (PC DESKTOP VIEW)
+   Uniform Slate Grey Icons matching Top Header (#64748b)
+   ======================================================== */
+.diag-flow-wrapper {
+    max-width: 1100px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 0.5rem 0 3.5rem;
+    box-sizing: border-box;
+}
+
+/* Desktop Header Bar */
+.diag-desktop-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.diag-header-info h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #0f172a;
+    letter-spacing: -0.02em;
+    margin: 0 0 0.35rem 0;
+}
+
+.diag-header-info p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+/* Desktop Stepper Bar (Sharp Edges) */
+.diag-pc-stepper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 0px !important;
+    padding: 0.85rem 1.5rem;
+    margin-bottom: 1.75rem;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+}
+
+.diag-stepper-item {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    color: #64748b;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: default;
+    transition: all 0.2s ease;
+}
+
+.diag-stepper-item.active {
+    color: #2563eb;
+    font-weight: 700;
+}
+
+.diag-stepper-item.completed {
+    color: #0f172a;
+}
+
+.diag-stepper-badge {
+    width: 26px;
+    height: 26px;
+    border-radius: 0px !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 700;
+    background: #f8fafc;
+    border: 1.5px solid #e2e8f0;
+    color: #64748b;
+    transition: all 0.2s ease;
+}
+
+.diag-stepper-item.active .diag-stepper-badge {
+    background: #2563eb;
+    border-color: #2563eb;
+    color: #ffffff;
+}
+
+.diag-stepper-item.completed .diag-stepper-badge {
+    background: #ecfdf5;
+    border-color: #a7f3d0;
+    color: #059669;
+}
+
+.diag-stepper-divider {
+    flex: 1;
+    height: 2px;
+    background: #e2e8f0;
+    margin: 0 1rem;
+    max-width: 90px;
+}
+
+/* Wide Hero Diagnostic Banner (PC Layout - Sharp Edges) */
+.diag-hero-banner-pc {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border: 1px solid #e2e8f0;
+    border-radius: 0px !important;
+    padding: 1.6rem 2.25rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.75rem;
+}
+
+.diag-hero-banner-pc h2 {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0 0 0.35rem 0;
+    letter-spacing: -0.02em;
+}
+
+.diag-hero-banner-pc p {
+    font-size: 0.95rem;
+    color: #475569;
+    margin: 0 0 0.85rem 0;
+}
+
+.diag-trust-pills {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.diag-trust-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    padding: 0.3rem 0.75rem;
+    border-radius: 0px !important;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #475569;
+}
+
+/* PC Grid Layouts */
+.diag-desktop-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.75rem;
+}
+
+.diag-desktop-grid-split {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 1.75rem;
+    align-items: start;
+}
+
+@media (max-width: 860px) {
+    .diag-desktop-grid-2,
+    .diag-desktop-grid-split {
+        grid-template-columns: 1fr !important;
+        gap: 1.25rem !important;
+    }
+    .diag-stepper-divider {
+        display: none !important;
+    }
+}
+
+/* Uniform Slate Grey Icons matching Top Header (Clean Unboxed, No Containers) */
+.diag-field-row > i,
+.diag-field-row > svg,
+.diag-review-row .label-col > i,
+.diag-review-row .label-col > svg,
+.diag-pc-card-header > i,
+.diag-pc-card-header > svg,
+.diag-note-box > i,
+.diag-note-box > svg,
+.diag-icon-grey {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    color: #64748b !important;
+    stroke: #64748b !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.diag-icon-grey i,
+.diag-icon-grey svg {
+    color: #64748b !important;
+    stroke: #64748b !important;
+}
+
+/* Cards (Sharp Edges) */
+.diag-pc-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 0px !important;
+    padding: 1.6rem 1.85rem;
+    box-shadow: 0 1px 4px rgba(15, 23, 42, 0.04);
+    margin-bottom: 1.5rem;
+}
+
+.diag-pc-card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.4rem;
+    padding-bottom: 0.85rem;
+    border-bottom: 1px solid #f8fafc;
+}
+
+.diag-pc-card-title {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0;
+}
+
+/* Form Field Rows (Sharp Edges) */
+.diag-field-row {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 0px !important;
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    margin-bottom: 1rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.diag-field-row:focus-within {
+    border-color: #93c5fd;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.08);
+}
+
+.diag-field-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.diag-field-label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #64748b;
+    margin-bottom: 3px;
+}
+
+.diag-field-value {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #0f172a;
+    margin: 0;
+}
+
+.diag-field-input,
+.diag-field-select {
+    width: 100%;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #0f172a;
+    padding: 0;
+    margin: 0;
+}
+
+.diag-field-select {
+    cursor: pointer;
+}
+
+/* Note Alert (Sharp Edges) */
+.diag-note-box {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 0px !important;
+    padding: 1rem 1.25rem;
+    display: flex;
+    gap: 0.85rem;
+    align-items: center;
+    margin-top: 1.25rem;
+}
+
+.diag-note-box .note-title {
+    font-weight: 700;
+    color: #0f172a;
+    font-size: 0.92rem;
+    margin-bottom: 2px;
+}
+
+.diag-note-box .note-desc {
+    color: #64748b;
+    font-size: 0.88rem;
+    margin: 0;
+    line-height: 1.4;
+}
+
+/* Action Buttons (Sharp Edges) */
+.diag-btn-primary {
+    background: #2563eb;
+    color: #ffffff !important;
+    padding: 0.95rem 1.75rem;
+    border-radius: 0px !important;
+    font-size: 0.98rem;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.18);
+    text-decoration: none;
+}
+
+.diag-btn-primary:hover {
+    background: #1d4ed8;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.22);
+}
+
+.diag-btn-secondary {
+    background: #f8fafc;
+    color: #334155 !important;
+    border: 1px solid #cbd5e1;
+    border-radius: 0px !important;
+    padding: 0.95rem 1.5rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+
+.diag-btn-secondary:hover {
+    background: #f1f5f9;
+    color: #0f172a !important;
+}
+
+/* Review Rows */
+.diag-review-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.85rem 0;
+    border-bottom: 1px solid #f8fafc;
+}
+
+.diag-review-row:last-child {
+    border-bottom: none;
+}
+
+.diag-review-row .label-col {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: #64748b;
+    font-size: 0.9rem;
+}
+
+.diag-review-row .val-col {
+    color: #0f172a;
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-align: right;
+    max-width: 60%;
+    word-break: break-word;
+}
+
+/* Payment Method Cards (Sharp Edges) */
+.diag-payment-card {
+    border: 1.5px solid #e2e8f0;
+    border-radius: 0px !important;
+    padding: 1.15rem 1.35rem;
+    margin-bottom: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: #ffffff;
+}
+
+.diag-payment-card.active {
+    border-color: #2563eb;
+    background: #f8faff;
+}
+
+.diag-payment-card:hover {
+    border-color: #93c5fd;
+}
+
+/* Motivational Health Card (Sharp Edges) */
+.diag-motivation-card {
+    background: #f8fafc;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 0px !important;
+    padding: 1.5rem 1.65rem;
+}
+
+/* ========================================================
+   DOCTOR CONSULTATION MULTI-STEP FLOW (PC VIEW - SHARP EDGES)
+   ======================================================== */
+.doc-booking-wrapper,
+.doc-booking-wrapper .doc-pc-stepper,
+.doc-booking-wrapper .doc-stepper-badge,
+.doc-booking-wrapper .doc-hero-banner,
+.doc-booking-wrapper .doc-trust-pill,
+.doc-booking-wrapper .doc-pc-card,
+.doc-booking-wrapper .doc-field-row,
+.doc-booking-wrapper .doc-note-box,
+.doc-booking-wrapper .doc-snapshot-card,
+.doc-booking-wrapper .doc-mode-card,
+.doc-booking-wrapper .doc-date-chip,
+.doc-booking-wrapper .doc-slot-btn,
+.doc-booking-wrapper .doc-review-item,
+.doc-booking-wrapper .doc-payment-card,
+.doc-booking-wrapper .doc-motivation-card,
+.doc-booking-wrapper .diag-btn-primary,
+.doc-booking-wrapper .btn-heal-light,
+.doc-booking-wrapper .upi-app-btn,
+.doc-booking-wrapper input,
+.doc-booking-wrapper select,
+.doc-booking-wrapper textarea,
+.doc-booking-wrapper button,
+.doc-booking-wrapper a,
+.doc-booking-wrapper span[style*="border-radius"],
+.doc-booking-wrapper div[style*="border-radius"]:not(.diag-spinner) {
+    border-radius: 0px !important;
+}
+
+.doc-booking-wrapper .diag-spinner {
+    border-radius: 50% !important;
+}
+
+.doc-booking-wrapper i {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+
+

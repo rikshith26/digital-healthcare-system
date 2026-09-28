@@ -31,6 +31,11 @@
                             <h4>{{ booking.test_name }}</h4>
                             <p>{{ booking.date }} • {{ booking.time }}</p>
                             <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">Location: {{ booking.address }}</p>
+                            {% if booking.amount_paid or booking.payment_method %}
+                            <p style="font-size: 0.75rem; color: #2563eb; font-weight: 600; margin-top: 2px;">
+                                ₹{{ booking.amount_paid or booking.test_price or '149' }} • {{ booking.payment_status or 'Paid' }} ({{ booking.payment_method or 'UPI' }})
+                            </p>
+                            {% endif %}
                         </div>
                     </div>
                     <div class="item-meta">

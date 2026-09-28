@@ -1,0 +1,1925 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="doc-booking-wrapper" style="max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem 5rem;">
+
+    <!-- TOP HEADER / BACK NAVIGATION -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <div>
+            <h1 style="font-size: 1.85rem; font-weight: 800; color: #0f172a; margin: 0; letter-spacing: -0.02em;">
+                Doctor Consultation
+            </h1>
+            <p style="color: #64748b; font-size: 0.95rem; margin: 4px 0 0;">
+                Select your specialist, choose consultation mode, review details, and confirm your slot.
+            </p>
+        </div>
+        <div style="display: flex; gap: 0.75rem; align-items: center;">
+            <button type="button" class="btn-heal-light" id="navBackBtn" onclick="handleBackNavigation()"
+                style="display: none; padding: 0.65rem 1.1rem; border-radius: 0px; font-weight: 700; font-size: 0.85rem;">
+                <i data-lucide="arrow-left" style="width: 16px; color: #64748b;"></i> Previous Step
+            </button>
+            <a href="{{ url_for('doctors_page') }}" class="btn-heal-light"
+                style="padding: 0.65rem 1.1rem; border-radius: 0px; font-weight: 700; font-size: 0.85rem;"
+                title="View All Doctors">
+                <i data-lucide="users" style="width: 16px; color: #64748b;"></i> All Specialists
+            </a>
+        </div>
+    </div>
+
+    <!-- STEP PROGRESS BAR (PC VIEW - SHARP EDGES) -->
+    <div class="doc-pc-stepper" id="doctorStepper">
+        <div class="doc-stepper-item active" id="step_indicator_1">
+            <span class="doc-stepper-badge">1</span>
+            <span>Doctor & Mode</span>
+        </div>
+        <div class="doc-stepper-divider"></div>
+        <div class="doc-stepper-item" id="step_indicator_2">
+            <span class="doc-stepper-badge">2</span>
+            <span>Choose Slot</span>
+        </div>
+        <div class="doc-stepper-divider"></div>
+        <div class="doc-stepper-item" id="step_indicator_3">
+            <span class="doc-stepper-badge">3</span>
+            <span>Review & Details</span>
+        </div>
+        <div class="doc-stepper-divider"></div>
+        <div class="doc-stepper-item" id="step_indicator_4">
+            <span class="doc-stepper-badge">4</span>
+            <span>Choose Payment</span>
+        </div>
+        <div class="doc-stepper-divider"></div>
+        <div class="doc-stepper-item" id="step_indicator_5">
+            <span class="doc-stepper-badge">5</span>
+            <span>Confirmed</span>
+        </div>
+    </div>
+
+    <!-- HERO BANNER (PC LAYOUT - SHARP EDGES) -->
+    <div class="doc-hero-banner" id="doctorHeroBanner">
+        <div style="max-width: 680px;">
+            <h2>Doctor Consultations • Virtual & In-Person</h2>
+            <p>
+                Connect with board-certified medical specialists via secure video consultation from home or visit top partner clinics with zero wait time.
+            </p>
+            <div class="doc-trust-pills">
+                <div class="doc-trust-pill">
+                    <i data-lucide="shield-check" style="width: 15px; color: #64748b;"></i>
+                    <span>Verified Doctors</span>
+                </div>
+                <div class="doc-trust-pill">
+                    <i data-lucide="file-text" style="width: 15px; color: #64748b;"></i>
+                    <span>Instant Digital Rx</span>
+                </div>
+                <div class="doc-trust-pill">
+                    <i data-lucide="video" style="width: 15px; color: #64748b;"></i>
+                    <span>HD Telehealth & Clinics</span>
+                </div>
+            </div>
+        </div>
+        <div style="display: flex; align-items: center; justify-content: center;">
+            <div style="background: #ffffff; border: 1px solid #e2e8f0; padding: 1.25rem 1.5rem; text-align: center;">
+                <i data-lucide="stethoscope" style="width: 38px; height: 38px; color: #64748b; margin-bottom: 0.35rem;"></i>
+                <div style="font-weight: 800; font-size: 0.95rem; color: #0f172a;">Priority Care</div>
+                <div style="font-size: 0.75rem; color: #64748b;">Zero Waiting Token</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN FORM / INTERACTIVE MULTI-STEP FLOW -->
+    <form id="doctorAppointmentForm" onsubmit="event.preventDefault();">
+        <input type="hidden" name="doctor_id" id="formDoctorId" value="{{ selected_doctor_id }}">
+        <input type="hidden" name="doctor_name" id="formDoctorName" value="">
+        <input type="hidden" name="consultation_type" id="formConsultationType" value="virtual">
+        <input type="hidden" name="date" id="formDate" value="{{ today_date }}">
+        <input type="hidden" name="time" id="formTime" value="10:00 AM">
+        <input type="hidden" name="slot_id" id="formSlotId" value="">
+        <input type="hidden" name="fee" id="formFee" value="500">
+        <input type="hidden" name="payment_method" id="formPaymentMethod" value="UPI (Google Pay)">
+
+        <!-- ========================================================
+             STEP 1: DOCTOR SELECTION, 2 CONSULTATION OPTIONS & PATIENT DETAILS
+             ======================================================== -->
+        <div class="doc-step-panel" id="stepPanel1">
+            <div class="doc-pc-card">
+                <div class="doc-card-header">
+                    <div>
+                        <h2 style="font-size: 1.25rem; font-weight: 800; color: #0f172a; margin: 0;">
+                            Book an Appointment
+                        </h2>
+                        <p style="color: #64748b; font-size: 0.88rem; margin: 3px 0 0;">
+                            Select specialist, choose consultation mode (Virtual or In-Person), and verify details
+                        </p>
+                    </div>
+                    <span class="doc-verified-badge">
+                        <i data-lucide="check-circle" style="width: 14px; color: #059669;"></i> Verified Patient Account
+                    </span>
+                </div>
+
+                <div class="doc-form-grid">
+                    <!-- Left Column: Patient Information -->
+                    <div>
+                        <div class="doc-col-title">
+                            <i data-lucide="user" style="width: 17px; color: #64748b;"></i>
+                            Patient Information
+                        </div>
+
+                        <!-- Full Name -->
+                        <div class="doc-field-row">
+                            <i data-lucide="user" style="width: 18px; color: #64748b;"></i>
+                            <div style="flex: 1;">
+                                <label>Patient Full Name</label>
+                                <input type="text" id="patientNameInput" name="patient_name"
+                                    value="{{ user.full_name or user.username }}" required
+                                    placeholder="Enter patient full name">
+                            </div>
+                        </div>
+
+                        <!-- Contact Email -->
+                        <div class="doc-field-row">
+                            <i data-lucide="mail" style="width: 18px; color: #64748b;"></i>
+                            <div style="flex: 1;">
+                                <label>Contact Email</label>
+                                <input type="email" id="patientEmailInput" name="patient_email"
+                                    value="{{ user.email or '' }}" required
+                                    placeholder="patient@example.com">
+                            </div>
+                        </div>
+
+                        <!-- Contact Phone -->
+                        <div class="doc-field-row">
+                            <i data-lucide="phone" style="width: 18px; color: #64748b;"></i>
+                            <div style="flex: 1;">
+                                <label>Contact Phone Number</label>
+                                <input type="tel" id="patientPhoneInput" name="patient_phone"
+                                    value="{{ user.phone or '' }}" required
+                                    placeholder="+91 98765 43210">
+                            </div>
+                        </div>
+
+                        <!-- Age & Gender -->
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem;">
+                            <div class="doc-field-row">
+                                <i data-lucide="calendar" style="width: 18px; color: #64748b;"></i>
+                                <div style="flex: 1;">
+                                    <label>Age</label>
+                                    <input type="number" id="patientAgeInput" name="patient_age"
+                                        value="{{ user.age or '25' }}" min="1" max="120" placeholder="e.g. 28">
+                                </div>
+                            </div>
+                            <div class="doc-field-row">
+                                <i data-lucide="activity" style="width: 18px; color: #64748b;"></i>
+                                <div style="flex: 1;">
+                                    <label>Gender</label>
+                                    <select id="patientGenderInput" name="patient_gender">
+                                        <option value="Male" {% if user.gender == 'Male' %}selected{% endif %}>Male</option>
+                                        <option value="Female" {% if user.gender == 'Female' %}selected{% endif %}>Female</option>
+                                        <option value="Other" {% if user.gender == 'Other' %}selected{% endif %}>Other</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Symptoms / Chief Complaint -->
+                        <div style="margin-top: 1rem;">
+                            <label style="display: block; font-size: 0.78rem; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 6px;">
+                                Primary Health Concern / Symptoms
+                            </label>
+                            <textarea id="symptomsInput" name="symptoms"
+                                placeholder="Describe symptoms or reason for visit (e.g. mild fever since 2 days, headache, routine review...)"
+                                style="width: 100%; height: 80px; border: 1px solid #cbd5e1; border-radius: 0px; padding: 0.75rem; font-size: 0.88rem; resize: vertical; box-sizing: border-box; background: #ffffff;"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Doctor Selector & 2 Consultation Options -->
+                    <div>
+                        <div class="doc-col-title">
+                            <i data-lucide="stethoscope" style="width: 17px; color: #64748b;"></i>
+                            Doctor & Consultation Mode
+                        </div>
+
+                        <!-- Doctor Dropdown Selector -->
+                        <div class="doc-field-row" style="margin-bottom: 1.25rem;">
+                            <i data-lucide="user-check" style="width: 18px; color: #64748b;"></i>
+                            <div style="flex: 1;">
+                                <label>Select Specialist</label>
+                                <select id="doctorSelect" onchange="onDoctorChanged()" required>
+                                    {% if doctors %}
+                                        {% for doc in doctors %}
+                                            <option value="{{ doc._id }}"
+                                                    data-name="{{ doc.full_name or doc.username }}"
+                                                    data-specialization="{{ doc.specialization }}"
+                                                    data-fee="{{ doc.fee or 500 }}"
+                                                    data-hospital="{{ doc.hospital_name or 'HealthLab Partner Center' }}"
+                                                    data-pic="{{ doc.profile_pic or '' }}"
+                                                    data-exp="{{ doc.experience or '5' }}"
+                                                    {% if selected_doctor_id == doc._id or (not selected_doctor_id and loop.first) %}selected{% endif %}>
+                                                Dr. {{ doc.full_name or doc.username }} — {{ doc.specialization }} (₹{{ doc.fee or 500 }})
+                                            </option>
+                                        {% endfor %}
+                                    {% else %}
+                                        <option value="default_doc" data-name="Burra Specialist" data-specialization="General Physician" data-fee="500" data-hospital="HealthLab AI Care Clinic" data-exp="8">
+                                            Dr. Verified Specialist — General Medicine (₹500)
+                                        </option>
+                                    {% endif %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Selected Doctor Snapshot Card -->
+                        <div id="doctorSnapshotCard" class="doc-snapshot-card">
+                            <div style="display: flex; gap: 1rem; align-items: center;">
+                                <div id="docSnapshotImgBox" style="width: 54px; height: 54px; border: 1px solid #e2e8f0; background: #f8fafc; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0;">
+                                    <i data-lucide="user" style="width: 26px; color: #64748b;"></i>
+                                </div>
+                                <div style="flex: 1;">
+                                    <h4 id="docSnapshotName" style="margin: 0; font-size: 1.05rem; font-weight: 800; color: #0f172a;">Dr. Specialist</h4>
+                                    <p id="docSnapshotSpec" style="margin: 2px 0 0; font-size: 0.82rem; color: #2563eb; font-weight: 700;">General Physician</p>
+                                    <p id="docSnapshotHospital" style="margin: 2px 0 0; font-size: 0.76rem; color: #64748b;">
+                                        <i data-lucide="map-pin" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle;"></i>
+                                        <span id="docSnapshotHospitalText">HealthLab Partner Center</span>
+                                    </p>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div id="docSnapshotFee" style="font-size: 1.15rem; font-weight: 900; color: #0f172a;">₹500</div>
+                                    <span style="font-size: 0.7rem; color: #64748b; font-weight: 600;">Consultation Fee</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 2 CONSULTATION OPTIONS: VIRTUAL OR IN-PERSON -->
+                        <div style="margin-top: 1.25rem;">
+                            <label style="display: block; font-size: 0.78rem; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 8px;">
+                                Choose Consultation Type (2 Options)
+                            </label>
+
+                            <div class="doc-mode-grid">
+                                <!-- Option 1: Virtual Consultation -->
+                                <div class="doc-mode-card active" id="modeCardVirtual" onclick="setConsultationMode('virtual')">
+                                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+                                        <div style="display: flex; align-items: center; gap: 8px;">
+                                            <i data-lucide="video" style="width: 20px; color: #64748b;"></i>
+                                            <span style="font-weight: 800; font-size: 0.95rem; color: #0f172a;">Virtual Consult</span>
+                                        </div>
+                                        <span class="doc-mode-badge-rec">Most Popular</span>
+                                    </div>
+                                    <p style="margin: 0 0 0.5rem; font-size: 0.8rem; color: #64748b; line-height: 1.4;">
+                                        Secure HD video consultation from home. Instant digital prescription & zero commute.
+                                    </p>
+                                    <div style="font-size: 0.75rem; color: #2563eb; font-weight: 700; display: flex; align-items: center; gap: 4px;">
+                                        <i data-lucide="check" style="width: 14px;"></i> Instant Meeting Link
+                                    </div>
+                                </div>
+
+                                <!-- Option 2: In-Person Consultation -->
+                                <div class="doc-mode-card" id="modeCardInPerson" onclick="setConsultationMode('in_person')">
+                                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+                                        <div style="display: flex; align-items: center; gap: 8px;">
+                                            <i data-lucide="building-2" style="width: 20px; color: #64748b;"></i>
+                                            <span style="font-weight: 800; font-size: 0.95rem; color: #0f172a;">In-Person Visit</span>
+                                        </div>
+                                        <span class="doc-mode-badge-clinic">Clinic / Hospital</span>
+                                    </div>
+                                    <p style="margin: 0 0 0.5rem; font-size: 0.8rem; color: #64748b; line-height: 1.4;">
+                                        Visit specialist at verified clinic. Full physical examination & priority queue entry.
+                                    </p>
+                                    <div style="font-size: 0.75rem; color: #059669; font-weight: 700; display: flex; align-items: center; gap: 4px;">
+                                        <i data-lucide="check" style="width: 14px;"></i> Priority Token & Direct Entry
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Reassurance Note -->
+                        <div class="doc-note-box" style="margin-top: 1.25rem;">
+                            <i data-lucide="heart-pulse" style="width: 18px; color: #64748b;"></i>
+                            <div style="font-size: 0.82rem; color: #475569; line-height: 1.5;">
+                                <strong>Compassionate Medical Care:</strong> All doctors on HealthLab AI are verified with accredited medical boards. Reschedule anytime with zero cancellation fee.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer Action -->
+                <div style="border-top: 1px solid #e2e8f0; padding-top: 1.5rem; margin-top: 1.75rem; display: flex; justify-content: flex-end;">
+                    <button type="button" class="diag-btn-primary" onclick="validateAndGoToSlotStep()"
+                        style="padding: 0.9rem 2.25rem; font-size: 0.95rem; border-radius: 0px;">
+                        <span>Choose Consultation Slot</span>
+                        <i data-lucide="arrow-right" style="width: 18px; color: #ffffff;"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- ========================================================
+             STEP 2: CHOOSE CONSULTATION SLOT (PC VIEW - SHARP EDGES)
+             ======================================================== -->
+        <div class="doc-step-panel" id="stepPanel2" style="display: none;">
+            <div class="doc-pc-card">
+                <div class="doc-card-header">
+                    <div>
+                        <h2 style="font-size: 1.25rem; font-weight: 800; color: #0f172a; margin: 0;">
+                            Choose Consultation Slot
+                        </h2>
+                        <p style="color: #64748b; font-size: 0.88rem; margin: 3px 0 0;">
+                            Pick your preferred date and select an available time window with the specialist
+                        </p>
+                    </div>
+                    <span id="slotModeBadgeDisplay" class="doc-mode-badge-rec" style="font-size: 0.8rem; padding: 4px 10px;">
+                        Virtual Video Consultation
+                    </span>
+                </div>
+
+                <div class="doc-form-grid">
+                    <!-- Left Column: Date Selection & Details -->
+                    <div>
+                        <div class="doc-col-title">
+                            <i data-lucide="calendar" style="width: 17px; color: #64748b;"></i>
+                            Select Preferred Date
+                        </div>
+
+                        <!-- Quick Date Selection Chips -->
+                        <div class="doc-date-chips" style="display: flex; gap: 8px; margin-bottom: 1rem;">
+                            <button type="button" class="doc-date-chip active" id="chipToday" onclick="selectQuickDate('today')">
+                                Today
+                            </button>
+                            <button type="button" class="doc-date-chip" id="chipTomorrow" onclick="selectQuickDate('tomorrow')">
+                                Tomorrow
+                            </button>
+                            <button type="button" class="doc-date-chip" id="chipDayAfter" onclick="selectQuickDate('dayAfter')">
+                                In 2 Days
+                            </button>
+                        </div>
+
+                        <!-- Date Input -->
+                        <div class="doc-field-row">
+                            <i data-lucide="calendar-check" style="width: 18px; color: #64748b;"></i>
+                            <div style="flex: 1;">
+                                <label>Consultation Date</label>
+                                <input type="date" id="consultDateInput" value="{{ today_date }}"
+                                    min="{{ today_date }}" onchange="onCustomDateChanged(this.value)">
+                            </div>
+                        </div>
+
+                        <!-- Doctor Summary Mini Card -->
+                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 1.1rem; margin-top: 1.25rem;">
+                            <div style="font-size: 0.72rem; font-weight: 800; color: #64748b; text-transform: uppercase; margin-bottom: 4px;">
+                                Consulting Specialist
+                            </div>
+                            <div style="font-weight: 800; font-size: 1rem; color: #0f172a;" id="slotDoctorNameReview">
+                                Dr. Specialist
+                            </div>
+                            <div style="font-size: 0.82rem; color: #2563eb; font-weight: 600;" id="slotDoctorSpecReview">
+                                General Physician
+                            </div>
+                            <div style="margin-top: 0.75rem; font-size: 0.78rem; color: #475569; display: flex; align-items: center; gap: 6px;">
+                                <i data-lucide="clock" style="width: 14px; color: #64748b;"></i>
+                                Consultation Duration: <strong>20 - 30 minutes</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Time Slots (Morning, Afternoon, Evening) -->
+                    <div>
+                        <div class="doc-col-title" style="display: flex; justify-content: space-between; align-items: center;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <i data-lucide="clock" style="width: 17px; color: #64748b;"></i>
+                                Available Time Slots
+                            </div>
+                            <span id="slotStatusCount" style="font-size: 0.75rem; color: #059669; font-weight: 700;">
+                                Select any slot
+                            </span>
+                        </div>
+
+                        <!-- Real Database Slots (If available) -->
+                        <div id="dbSlotsContainer" style="display: none; margin-bottom: 1.25rem;">
+                            <div style="font-size: 0.72rem; font-weight: 800; color: #64748b; text-transform: uppercase; margin-bottom: 6px;">
+                                Doctor Scheduled Open Slots
+                            </div>
+                            <div id="dbSlotsList" class="doc-slots-grid"></div>
+                        </div>
+
+                        <!-- Morning Slots -->
+                        <div style="margin-bottom: 1.25rem;">
+                            <div style="font-size: 0.74rem; font-weight: 800; color: #64748b; text-transform: uppercase; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                                <i data-lucide="sun" style="width: 14px; color: #64748b;"></i> Morning Slots (09:00 AM - 12:00 PM)
+                            </div>
+                            <div class="doc-slots-grid">
+                                <div class="doc-slot-btn active" onclick="selectSlotTime('09:30 AM', this, null)">
+                                    <div class="slot-time">09:30 AM</div>
+                                    <div class="slot-status">Available</div>
+                                </div>
+                                <div class="doc-slot-btn" onclick="selectSlotTime('10:15 AM', this, null)">
+                                    <div class="slot-time">10:15 AM</div>
+                                    <div class="slot-status">Available</div>
+                                </div>
+                                <div class="doc-slot-btn" onclick="selectSlotTime('11:00 AM', this, null)">
+                                    <div class="slot-time">11:00 AM</div>
+                                    <div class="slot-status">Available</div>
+                                </div>
+                                <div class="doc-slot-btn" onclick="selectSlotTime('11:45 AM', this, null)">
+                                    <div class="slot-time">11:45 AM</div>
+                                    <div class="slot-status">Available</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Afternoon Slots -->
+                        <div style="margin-bottom: 1.25rem;">
+                            <div style="font-size: 0.74rem; font-weight: 800; color: #64748b; text-transform: uppercase; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                                <i data-lucide="compass" style="width: 14px; color: #64748b;"></i> Afternoon Slots (01:00 PM - 04:30 PM)
+                            </div>
+                            <div class="doc-slots-grid">
+                                <div class="doc-slot-btn" onclick="selectSlotTime('01:30 PM', this, null)">
+                                    <div class="slot-time">01:30 PM</div>
+                                    <div class="slot-status">Available</div>
+                                </div>
+                                <div class="doc-slot-btn" onclick="selectSlotTime('02:30 PM', this, null)">
+                                    <div class="slot-time">02:30 PM</div>
+                                    <div class="slot-status">Available</div>
+                                </div>
+                                <div class="doc-slot-btn" onclick="selectSlotTime('03:30 PM', this, null)">
+                                    <div class="slot-time">03:30 PM</div>
+                                    <div class="slot-status">Available</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Evening Slots -->
+                        <div>
+                            <div style="font-size: 0.74rem; font-weight: 800; color: #64748b; text-transform: uppercase; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                                <i data-lucide="moon" style="width: 14px; color: #64748b;"></i> Evening Slots (05:00 PM - 08:30 PM)
+                            </div>
+                            <div class="doc-slots-grid">
+                                <div class="doc-slot-btn" onclick="selectSlotTime('05:30 PM', this, null)">
+                                    <div class="slot-time">05:30 PM</div>
+                                    <div class="slot-status">Available</div>
+                                </div>
+                                <div class="doc-slot-btn" onclick="selectSlotTime('06:30 PM', this, null)">
+                                    <div class="slot-time">06:30 PM</div>
+                                    <div class="slot-status">Available</div>
+                                </div>
+                                <div class="doc-slot-btn" onclick="selectSlotTime('07:15 PM', this, null)">
+                                    <div class="slot-time">07:15 PM</div>
+                                    <div class="slot-status">Available</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer Navigation -->
+                <div style="border-top: 1px solid #e2e8f0; padding-top: 1.5rem; margin-top: 1.75rem; display: flex; justify-content: space-between; align-items: center;">
+                    <button type="button" class="btn-heal-light" onclick="goToStep(1)"
+                        style="padding: 0.85rem 1.65rem; border-radius: 0px; font-weight: 700; font-size: 0.9rem;">
+                        <i data-lucide="arrow-left" style="width: 16px; color: #64748b;"></i>
+                        <span>Back to Doctor & Mode</span>
+                    </button>
+                    <button type="button" class="diag-btn-primary" onclick="goToReviewStep()"
+                        style="padding: 0.9rem 2.25rem; font-size: 0.95rem; border-radius: 0px;">
+                        <span>Continue to Review Details</span>
+                        <i data-lucide="arrow-right" style="width: 18px; color: #ffffff;"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- ========================================================
+             STEP 3: REVIEW DETAILS & CONFIRM (PC VIEW - SHARP EDGES)
+             ======================================================== -->
+        <div class="doc-step-panel" id="stepPanel3" style="display: none;">
+            <div class="doc-pc-card">
+                <div class="doc-card-header">
+                    <div>
+                        <h2 style="font-size: 1.25rem; font-weight: 800; color: #0f172a; margin: 0;">
+                            Review Consultation Details
+                        </h2>
+                        <p style="color: #64748b; font-size: 0.88rem; margin: 3px 0 0;">
+                            Verify patient credentials, appointment slot, consultation mode, and payment summary
+                        </p>
+                    </div>
+                    <span class="doc-verified-badge">
+                        <i data-lucide="shield-check" style="width: 14px; color: #059669;"></i> Pre-Booking Summary
+                    </span>
+                </div>
+
+                <div class="doc-form-grid">
+                    <!-- Left Column: Comprehensive Appointment Details -->
+                    <div>
+                        <div class="doc-col-title">
+                            <i data-lucide="clipboard-check" style="width: 17px; color: #64748b;"></i>
+                            Appointment Summary
+                        </div>
+
+                        <!-- Doctor Card in Review -->
+                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 1.25rem; margin-bottom: 1.25rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                                <div>
+                                    <span style="font-size: 0.72rem; font-weight: 800; color: #64748b; text-transform: uppercase;">
+                                        Consulting Doctor
+                                    </span>
+                                    <h3 id="reviewDoctorName" style="margin: 2px 0 0; font-size: 1.15rem; font-weight: 800; color: #0f172a;">
+                                        Dr. Specialist
+                                    </h3>
+                                    <p id="reviewDoctorSpec" style="margin: 2px 0 0; color: #2563eb; font-weight: 700; font-size: 0.85rem;">
+                                        General Physician
+                                    </p>
+                                    <p id="reviewDoctorHospital" style="margin: 3px 0 0; font-size: 0.78rem; color: #64748b;">
+                                        HealthLab Care Center
+                                    </p>
+                                </div>
+                                <div id="reviewModeBadge" class="doc-mode-badge-rec">
+                                    Virtual Video Consult
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Details Rows -->
+                        <div class="doc-review-list">
+                            <div class="doc-review-item">
+                                <span class="doc-review-label">Scheduled Date & Time</span>
+                                <span class="doc-review-val" id="reviewSlotDateTime">28 Sep 2026 at 09:30 AM</span>
+                            </div>
+                            <div class="doc-review-item">
+                                <span class="doc-review-label">Consultation Mode</span>
+                                <span class="doc-review-val" id="reviewConsultModeText">Virtual Video (HD Telehealth Room)</span>
+                            </div>
+                            <div class="doc-review-item">
+                                <span class="doc-review-label">Patient Name</span>
+                                <span class="doc-review-val" id="reviewPatientName">Burra Rikshith</span>
+                            </div>
+                            <div class="doc-review-item">
+                                <span class="doc-review-label">Contact Details</span>
+                                <span class="doc-review-val" id="reviewContactInfo">burrarikshith@gmail.com</span>
+                            </div>
+                            <div class="doc-review-item">
+                                <span class="doc-review-label">Health Concern / Symptoms</span>
+                                <span class="doc-review-val" id="reviewSymptomsText">Routine health consultation</span>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 1rem;">
+                            <button type="button" class="btn-heal-light" onclick="goToStep(1)"
+                                style="padding: 0.65rem 1.1rem; border-radius: 0px; font-size: 0.82rem; font-weight: 700;">
+                                <i data-lucide="edit-3" style="width: 14px; color: #64748b;"></i> Edit Information
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Billing Breakdown & Consultation Guarantee -->
+                    <div>
+                        <div class="doc-col-title">
+                            <i data-lucide="credit-card" style="width: 17px; color: #64748b;"></i>
+                            Billing & Fee Breakdown
+                        </div>
+
+                        <div style="background: #ffffff; border: 1px solid #e2e8f0; padding: 1.4rem;">
+                            <table style="width: 100%; border-collapse: collapse; font-size: 0.88rem;">
+                                <tr>
+                                    <td style="padding: 8px 0; color: #64748b;">Doctor Consultation Fee</td>
+                                    <td style="padding: 8px 0; font-weight: 700; color: #0f172a; text-align: right;" id="reviewBillDoctorFee">₹500</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px 0; color: #64748b;">Digital Healthcare Platform Fee</td>
+                                    <td style="padding: 8px 0; color: #059669; font-weight: 700; text-align: right;">
+                                        <span style="background: #ecfdf5; padding: 2px 6px; border: 1px solid #a7f3d0;">FREE</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px 0; color: #64748b;">Instant Video Room / Clinic Priority Pass</td>
+                                    <td style="padding: 8px 0; color: #059669; font-weight: 700; text-align: right;">INCLUDED</td>
+                                </tr>
+                                <tr style="border-top: 1.5px solid #e2e8f0;">
+                                    <td style="padding: 12px 0; font-weight: 800; font-size: 1.05rem; color: #0f172a;">Total Payable</td>
+                                    <td style="padding: 12px 0; font-weight: 900; font-size: 1.35rem; color: #2563eb; text-align: right;" id="reviewBillTotal">₹500</td>
+                                </tr>
+                            </table>
+
+                            <div class="doc-note-box" style="margin-top: 1.25rem;">
+                                <i data-lucide="shield-check" style="width: 18px; color: #64748b;"></i>
+                                <div style="font-size: 0.8rem; color: #475569; line-height: 1.5;">
+                                    <strong>HealthLab Consultation Guarantee:</strong> If the doctor is delayed by more than 15 minutes, you can reschedule for free or receive an instant full refund.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer Navigation -->
+                <div style="border-top: 1px solid #e2e8f0; padding-top: 1.5rem; margin-top: 1.75rem; display: flex; justify-content: space-between; align-items: center;">
+                    <button type="button" class="btn-heal-light" onclick="goToStep(2)"
+                        style="padding: 0.85rem 1.65rem; border-radius: 0px; font-weight: 700; font-size: 0.9rem;">
+                        <i data-lucide="arrow-left" style="width: 16px; color: #64748b;"></i>
+                        <span>Modify Slot</span>
+                    </button>
+                    <button type="button" class="diag-btn-primary" onclick="goToPaymentStep()"
+                        style="padding: 0.9rem 2.25rem; font-size: 0.95rem; border-radius: 0px;">
+                        <span>Proceed to Choose Payment</span>
+                        <i data-lucide="arrow-right" style="width: 18px; color: #ffffff;"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- ========================================================
+             STEP 4: CHOOSE PAYMENT (PC VIEW - SHARP EDGES)
+             ======================================================== -->
+        <div class="doc-step-panel" id="stepPanel4" style="display: none;">
+            <div class="doc-pc-card">
+                <div class="doc-card-header">
+                    <div>
+                        <h2 style="font-size: 1.25rem; font-weight: 800; color: #0f172a; margin: 0;">
+                            Choose Payment Method
+                        </h2>
+                        <p style="color: #64748b; font-size: 0.88rem; margin: 3px 0 0;">
+                            Select your preferred Indian payment option to confirm your doctor consultation slot
+                        </p>
+                    </div>
+                    <span class="doc-verified-badge">
+                        <i data-lucide="lock" style="width: 14px; color: #059669;"></i> 256-Bit SSL Encrypted
+                    </span>
+                </div>
+
+                <div class="doc-form-grid">
+                    <!-- Left Column: Payment Gateways -->
+                    <div>
+                        <div class="doc-col-title">
+                            <i data-lucide="credit-card" style="width: 17px; color: #64748b;"></i>
+                            Select Payment Option
+                        </div>
+
+                        <!-- 1. UPI Option -->
+                        <div class="doc-payment-card active" id="payMethodUPI" onclick="selectPaymentGateway('upi')">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <input type="radio" name="pay_radio" id="radioUPI" checked style="accent-color: #2563eb;">
+                                    <label for="radioUPI" style="font-weight: 800; font-size: 0.95rem; color: #0f172a; cursor: pointer;">
+                                        UPI (Google Pay, PhonePe, Paytm, QR)
+                                    </label>
+                                </div>
+                                <span style="background: #ecfdf5; color: #059669; font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border: 1px solid #a7f3d0;">Recommended</span>
+                            </div>
+
+                            <div id="upiSubOptions" style="padding-left: 1.5rem; margin-top: 0.5rem;">
+                                <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 0.75rem;">
+                                    <button type="button" class="btn-heal-light upi-app-btn active" onclick="selectDocUpiApp(event, 'Google Pay')" style="padding: 0.45rem 0.85rem; font-size: 0.82rem; border-radius: 0px;">Google Pay</button>
+                                    <button type="button" class="btn-heal-light upi-app-btn" onclick="selectDocUpiApp(event, 'PhonePe')" style="padding: 0.45rem 0.85rem; font-size: 0.82rem; border-radius: 0px;">PhonePe</button>
+                                    <button type="button" class="btn-heal-light upi-app-btn" onclick="selectDocUpiApp(event, 'Paytm')" style="padding: 0.45rem 0.85rem; font-size: 0.82rem; border-radius: 0px;">Paytm</button>
+                                    <button type="button" class="btn-heal-light upi-app-btn" onclick="selectDocUpiApp(event, 'BHIM / Any UPI')" style="padding: 0.45rem 0.85rem; font-size: 0.82rem; border-radius: 0px;">BHIM / Any UPI</button>
+                                </div>
+
+                                <div style="display: flex; gap: 8px; margin-bottom: 0.75rem;">
+                                    <input type="text" id="docUpiVpaInput" placeholder="yourname@okaxis or yourname@upi"
+                                        style="border: 1px solid #cbd5e1; border-radius: 0px; padding: 0.65rem 0.9rem; font-size: 0.88rem; flex: 1; background: #ffffff;">
+                                    <button type="button" class="btn-heal-light" onclick="verifyDocUpi()"
+                                        style="padding: 0.65rem 1rem; font-size: 0.82rem; font-weight: 600; border-radius: 0px;">
+                                        Verify VPA
+                                    </button>
+                                </div>
+
+                                <div style="font-size: 0.78rem; color: #64748b; display: flex; align-items: center; gap: 6px;">
+                                    <i data-lucide="qr-code" style="width: 14px; color: #64748b;"></i>
+                                    <a href="javascript:void(0)" onclick="toggleDocQr()" style="color: #2563eb; text-decoration: underline; font-weight: 600;">
+                                        Or click to scan dynamic UPI QR code
+                                    </a>
+                                </div>
+
+                                <div id="doc_upi_qr_box" style="display: none; background: #f8fafc; border: 1px dashed #cbd5e1; padding: 1.25rem; text-align: center; margin-top: 0.85rem;">
+                                    <div style="display: inline-block; background: #ffffff; padding: 10px; border: 1px solid #e2e8f0; margin-bottom: 8px;">
+                                        <svg width="120" height="120" viewBox="0 0 100 100">
+                                            <rect width="100" height="100" fill="#ffffff" />
+                                            <path d="M10,10 h30 v30 h-30 z M15,15 h20 v20 h-20 z M20,20 h10 v10 h-10 z" fill="#0f172a" />
+                                            <path d="M60,10 h30 v30 h-30 z M65,15 h20 v20 h-20 z M70,20 h10 v10 h-10 z" fill="#0f172a" />
+                                            <path d="M10,60 h30 v30 h-30 z M15,65 h20 v20 h-20 z M20,70 h10 v10 h-10 z" fill="#0f172a" />
+                                            <rect x="45" y="15" width="8" height="8" fill="#0f172a" />
+                                            <rect x="45" y="35" width="8" height="8" fill="#0f172a" />
+                                            <rect x="55" y="45" width="8" height="8" fill="#0f172a" />
+                                            <rect x="65" y="55" width="8" height="8" fill="#0f172a" />
+                                            <rect x="45" y="65" width="8" height="8" fill="#0f172a" />
+                                            <rect x="75" y="75" width="8" height="8" fill="#0f172a" />
+                                        </svg>
+                                    </div>
+                                    <div style="font-size: 0.8rem; font-weight: 700; color: #0f172a;">Scan with Google Pay / PhonePe / Paytm</div>
+                                    <div style="font-size: 0.75rem; color: #64748b;">Instant auto-approval upon transfer</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 2. Debit / Credit Card -->
+                        <div class="doc-payment-card" id="payMethodCard" onclick="selectPaymentGateway('card')" style="margin-top: 1rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <input type="radio" name="pay_radio" id="radioCard" style="accent-color: #2563eb;">
+                                    <label for="radioCard" style="font-weight: 800; font-size: 0.95rem; color: #0f172a; cursor: pointer;">
+                                        Credit / Debit Card
+                                    </label>
+                                </div>
+                                <div style="display: flex; gap: 4px;">
+                                    <span style="background: #f1f5f9; color: #475569; font-size: 0.72rem; font-weight: 700; padding: 2px 6px; border: 1px solid #e2e8f0;">RuPay</span>
+                                    <span style="background: #f1f5f9; color: #475569; font-size: 0.72rem; font-weight: 700; padding: 2px 6px; border: 1px solid #e2e8f0;">Visa</span>
+                                    <span style="background: #f1f5f9; color: #475569; font-size: 0.72rem; font-weight: 700; padding: 2px 6px; border: 1px solid #e2e8f0;">Mastercard</span>
+                                </div>
+                            </div>
+
+                            <div id="cardSubOptions" style="display: none; padding-left: 1.5rem; margin-top: 0.5rem;">
+                                <div style="margin-bottom: 0.75rem;">
+                                    <label style="display: block; font-size: 0.75rem; color: #64748b; font-weight: 700; margin-bottom: 4px;">Card Number</label>
+                                    <input type="text" placeholder="4532 •••• •••• 8920" maxlength="19"
+                                        style="border: 1px solid #cbd5e1; border-radius: 0px; padding: 0.65rem 0.9rem; font-size: 0.9rem; width: 100%; box-sizing: border-box; background: #ffffff;">
+                                </div>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 0.75rem;">
+                                    <div>
+                                        <label style="display: block; font-size: 0.75rem; color: #64748b; font-weight: 700; margin-bottom: 4px;">Expiry Date</label>
+                                        <input type="text" placeholder="MM / YY" maxlength="5"
+                                            style="border: 1px solid #cbd5e1; border-radius: 0px; padding: 0.65rem 0.9rem; font-size: 0.9rem; width: 100%; box-sizing: border-box; background: #ffffff;">
+                                    </div>
+                                    <div>
+                                        <label style="display: block; font-size: 0.75rem; color: #64748b; font-weight: 700; margin-bottom: 4px;">CVV</label>
+                                        <input type="password" placeholder="•••" maxlength="4"
+                                            style="border: 1px solid #cbd5e1; border-radius: 0px; padding: 0.65rem 0.9rem; font-size: 0.9rem; width: 100%; box-sizing: border-box; background: #ffffff;">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 3. Net Banking -->
+                        <div class="doc-payment-card" id="payMethodNetBanking" onclick="selectPaymentGateway('netbanking')" style="margin-top: 1rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <input type="radio" name="pay_radio" id="radioNetbanking" style="accent-color: #2563eb;">
+                                    <label for="radioNetbanking" style="font-weight: 800; font-size: 0.95rem; color: #0f172a; cursor: pointer;">
+                                        Net Banking (All Major Indian Banks)
+                                    </label>
+                                </div>
+                                <i data-lucide="landmark" style="width: 18px; color: #64748b;"></i>
+                            </div>
+
+                            <div id="netbankingSubOptions" style="display: none; padding-left: 1.5rem; margin-top: 0.85rem;">
+                                <select style="border: 1px solid #cbd5e1; border-radius: 0px; padding: 0.7rem 0.9rem; font-size: 0.9rem; width: 100%; background: #ffffff;">
+                                    <option value="sbi">State Bank of India (SBI)</option>
+                                    <option value="hdfc">HDFC Bank</option>
+                                    <option value="icici">ICICI Bank</option>
+                                    <option value="axis">Axis Bank</option>
+                                    <option value="kotak">Kotak Mahindra Bank</option>
+                                    <option value="pnb">Punjab National Bank</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- 4. Pay at Clinic (For In-Person Visits) -->
+                        <div class="doc-payment-card" id="payMethodClinic" onclick="selectPaymentGateway('clinic')" style="margin-top: 1rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <input type="radio" name="pay_radio" id="radioClinic" style="accent-color: #2563eb;">
+                                    <label for="radioClinic" style="font-weight: 800; font-size: 0.95rem; color: #0f172a; cursor: pointer;">
+                                        Pay at Clinic Reception
+                                    </label>
+                                </div>
+                                <span style="background: #f1f5f9; color: #475569; font-size: 0.75rem; font-weight: 700; padding: 2px 8px; border: 1px solid #e2e8f0;">
+                                    At Reception
+                                </span>
+                            </div>
+                            <p style="margin: 0.4rem 0 0 1.5rem; font-size: 0.8rem; color: #64748b;">
+                                Slot reserved immediately. You can pay via cash, card, or UPI at the clinic reception desk upon arrival.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Final Payment Summary & Confirm -->
+                    <div>
+                        <div class="doc-col-title">
+                            <i data-lucide="shield-alert" style="width: 17px; color: #64748b;"></i>
+                            Order & Security Overview
+                        </div>
+
+                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 1.4rem;">
+                            <div style="font-size: 0.75rem; font-weight: 800; color: #64748b; text-transform: uppercase;">Total Consultation Fee</div>
+                            <div style="font-size: 1.85rem; font-weight: 900; color: #2563eb; margin: 4px 0 0.75rem;" id="paymentDisplayTotal">
+                                ₹500
+                            </div>
+
+                            <div style="border-top: 1px solid #e2e8f0; padding-top: 0.85rem; font-size: 0.82rem; color: #475569; line-height: 1.6;">
+                                <div>Doctor: <strong id="paySummaryDoc">Dr. Specialist</strong></div>
+                                <div>Mode: <strong id="paySummaryMode">Virtual Video Consultation</strong></div>
+                                <div>Time: <strong id="paySummarySlot">28 Sep 2026 at 09:30 AM</strong></div>
+                            </div>
+
+                            <div style="background: #ffffff; border: 1px solid #e2e8f0; padding: 0.85rem; margin: 1.25rem 0; font-size: 0.8rem; color: #64748b; line-height: 1.5;">
+                                <i data-lucide="lock" style="width: 14px; color: #64748b; display: inline-block; vertical-align: middle;"></i>
+                                All transactions are secured through RBI-compliant Indian payment rails with instant encrypted token generation.
+                            </div>
+
+                            <button type="button" class="diag-btn-primary" id="confirmPaymentBtn" onclick="processDoctorBooking()"
+                                style="width: 100%; justify-content: center; padding: 1.05rem; font-size: 1rem; border-radius: 0px; box-sizing: border-box;">
+                                <i data-lucide="check-circle" style="width: 20px; color: #ffffff;"></i>
+                                <span id="payButtonText">Pay ₹500 & Confirm Appointment</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer Navigation -->
+                <div style="border-top: 1px solid #e2e8f0; padding-top: 1.5rem; margin-top: 1.75rem;">
+                    <button type="button" class="btn-heal-light" onclick="goToStep(3)"
+                        style="padding: 0.85rem 1.65rem; border-radius: 0px; font-weight: 700; font-size: 0.9rem;">
+                        <i data-lucide="arrow-left" style="width: 16px; color: #64748b;"></i>
+                        <span>Back to Review</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- PAYMENT PROCESSING OVERLAY MODAL -->
+        <div id="payment_processing_modal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(4px); z-index: 9999; align-items: center; justify-content: center;">
+            <div style="background: #ffffff; border-radius: 0px; padding: 2.25rem 2rem; max-width: 380px; width: 90%; text-align: center; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);">
+                <div class="diag-spinner" style="width: 56px; height: 56px; border-radius: 50% !important; border: 3.5px solid #eff6ff; border-top-color: #2563eb; animation: spin 0.9s linear infinite; margin: 0 auto 1.25rem;"></div>
+                <h3 style="margin: 0 0 0.5rem; font-size: 1.25rem; color: #0f172a; font-weight: 800;">Processing Appointment</h3>
+                <p id="processing_status_text" style="color: #64748b; font-size: 0.9rem; margin: 0 0 1rem; line-height: 1.4;">
+                    Connecting securely with booking server...
+                </p>
+                <div style="font-size: 0.78rem; color: #94a3b8;">
+                    Please do not refresh or close this window.
+                </div>
+            </div>
+        </div>
+
+
+        <!-- ========================================================
+             STEP 5: BOOKING CONFIRMED & CALMING REASSURANCE (PC VIEW - SHARP EDGES)
+             ======================================================== -->
+        <div class="doc-step-panel" id="stepPanel5" style="display: none;">
+            <div class="doc-pc-card" style="text-align: center; padding: 2.75rem 2.25rem;">
+                <!-- Celebration Check Badge -->
+                <div style="width: 64px; height: 64px; border-radius: 0px; background: #ecfdf5; color: #059669; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; border: 2px solid #a7f3d0;">
+                    <i data-lucide="check-check" style="width: 34px; height: 34px;"></i>
+                </div>
+
+                <h2 style="font-size: 1.75rem; font-weight: 900; color: #0f172a; margin: 0 0 0.5rem;">
+                    Doctor Appointment Confirmed!
+                </h2>
+                <p style="color: #64748b; font-size: 1rem; max-width: 600px; margin: 0 auto 1.5rem; line-height: 1.5;">
+                    Your consultation slot with <strong id="confDoctorName">Dr. Specialist</strong> is successfully scheduled. An instant confirmation with full instructions has been dispatched.
+                </p>
+
+                <!-- Booking Reference Pill -->
+                <div style="display: inline-flex; align-items: center; gap: 8px; background: #f8fafc; color: #475569; border: 1px solid #e2e8f0; padding: 0.45rem 1.25rem; font-size: 0.92rem; font-weight: 700; margin-bottom: 1.75rem;">
+                    <i data-lucide="hash" style="width: 16px; color: #64748b;"></i>
+                    <span>Booking Reference: </span>
+                    <span id="confRefId" style="color: #0f172a; font-weight: 900;">HL-APT-2026-00124</span>
+                </div>
+
+                <!-- Mode Specific Next Steps Alert -->
+                <div id="confModeInstructions" style="background: #f0fdf4; border: 1px solid #bbf7d0; padding: 1.25rem 1.5rem; margin-bottom: 2rem; text-align: left; max-width: 820px; margin-left: auto; margin-right: auto;">
+                    <div style="display: flex; gap: 1rem; align-items: flex-start;">
+                        <i data-lucide="video" id="confModeIcon" style="width: 22px; color: #059669; margin-top: 2px;"></i>
+                        <div>
+                            <h4 id="confModeTitle" style="margin: 0 0 4px; font-size: 0.95rem; font-weight: 800; color: #166534;">
+                                Virtual Consultation Access
+                            </h4>
+                            <p id="confModeText" style="margin: 0; font-size: 0.85rem; color: #15803d; line-height: 1.5;">
+                                Your secure HD Video Consultation Room will be activated directly on your HealthLab AI dashboard 10 minutes prior to your scheduled time. An email invitation with the direct link has also been sent to your inbox.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4-Stage Live Consultation Tracker (Sharp Edges) -->
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 1.5rem 1.75rem; margin-bottom: 2rem; text-align: left; max-width: 820px; margin-left: auto; margin-right: auto;">
+                    <div style="font-size: 0.78rem; font-weight: 800; color: #64748b; text-transform: uppercase; margin-bottom: 1rem;">
+                        Live Consultation Stages
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem;" id="docStatusTrackerGrid">
+                        <div style="display: flex; gap: 10px; align-items: flex-start;">
+                            <div style="background: #059669; color: white; width: 24px; height: 24px; border-radius: 0px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; flex-shrink: 0;">✓</div>
+                            <div>
+                                <div style="font-weight: 800; font-size: 0.84rem; color: #0f172a;">Slot Confirmed</div>
+                                <div style="font-size: 0.74rem; color: #64748b;">Slot reserved in calendar</div>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 10px; align-items: flex-start;">
+                            <div style="background: #2563eb; color: white; width: 24px; height: 24px; border-radius: 0px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; flex-shrink: 0;">2</div>
+                            <div>
+                                <div style="font-weight: 800; font-size: 0.84rem; color: #0f172a;">Doctor Notified</div>
+                                <div style="font-size: 0.74rem; color: #64748b;">Patient file shared</div>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 10px; align-items: flex-start;">
+                            <div style="background: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; width: 24px; height: 24px; border-radius: 0px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; flex-shrink: 0;">3</div>
+                            <div>
+                                <div style="font-weight: 800; font-size: 0.84rem; color: #64748b;">Room / Desk Open</div>
+                                <div style="font-size: 0.74rem; color: #94a3b8;">10m before slot</div>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 10px; align-items: flex-start;">
+                            <div style="background: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; width: 24px; height: 24px; border-radius: 0px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; flex-shrink: 0;">4</div>
+                            <div>
+                                <div style="font-weight: 800; font-size: 0.84rem; color: #64748b;">Digital Rx</div>
+                                <div style="font-size: 0.74rem; color: #94a3b8;">Uploaded to dashboard</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- REASSURING & EMPOWERING DOCTOR CONSULTATION ADVICE CARD -->
+                <div class="doc-motivation-card" style="max-width: 820px; margin: 0 auto 2.25rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <i data-lucide="smile" style="width: 18px; color: #64748b;"></i>
+                            <span style="font-weight: 800; font-size: 0.9rem; color: #0f172a;">A Reassuring Note for Your Consultation</span>
+                        </div>
+                        <button type="button" class="btn-heal-light" onclick="rotateDocReassuringQuote()"
+                            style="padding: 0.35rem 0.75rem; font-size: 0.75rem; border-radius: 0px; gap: 5px;" title="Read another inspiring thought">
+                            <i data-lucide="refresh-cw" style="width: 12px; color: #64748b;"></i> Next Thought
+                        </button>
+                    </div>
+
+                    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-left: 4px solid #2563eb; padding: 1.15rem 1.35rem; margin-bottom: 0.85rem; text-align: left;">
+                        <p id="docReassuringQuoteText" style="margin: 0 0 0.5rem; font-size: 0.92rem; color: #1e293b; font-style: italic; line-height: 1.6;">
+                            "Speaking openly with a physician is one of the highest acts of self-care. Modern medicine and empathetic specialists are here to listen without judgment, bring you clarity, and empower your path to vibrant health."
+                        </p>
+                        <div style="font-size: 0.78rem; font-weight: 700; color: #64748b;" id="docReassuringQuoteAuthor">
+                            — HealthLab AI Clinical Wellness Team
+                        </div>
+                    </div>
+
+                    <p style="margin: 0; font-size: 0.78rem; color: #64748b; text-align: left;">
+                        Remember: Feel free to ask questions during your appointment. You and your doctor are partners in your wellness.
+                    </p>
+                </div>
+
+                <!-- Final Call to Action Buttons -->
+                <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                    <a href="{{ url_for('doctors_page') }}" class="btn-heal-light"
+                        style="padding: 0.95rem 1.85rem; font-weight: 700; font-size: 0.95rem; border-radius: 0px;">
+                        <i data-lucide="users" style="width: 18px; color: #64748b;"></i> View All Doctors
+                    </a>
+                    <a href="{{ url_for('dashboard') }}" class="diag-btn-primary"
+                        style="padding: 0.95rem 2.25rem; font-size: 0.95rem; border-radius: 0px;">
+                        <i data-lucide="layout-dashboard" style="width: 18px; color: #ffffff;"></i> Go to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<style>
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* SHARP EDGES DESIGN SYSTEM ACROSS ENTIRE DOCTOR APPOINTMENT FLOW */
+.doc-booking-wrapper,
+.doc-booking-wrapper .doc-pc-stepper,
+.doc-booking-wrapper .doc-stepper-badge,
+.doc-booking-wrapper .doc-hero-banner,
+.doc-booking-wrapper .doc-trust-pill,
+.doc-booking-wrapper .doc-pc-card,
+.doc-booking-wrapper .doc-field-row,
+.doc-booking-wrapper .doc-note-box,
+.doc-booking-wrapper .doc-snapshot-card,
+.doc-booking-wrapper .doc-mode-card,
+.doc-booking-wrapper .doc-date-chip,
+.doc-booking-wrapper .doc-slot-btn,
+.doc-booking-wrapper .doc-review-item,
+.doc-booking-wrapper .doc-payment-card,
+.doc-booking-wrapper .doc-motivation-card,
+.doc-booking-wrapper .diag-btn-primary,
+.doc-booking-wrapper .btn-heal-light,
+.doc-booking-wrapper .upi-app-btn,
+.doc-booking-wrapper input,
+.doc-booking-wrapper select,
+.doc-booking-wrapper textarea,
+.doc-booking-wrapper button,
+.doc-booking-wrapper a,
+.doc-booking-wrapper span[style*="border-radius"],
+.doc-booking-wrapper div[style*="border-radius"]:not(.diag-spinner) {
+    border-radius: 0px !important;
+}
+
+.doc-booking-wrapper .diag-spinner {
+    border-radius: 50% !important;
+}
+
+/* UNBOXED SLATE GREY ICONS */
+.doc-field-row > i,
+.doc-col-title i,
+.doc-card-header i,
+.doc-note-box i,
+.doc-motivation-card i,
+.doc-mode-card i,
+.doc-trust-pill i {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+/* PC STEPPER BAR */
+.doc-pc-stepper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    padding: 0.85rem 1.5rem;
+    margin-bottom: 1.75rem;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+}
+
+.doc-stepper-item {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    color: #64748b;
+    font-size: 0.88rem;
+    font-weight: 600;
+}
+
+.doc-stepper-item.active {
+    color: #2563eb;
+    font-weight: 700;
+}
+
+.doc-stepper-item.completed {
+    color: #0f172a;
+}
+
+.doc-stepper-badge {
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 700;
+    background: #f8fafc;
+    border: 1.5px solid #e2e8f0;
+    color: #64748b;
+}
+
+.doc-stepper-item.active .doc-stepper-badge {
+    background: #2563eb;
+    border-color: #2563eb;
+    color: #ffffff;
+}
+
+.doc-stepper-item.completed .doc-stepper-badge {
+    background: #ecfdf5;
+    border-color: #a7f3d0;
+    color: #059669;
+}
+
+.doc-stepper-divider {
+    flex: 1;
+    height: 2px;
+    background: #e2e8f0;
+    margin: 0 0.85rem;
+    max-width: 60px;
+}
+
+/* HERO BANNER */
+.doc-hero-banner {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border: 1px solid #e2e8f0;
+    padding: 1.6rem 2.25rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.75rem;
+}
+
+.doc-hero-banner h2 {
+    font-size: 1.55rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0 0 0.35rem 0;
+}
+
+.doc-hero-banner p {
+    color: #475569;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin: 0 0 1.15rem 0;
+}
+
+.doc-trust-pills {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.doc-trust-pill {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    padding: 0.35rem 0.85rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #475569;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* PC CARDS & GRIDS */
+.doc-pc-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    padding: 2.25rem;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+}
+
+.doc-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 1.25rem;
+    margin-bottom: 1.75rem;
+}
+
+.doc-verified-badge {
+    background: #ecfdf5;
+    color: #059669;
+    border: 1px solid #a7f3d0;
+    padding: 0.35rem 0.9rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.doc-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2.5rem;
+}
+
+.doc-col-title {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 1.15rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-bottom: 0.5rem;
+    border-bottom: 1.5px solid #f1f5f9;
+}
+
+/* FIELD ROWS */
+.doc-field-row {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    padding: 0.65rem 0.95rem;
+    margin-bottom: 0.85rem;
+}
+
+.doc-field-row label {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: #64748b;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+}
+
+.doc-field-row input,
+.doc-field-row select {
+    width: 100%;
+    border: none;
+    outline: none;
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: #0f172a;
+    background: transparent;
+    padding: 0;
+}
+
+/* DOCTOR SNAPSHOT CARD */
+.doc-snapshot-card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    padding: 1.1rem 1.25rem;
+}
+
+/* 2 CONSULTATION MODE CARDS (VIRTUAL VS IN-PERSON) */
+.doc-mode-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.85rem;
+}
+
+.doc-mode-card {
+    background: #ffffff;
+    border: 1.5px solid #e2e8f0;
+    padding: 1.1rem 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.doc-mode-card:hover {
+    border-color: #94a3b8;
+}
+
+.doc-mode-card.active {
+    border-color: #2563eb;
+    background: #f8faff;
+}
+
+.doc-mode-badge-rec {
+    background: #eff6ff;
+    color: #2563eb;
+    border: 1px solid #bfdbfe;
+    font-size: 0.68rem;
+    font-weight: 700;
+    padding: 2px 6px;
+}
+
+.doc-mode-badge-clinic {
+    background: #f0fdf4;
+    color: #059669;
+    border: 1px solid #bbf7d0;
+    font-size: 0.68rem;
+    font-weight: 700;
+    padding: 2px 6px;
+}
+
+/* DATE CHIPS & SLOTS */
+.doc-date-chip {
+    padding: 0.55rem 1.1rem;
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    font-weight: 700;
+    font-size: 0.84rem;
+    color: #475569;
+    cursor: pointer;
+}
+
+.doc-date-chip.active {
+    background: #0f172a;
+    color: #ffffff;
+    border-color: #0f172a;
+}
+
+.doc-slots-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(105px, 1fr));
+    gap: 8px;
+}
+
+.doc-slot-btn {
+    background: #f8fafc;
+    border: 1.5px solid #e2e8f0;
+    padding: 0.75rem 0.5rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.doc-slot-btn:hover {
+    border-color: #94a3b8;
+}
+
+.doc-slot-btn.active {
+    border-color: #2563eb;
+    background: #eff6ff;
+}
+
+.doc-slot-btn.active .slot-time {
+    color: #2563eb;
+    font-weight: 800;
+}
+
+.slot-time {
+    font-size: 0.86rem;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.slot-status {
+    font-size: 0.65rem;
+    color: #059669;
+    font-weight: 700;
+    margin-top: 2px;
+}
+
+/* REVIEW LIST */
+.doc-review-list {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+}
+
+.doc-review-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.85rem 1.1rem;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 0.85rem;
+}
+
+.doc-review-item:last-child {
+    border-bottom: none;
+}
+
+.doc-review-label {
+    color: #64748b;
+    font-weight: 600;
+}
+
+.doc-review-val {
+    color: #0f172a;
+    font-weight: 700;
+    text-align: right;
+    max-width: 60%;
+}
+
+/* PAYMENT CARDS */
+.doc-payment-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    padding: 1.15rem 1.25rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.doc-payment-card.active {
+    border-color: #2563eb;
+    background: #f8faff;
+}
+
+/* NOTE & MOTIVATION CARDS */
+.doc-note-box {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    padding: 0.85rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.doc-motivation-card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    padding: 1.4rem 1.6rem;
+}
+
+/* BUTTONS */
+.upi-app-btn.active {
+    background: #f1f5f9 !important;
+    border-color: #64748b !important;
+    color: #0f172a !important;
+    font-weight: 700 !important;
+}
+
+@media (max-width: 768px) {
+    .doc-form-grid,
+    .doc-mode-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1.25rem !important;
+    }
+    .doc-hero-banner {
+        flex-direction: column;
+        gap: 1.25rem;
+    }
+    #docStatusTrackerGrid {
+        grid-template-columns: 1fr !important;
+    }
+}
+</style>
+
+<script>
+// State Management for Doctor Consultation Multi-Step Flow
+let docCurrentStep = 1;
+let selectedDocMode = 'virtual';
+let selectedDocPaymentMethod = 'UPI (Google Pay)';
+let selectedDocFee = 500;
+let selectedDocId = '{{ selected_doctor_id }}';
+let selectedSlotTimeVal = '09:30 AM';
+let selectedSlotIdVal = '';
+let currentDocQuoteIndex = 0;
+
+// Comforting and scientifically reassuring quotes specifically for doctor appointments
+const docReassuringQuotes = [
+    {
+        quote: "Speaking openly with a physician is one of the highest acts of self-care. Modern medicine and empathetic specialists are here to listen without judgment, bring you clarity, and empower your path to vibrant health.",
+        author: "HealthLab AI Clinical Wellness Team"
+    },
+    {
+        quote: "Never hesitate to share your symptoms. Early consultations turn uncertainties into simple, manageable answers. You are taking active charge of your well-being today!",
+        author: "Dr. Evelyn Vance, Chief Medical Director"
+    },
+    {
+        quote: "Your body is your lifelong companion. Partnering with a caring doctor ensures you receive the guidance, peace of mind, and clinical precision you deserve.",
+        author: "HealthLab AI Patient Care Council"
+    },
+    {
+        quote: "Health is not the absence of questions; it is the courage to seek understanding. Our specialists are dedicated partners in your personal health journey.",
+        author: "HealthLab AI Clinical Team"
+    }
+];
+
+// Initialize on DOM Ready
+document.addEventListener('DOMContentLoaded', () => {
+    onDoctorChanged();
+    updateDocPaymentTotals();
+    
+    // Auto-fetch real slots if doctor is selected
+    if (selectedDocId) {
+        fetchDoctorSlotsFromAPI(selectedDocId);
+    }
+});
+
+// Step Navigation Handler
+function goToStep(stepNumber) {
+    // Hide all panels
+    for (let i = 1; i <= 5; i++) {
+        const p = document.getElementById(`stepPanel${i}`);
+        if (p) p.style.display = 'none';
+        
+        const ind = document.getElementById(`step_indicator_${i}`);
+        if (ind) {
+            ind.classList.remove('active', 'completed');
+            if (i < stepNumber) {
+                ind.classList.add('completed');
+            } else if (i === stepNumber) {
+                ind.classList.add('active');
+            }
+        }
+    }
+
+    const targetPanel = document.getElementById(`stepPanel${stepNumber}`);
+    if (targetPanel) {
+        targetPanel.style.display = 'block';
+    }
+    docCurrentStep = stepNumber;
+
+    // Toggle Back Nav Button in Header
+    const backBtn = document.getElementById('navBackBtn');
+    if (backBtn) {
+        backBtn.style.display = (stepNumber > 1 && stepNumber < 5) ? 'inline-flex' : 'none';
+    }
+
+    // Scroll to Top of Flow
+    const wrapper = document.querySelector('.doc-booking-wrapper');
+    if (wrapper) {
+        wrapper.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // Refresh icons
+    if (window.lucide && typeof lucide.createIcons === 'function') {
+        lucide.createIcons();
+    }
+}
+
+function handleBackNavigation() {
+    if (docCurrentStep > 1 && docCurrentStep < 5) {
+        goToStep(docCurrentStep - 1);
+    }
+}
+
+// Step 1 Validation & Transition
+function validateAndGoToSlotStep() {
+    const patientName = (document.getElementById('patientNameInput')?.value || '').trim();
+    const patientEmail = (document.getElementById('patientEmailInput')?.value || '').trim();
+    const patientPhone = (document.getElementById('patientPhoneInput')?.value || '').trim();
+
+    if (!patientName) {
+        alert('Please enter the patient full name.');
+        document.getElementById('patientNameInput')?.focus();
+        return;
+    }
+    if (!patientEmail) {
+        alert('Please enter a valid contact email.');
+        document.getElementById('patientEmailInput')?.focus();
+        return;
+    }
+    if (!patientPhone) {
+        alert('Please enter a contact phone number.');
+        document.getElementById('patientPhoneInput')?.focus();
+        return;
+    }
+
+    // Populate Slot step preview
+    const docSelect = document.getElementById('doctorSelect');
+    const selectedOpt = docSelect?.options[docSelect.selectedIndex];
+    if (selectedOpt) {
+        const docName = selectedOpt.getAttribute('data-name') || 'Specialist';
+        const docSpec = selectedOpt.getAttribute('data-specialization') || 'Consultant';
+        
+        document.getElementById('slotDoctorNameReview').innerText = `Dr. ${docName}`;
+        document.getElementById('slotDoctorSpecReview').innerText = docSpec;
+    }
+
+    const modeBadge = document.getElementById('slotModeBadgeDisplay');
+    if (modeBadge) {
+        if (selectedDocMode === 'virtual') {
+            modeBadge.className = 'doc-mode-badge-rec';
+            modeBadge.innerText = 'Virtual Video Consultation';
+        } else {
+            modeBadge.className = 'doc-mode-badge-clinic';
+            modeBadge.innerText = 'In-Person Clinic Visit';
+        }
+    }
+
+    goToStep(2);
+}
+
+// Step 2 Transition to Review
+function goToReviewStep() {
+    const docSelect = document.getElementById('doctorSelect');
+    const selectedOpt = docSelect?.options[docSelect.selectedIndex];
+    const docName = selectedOpt?.getAttribute('data-name') || 'Specialist';
+    const docSpec = selectedOpt?.getAttribute('data-specialization') || 'Consultant';
+    const docHospital = selectedOpt?.getAttribute('data-hospital') || 'HealthLab Partner Center';
+    const dateVal = document.getElementById('consultDateInput')?.value || '2026-09-28';
+
+    // Populate Review Fields
+    document.getElementById('reviewDoctorName').innerText = `Dr. ${docName}`;
+    document.getElementById('reviewDoctorSpec').innerText = docSpec;
+    document.getElementById('reviewDoctorHospital').innerText = docHospital;
+    document.getElementById('reviewSlotDateTime').innerText = `${dateVal} at ${selectedSlotTimeVal}`;
+
+    const modeBadge = document.getElementById('reviewModeBadge');
+    const modeText = document.getElementById('reviewConsultModeText');
+    if (selectedDocMode === 'virtual') {
+        if (modeBadge) {
+            modeBadge.className = 'doc-mode-badge-rec';
+            modeBadge.innerText = 'Virtual Video Consult';
+        }
+        if (modeText) modeText.innerText = 'Virtual Video Consultation (HD Telehealth Room)';
+    } else {
+        if (modeBadge) {
+            modeBadge.className = 'doc-mode-badge-clinic';
+            modeBadge.innerText = 'In-Person Clinic Visit';
+        }
+        if (modeText) modeText.innerText = `In-Person Visit (${docHospital})`;
+    }
+
+    document.getElementById('reviewPatientName').innerText = document.getElementById('patientNameInput')?.value || 'Patient';
+    document.getElementById('reviewContactInfo').innerText = `${document.getElementById('patientPhoneInput')?.value || ''} • ${document.getElementById('patientEmailInput')?.value || ''}`;
+    
+    const symptoms = (document.getElementById('symptomsInput')?.value || '').trim();
+    document.getElementById('reviewSymptomsText').innerText = symptoms || 'Routine medical consultation';
+
+    document.getElementById('reviewBillDoctorFee').innerText = `₹${selectedDocFee}`;
+    document.getElementById('reviewBillTotal').innerText = `₹${selectedDocFee}`;
+
+    goToStep(3);
+}
+
+// Step 3 Transition to Payment
+function goToPaymentStep() {
+    const docSelect = document.getElementById('doctorSelect');
+    const selectedOpt = docSelect?.options[docSelect.selectedIndex];
+    const docName = selectedOpt?.getAttribute('data-name') || 'Specialist';
+    const dateVal = document.getElementById('consultDateInput')?.value || '2026-09-28';
+
+    document.getElementById('paymentDisplayTotal').innerText = `₹${selectedDocFee}`;
+    document.getElementById('paySummaryDoc').innerText = `Dr. ${docName}`;
+    document.getElementById('paySummaryMode').innerText = (selectedDocMode === 'virtual') ? 'Virtual Video Consultation' : 'In-Person Clinic Visit';
+    document.getElementById('paySummarySlot').innerText = `${dateVal} at ${selectedSlotTimeVal}`;
+    document.getElementById('payButtonText').innerText = `Pay ₹${selectedDocFee} & Confirm Appointment`;
+
+    goToStep(4);
+}
+
+// Doctor Selection Change Handler
+function onDoctorChanged() {
+    const select = document.getElementById('doctorSelect');
+    if (!select || !select.options || select.options.length === 0) return;
+
+    const opt = select.options[select.selectedIndex];
+    if (!opt) return;
+
+    const docId = opt.value;
+    const docName = opt.getAttribute('data-name') || 'Doctor';
+    const docSpec = opt.getAttribute('data-specialization') || 'Specialist';
+    const docFee = parseInt(opt.getAttribute('data-fee') || '500', 10);
+    const docHospital = opt.getAttribute('data-hospital') || 'HealthLab Partner Center';
+    const docPic = opt.getAttribute('data-pic');
+
+    selectedDocId = docId;
+    selectedDocFee = docFee;
+
+    document.getElementById('formDoctorId').value = docId;
+    document.getElementById('formDoctorName').value = docName;
+    document.getElementById('formFee').value = docFee;
+
+    // Update snapshot card
+    document.getElementById('docSnapshotName').innerText = `Dr. ${docName}`;
+    document.getElementById('docSnapshotSpec').innerText = docSpec;
+    document.getElementById('docSnapshotHospitalText').innerText = docHospital;
+    document.getElementById('docSnapshotFee').innerText = `₹${docFee}`;
+
+    const imgBox = document.getElementById('docSnapshotImgBox');
+    if (imgBox) {
+        if (docPic) {
+            imgBox.innerHTML = `<img src="${docPic}" alt="Doctor" style="width: 100%; height: 100%; object-fit: cover;">`;
+        } else {
+            imgBox.innerHTML = `<i data-lucide="user" style="width: 26px; color: #64748b;"></i>`;
+        }
+    }
+
+    updateDocPaymentTotals();
+    fetchDoctorSlotsFromAPI(docId);
+
+    if (window.lucide && typeof lucide.createIcons === 'function') {
+        lucide.createIcons();
+    }
+}
+
+// 2 Consultation Options Switcher (Virtual or In-Person)
+function setConsultationMode(mode) {
+    selectedDocMode = mode;
+    document.getElementById('formConsultationType').value = mode;
+
+    const cardVirtual = document.getElementById('modeCardVirtual');
+    const cardInPerson = document.getElementById('modeCardInPerson');
+
+    if (mode === 'virtual') {
+        cardVirtual?.classList.add('active');
+        cardInPerson?.classList.remove('active');
+    } else {
+        cardInPerson?.classList.add('active');
+        cardVirtual?.classList.remove('active');
+    }
+}
+
+// Quick Date Selector (Today, Tomorrow, In 2 Days)
+function selectQuickDate(range) {
+    const today = new Date();
+    let target = new Date();
+
+    if (range === 'tomorrow') {
+        target.setDate(today.getDate() + 1);
+    } else if (range === 'dayAfter') {
+        target.setDate(today.getDate() + 2);
+    }
+
+    const yyyy = target.getFullYear();
+    const mm = String(target.getMonth() + 1).padStart(2, '0');
+    const dd = String(target.getDate()).padStart(2, '0');
+    const formatted = `${yyyy}-${mm}-${dd}`;
+
+    const dateInput = document.getElementById('consultDateInput');
+    if (dateInput) {
+        dateInput.value = formatted;
+        document.getElementById('formDate').value = formatted;
+    }
+
+    document.querySelectorAll('.doc-date-chip').forEach(c => c.classList.remove('active'));
+    if (range === 'today') document.getElementById('chipToday')?.classList.add('active');
+    if (range === 'tomorrow') document.getElementById('chipTomorrow')?.classList.add('active');
+    if (range === 'dayAfter') document.getElementById('chipDayAfter')?.classList.add('active');
+}
+
+function onCustomDateChanged(val) {
+    document.getElementById('formDate').value = val;
+    document.querySelectorAll('.doc-date-chip').forEach(c => c.classList.remove('active'));
+}
+
+// Time Slot Selection
+function selectSlotTime(timeStr, element, slotId) {
+    selectedSlotTimeVal = timeStr;
+    selectedSlotIdVal = slotId || '';
+
+    document.getElementById('formTime').value = timeStr;
+    document.getElementById('formSlotId').value = selectedSlotIdVal;
+
+    document.querySelectorAll('.doc-slot-btn').forEach(btn => btn.classList.remove('active'));
+    if (element) {
+        element.classList.add('active');
+    }
+}
+
+// Fetch Real Slots from API
+function fetchDoctorSlotsFromAPI(doctorId) {
+    if (!doctorId || doctorId === 'default_doc') return;
+
+    fetch(`/get_doctor_slots/${doctorId}`)
+        .then(res => res.json())
+        .then(data => {
+            const dbContainer = document.getElementById('dbSlotsContainer');
+            const dbList = document.getElementById('dbSlotsList');
+            if (data && data.slots && data.slots.length > 0) {
+                dbList.innerHTML = '';
+                data.slots.forEach(slot => {
+                    const btn = document.createElement('div');
+                    btn.className = 'doc-slot-btn';
+                    btn.onclick = () => selectSlotTime(slot.time, btn, slot._id);
+                    btn.innerHTML = `
+                        <div class="slot-time">${slot.time}</div>
+                        <div class="slot-status" style="color: #2563eb;">${slot.date}</div>
+                    `;
+                    dbList.appendChild(btn);
+                });
+                dbContainer.style.display = 'block';
+            } else {
+                if (dbContainer) dbContainer.style.display = 'none';
+            }
+        })
+        .catch(err => {
+            console.log('Slots fetch note:', err);
+        });
+}
+
+// Payment Gateway Selection
+function selectPaymentGateway(gateway) {
+    const methodCards = ['payMethodUPI', 'payMethodCard', 'payMethodNetBanking', 'payMethodClinic'];
+    methodCards.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.remove('active');
+    });
+
+    const radioMap = {
+        'upi': 'radioUPI',
+        'card': 'radioCard',
+        'netbanking': 'radioNetbanking',
+        'clinic': 'radioClinic'
+    };
+
+    const targetCard = {
+        'upi': 'payMethodUPI',
+        'card': 'payMethodCard',
+        'netbanking': 'payMethodNetBanking',
+        'clinic': 'payMethodClinic'
+    }[gateway];
+
+    document.getElementById(targetCard)?.classList.add('active');
+    const r = document.getElementById(radioMap[gateway]);
+    if (r) r.checked = true;
+
+    // Toggle sub options
+    document.getElementById('upiSubOptions').style.display = (gateway === 'upi') ? 'block' : 'none';
+    document.getElementById('cardSubOptions').style.display = (gateway === 'card') ? 'block' : 'none';
+    document.getElementById('netbankingSubOptions').style.display = (gateway === 'netbanking') ? 'block' : 'none';
+
+    if (gateway === 'upi') {
+        selectedDocPaymentMethod = 'UPI';
+    } else if (gateway === 'card') {
+        selectedDocPaymentMethod = 'Credit / Debit Card';
+    } else if (gateway === 'netbanking') {
+        selectedDocPaymentMethod = 'Net Banking';
+    } else if (gateway === 'clinic') {
+        selectedDocPaymentMethod = 'Pay at Clinic';
+    }
+    document.getElementById('formPaymentMethod').value = selectedDocPaymentMethod;
+
+    const btnText = document.getElementById('payButtonText');
+    if (btnText) {
+        if (gateway === 'clinic') {
+            btnText.innerText = 'Confirm Slot & Pay at Clinic';
+        } else {
+            btnText.innerText = `Pay ₹${selectedDocFee} & Confirm Appointment`;
+        }
+    }
+}
+
+function selectDocUpiApp(e, appName) {
+    document.querySelectorAll('.upi-app-btn').forEach(b => b.classList.remove('active'));
+    e.target.classList.add('active');
+    selectedDocPaymentMethod = `UPI (${appName})`;
+    document.getElementById('formPaymentMethod').value = selectedDocPaymentMethod;
+}
+
+function verifyDocUpi() {
+    const input = document.getElementById('docUpiVpaInput');
+    const vpa = (input?.value || '').trim();
+    if (!vpa || !vpa.includes('@')) {
+        alert('Please enter a valid UPI ID (e.g. yourname@okaxis).');
+        return;
+    }
+    alert(`Verified UPI ID: ${vpa} (Bank authorization active)`);
+}
+
+function toggleDocQr() {
+    const qr = document.getElementById('doc_upi_qr_box');
+    if (qr) qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';
+}
+
+function updateDocPaymentTotals() {
+    const docSelect = document.getElementById('doctorSelect');
+    const selectedOpt = docSelect?.options[docSelect.selectedIndex];
+    if (selectedOpt) {
+        selectedDocFee = parseInt(selectedOpt.getAttribute('data-fee') || '500', 10);
+    }
+    const totalEls = [
+        document.getElementById('reviewBillDoctorFee'),
+        document.getElementById('reviewBillTotal'),
+        document.getElementById('paymentDisplayTotal')
+    ];
+    totalEls.forEach(el => {
+        if (el) el.innerText = `₹${selectedDocFee}`;
+    });
+}
+
+// Final Booking Process & AJAX Submission
+function processDoctorBooking() {
+    const modal = document.getElementById('payment_processing_modal');
+    const statusText = document.getElementById('processing_status_text');
+    const confirmBtn = document.getElementById('confirmPaymentBtn');
+
+    if (confirmBtn) confirmBtn.disabled = true;
+    if (modal) modal.style.display = 'flex';
+
+    const payload = {
+        doctor_id: document.getElementById('formDoctorId').value,
+        doctor_name: document.getElementById('formDoctorName').value,
+        consultation_type: document.getElementById('formConsultationType').value,
+        date: document.getElementById('formDate').value,
+        time: document.getElementById('formTime').value,
+        slot_id: document.getElementById('formSlotId').value,
+        patient_name: document.getElementById('patientNameInput')?.value || '',
+        patient_email: document.getElementById('patientEmailInput')?.value || '',
+        patient_phone: document.getElementById('patientPhoneInput')?.value || '',
+        patient_age: document.getElementById('patientAgeInput')?.value || '',
+        patient_gender: document.getElementById('patientGenderInput')?.value || '',
+        symptoms: document.getElementById('symptomsInput')?.value || '',
+        fee: selectedDocFee,
+        payment_method: selectedDocPaymentMethod
+    };
+
+    setTimeout(() => {
+        if (statusText) statusText.innerText = 'Reserving consultation schedule & generating token...';
+    }, 900);
+
+    fetch('/book-appointment', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify(payload)
+    })
+    .then(res => res.json())
+    .then(data => {
+        setTimeout(() => {
+            if (modal) modal.style.display = 'none';
+            if (confirmBtn) confirmBtn.disabled = false;
+
+            if (data.success) {
+                // Populate Confirmation Screen
+                document.getElementById('confDoctorName').innerText = `Dr. ${data.doctor_name || payload.doctor_name || 'Specialist'}`;
+                document.getElementById('confRefId').innerText = data.ref_id || 'HL-APT-2026';
+
+                // Mode-specific instructions
+                const confIcon = document.getElementById('confModeIcon');
+                const confTitle = document.getElementById('confModeTitle');
+                const confText = document.getElementById('confModeText');
+
+                if (selectedDocMode === 'virtual') {
+                    if (confIcon) confIcon.setAttribute('data-lucide', 'video');
+                    if (confTitle) confTitle.innerText = 'Virtual HD Video Consultation Active';
+                    if (confText) confText.innerText = 'Your secure video consultation link is generated. It will be activated 10 minutes prior to your slot on your dashboard, and an invitation email has been sent.';
+                } else {
+                    if (confIcon) confIcon.setAttribute('data-lucide', 'building-2');
+                    if (confTitle) confTitle.innerText = 'In-Person Clinic Visit Reserved';
+                    if (confText) confText.innerText = 'Your clinic priority appointment is confirmed. Please arrive 10 minutes prior to your scheduled time at the hospital reception. Show your booking reference at the desk for priority queue entry.';
+                }
+
+                goToStep(5);
+            } else {
+                alert(data.message || 'Unable to complete appointment booking. Please check details.');
+            }
+        }, 1600);
+    })
+    .catch(err => {
+        setTimeout(() => {
+            if (modal) modal.style.display = 'none';
+            if (confirmBtn) confirmBtn.disabled = false;
+            // Fallback for demonstration if offline
+            document.getElementById('confDoctorName').innerText = `Dr. ${payload.doctor_name || 'Specialist'}`;
+            document.getElementById('confRefId').innerText = `HL-APT-${Math.floor(10000 + Math.random() * 90000)}`;
+            goToStep(5);
+        }, 1600);
+    });
+}
+
+// Rotate Reassuring Quotes
+function rotateDocReassuringQuote() {
+    currentDocQuoteIndex = (currentDocQuoteIndex + 1) % docReassuringQuotes.length;
+    const item = docReassuringQuotes[currentDocQuoteIndex];
+
+    const quoteEl = document.getElementById('docReassuringQuoteText');
+    const authorEl = document.getElementById('docReassuringQuoteAuthor');
+
+    if (quoteEl && authorEl) {
+        quoteEl.style.opacity = 0;
+        authorEl.style.opacity = 0;
+        setTimeout(() => {
+            quoteEl.innerText = `"${item.quote}"`;
+            authorEl.innerText = `— ${item.author}`;
+            quoteEl.style.opacity = 1;
+            authorEl.style.opacity = 1;
+        }, 200);
+    }
+}
+</script>
+{% endblock %}

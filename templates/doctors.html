@@ -200,37 +200,6 @@
     </main>
 </div>
 
-<!-- Booking Modal (Same as before but polished) -->
-<div id="bookingModal"
-    style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); z-index: 9999; align-items: flex-end;">
-    <div
-        style="width: 100%; background: white; border-radius: 30px 30px 0 0; padding: 2rem 1.5rem; position: relative; animation: slideUp 0.3s ease-out;">
-        <div style="width: 40px; height: 5px; background: #e2e8f0; border-radius: 10px; margin: 0 auto 1.5rem;"></div>
-        <button onclick="closeBooking()"
-            style="position: absolute; top: 1.5rem; right: 1.5rem; background: #f1f5f9; border: none; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #64748b;">
-            <i data-lucide="x" style="width: 18px;"></i>
-        </button>
-
-        <h2 id="modalDoctorName" style="margin: 0; font-size: 1.4rem; font-weight: 900; color: #0f172a;">Book
-            Appointment</h2>
-        <p style="color: #64748b; font-size: 0.9rem; margin-top: 4px; margin-bottom: 1.5rem;">Choose an available time
-            slot</p>
-
-        <div id="slotsContainer"
-            style="display: flex; flex-direction: column; gap: 0.75rem; max-height: 40vh; overflow-y: auto;">
-            <!-- Slots injected -->
-        </div>
-
-        <form id="bookingForm" action="{{ url_for('book_appointment') }}" method="POST"
-            style="display: none; margin-top: 1.5rem;">
-            <input type="hidden" name="slot_id" id="selectedSlotId">
-            <input type="hidden" name="doctor_id" id="selectedDoctorId">
-            <button type="submit" class="btn-heal-primary"
-                style="width: 100%; padding: 1rem; border-radius: 16px; font-weight: 800;">Confirm Appointment</button>
-        </form>
-    </div>
-</div>
-
 <style>
     .category-card {
         display: flex;
@@ -498,10 +467,10 @@
                                     <span class="stat-label">Slots</span>
                                 </div>
                             </div>
-                            <button onclick="openBooking('${doc._id}', 'Dr. ${encodeURIComponent(doc.full_name || doc.username)}')" 
-                                    class="btn-heal-primary" style="width: 100%; padding: 0.85rem; border-radius: 14px; font-weight: 800; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            <a href="/book-appointment?doctor_id=${doc._id}" 
+                               class="btn-heal-primary" style="width: 100%; padding: 0.85rem; border-radius: 0px; font-weight: 800; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; box-sizing: border-box;">
                                 <i data-lucide="calendar-check" style="width: 16px;"></i> Book Appointment
-                            </button>
+                            </a>
                         `;
                         container.appendChild(card);
                     });
@@ -515,75 +484,10 @@
             });
     }
 
-    // Modal Logic
+    // Redirect to Multi-Step Consultation Booking Page
     function openBooking(doctorId, encodedDoctorName) {
-        const doctorName = decodeURIComponent(encodedDoctorName);
-        const modal = document.getElementById('bookingModal');
-        const container = document.getElementById('slotsContainer');
-        const form = document.getElementById('bookingForm');
-
-        document.getElementById('modalDoctorName').innerText = doctorName;
-        modal.style.display = 'flex';
-        container.innerHTML = '<div style="text-align: center; padding: 2rem; color: #64748b;"><i data-lucide="loader-2" class="spin" style="width: 24px; height: 24px; margin: 0 auto 0.5rem; color: #6366f1;"></i><p>Loading available slots...</p></div>';
-        form.style.display = 'none';
-        lucide.createIcons();
-
-        fetch(`/get_doctor_slots/${doctorId}`)
-            .then(res => res.json())
-            .then(data => {
-                container.innerHTML = '';
-                if (data.slots && data.slots.length > 0) {
-                    data.slots.forEach(slot => {
-                        const div = document.createElement('div');
-                        div.className = 'slot-item';
-                        div.style.cssText = 'background: #f8fafc; border: 1.5px solid #e2e8f0; padding: 1rem 1.25rem; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s;';
-                        div.onclick = () => selectSlot(slot._id, doctorId, div);
-                        div.innerHTML = `
-                            <div style="display: flex; align-items: center; gap: 1rem;">
-                                <div style="width: 38px; height: 38px; background: white; border-radius: 10px; display: flex; align-items: center; justify-content: center; border: 1px solid #e2e8f0;">
-                                    <i data-lucide="clock" style="width: 18px; color: #6366f1;"></i>
-                                </div>
-                                <div>
-                                    <div style="font-weight: 800; color: #0f172a; font-size: 0.95rem;">${slot.date}</div>
-                                    <div style="font-size: 0.8rem; color: #64748b; font-weight: 600;">Time: ${slot.time}</div>
-                                </div>
-                            </div>
-                            <span style="background: #dcfce7; color: #15803d; font-size: 0.7rem; font-weight: 800; padding: 4px 10px; border-radius: 8px;">Available</span>
-                        `;
-                        container.appendChild(div);
-                    });
-                    lucide.createIcons();
-                } else {
-                    container.innerHTML = `
-                        <div style="text-align: center; padding: 2.5rem 1rem;">
-                            <i data-lucide="calendar-x" style="width: 42px; height: 42px; color: #cbd5e1; margin: 0 auto 0.75rem;"></i>
-                            <h4 style="margin: 0; color: #0f172a; font-weight: 800;">No Available Slots</h4>
-                            <p style="color: #64748b; font-size: 0.85rem; margin-top: 4px;">This specialist currently has no active open slots. Please check back soon.</p>
-                        </div>
-                    `;
-                    lucide.createIcons();
-                }
-            })
-            .catch(err => {
-                container.innerHTML = '<div style="text-align: center; padding: 2rem; color: #ef4444;">Unable to load slots. Please try again.</div>';
-            });
+        window.location.href = `/book-appointment?doctor_id=${doctorId}`;
     }
-
-    function selectSlot(slotId, doctorId, element) {
-        document.querySelectorAll('.slot-item').forEach(el => {
-            el.style.borderColor = '#e2e8f0';
-            el.style.background = '#f8fafc';
-        });
-        element.style.borderColor = '#6366f1';
-        element.style.background = '#f5f3ff';
-
-        document.getElementById('selectedSlotId').value = slotId;
-        document.getElementById('selectedDoctorId').value = doctorId;
-        document.getElementById('bookingForm').style.display = 'block';
-    }
-
-    function closeBooking() { document.getElementById('bookingModal').style.display = 'none'; }
-    window.onclick = (e) => { if (e.target == document.getElementById('bookingModal')) closeBooking(); };
 
     // Support URL params e.g. /doctors?specialization=Dentist or /doctors?q=dentist
     window.addEventListener('DOMContentLoaded', () => {

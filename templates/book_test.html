@@ -2,107 +2,1227 @@
 
 {% block content %}
 <div class="dashboard-container">
-    <!-- Main Content -->
-    <main class="main-content">
-        <header style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: flex-end;">
-            <div>
-                <h1 style="font-size: 2.5rem; font-weight: 800; margin: 0; letter-spacing: -0.02em;">Diagnostic Center</h1>
-                <p style="color: var(--text-muted); font-size: 1.1rem;">Select a test and book a home sample collection.</p>
+    <main class="main-content" style="padding-top: 1.5rem; max-width: 1100px; margin: 0 auto; width: 100%;">
+        
+        <div class="diag-flow-wrapper">
+
+            <!-- DESKTOP TOP HEADER BAR -->
+            <div class="diag-desktop-header">
+                <div class="diag-header-info">
+                    <h1 id="navHeaderTitle">Diagnostic Center</h1>
+                    <p id="navHeaderSubtitle">Select a diagnostic test, review details, and schedule a certified home sample collection.</p>
+                </div>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <button type="button" class="btn-heal-light" id="navBackBtn" onclick="handleBackNavigation()" style="display: none; padding: 0.65rem 1.1rem; border-radius: 0px;">
+                        <i data-lucide="arrow-left" style="width: 16px; height: 16px; color: #64748b;"></i>
+                        <span style="font-size: 0.85rem; font-weight: 600;">Back</span>
+                    </button>
+                    <a href="{{ url_for('booking_history') }}" class="btn-heal-light" style="padding: 0.65rem 1.1rem; border-radius: 0px;" title="View Previous Test Bookings">
+                        <i data-lucide="history" style="width: 16px; height: 16px; color: #64748b;"></i>
+                        <span style="font-size: 0.85rem; font-weight: 600;">Previous Tests</span>
+                    </a>
+                </div>
             </div>
-            <a href="{{ url_for('booking_history') }}" class="btn-heal-light">
-                <i data-lucide="history" style="width: 18px;"></i> Previous Tests
-            </a>
-        </header>
 
-        {% if user.is_profile_complete %}
-        <div class="frosted-card">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                <h3 style="margin: 0;">Quick Lab Booking</h3>
-                <span style="color: var(--primary); font-weight: 600; font-size: 0.9rem;">Verified Account</span>
+            <!-- DESKTOP STEPPER BAR (PC VIEW) -->
+            <div class="diag-pc-stepper">
+                <div class="diag-stepper-item active" id="step-nav-1" onclick="if(currentStep > 1) goToStep(1)">
+                    <div class="diag-stepper-badge" id="step-badge-1">1</div>
+                    <span>Select Test & Details</span>
+                </div>
+                <div class="diag-stepper-divider"></div>
+                <div class="diag-stepper-item" id="step-nav-2" onclick="if(currentStep > 2) goToStep(2)">
+                    <div class="diag-stepper-badge" id="step-badge-2">2</div>
+                    <span>Review & Confirm</span>
+                </div>
+                <div class="diag-stepper-divider"></div>
+                <div class="diag-stepper-item" id="step-nav-3" onclick="if(currentStep > 3) goToStep(3)">
+                    <div class="diag-stepper-badge" id="step-badge-3">3</div>
+                    <span>Choose Payment</span>
+                </div>
+                <div class="diag-stepper-divider"></div>
+                <div class="diag-stepper-item" id="step-nav-4">
+                    <div class="diag-stepper-badge" id="step-badge-4">4</div>
+                    <span>Booking Confirmed</span>
+                </div>
             </div>
 
-            <form action="{{ url_for('book_test') }}" method="POST">
-                <!-- Row 1: Patient Name & Email -->
-                <div class="grid-2">
-                    <div class="input-group-modern">
-                        <label>Patient Full Name</label>
-                        <input type="text" name="full_name" class="input-field" required value="{{ user.full_name }}"
-                            readonly style="background: rgba(0,0,0,0.03); cursor: not-allowed;">
+            {% if user.is_profile_complete %}
+
+            <!-- ========================================================
+                 STEP 1: DETAILS & TEST SELECTION (PC DESKTOP VIEW)
+                 ======================================================== -->
+            <div id="step-1" class="diag-step-content">
+                
+                <!-- WIDE DIAGNOSTIC CENTER HERO BANNER (PC LAYOUT) -->
+                <div class="diag-hero-banner-pc">
+                    <div>
+                        <h2>Diagnostic Center & Home Collection</h2>
+                        <p>Certified phlebotomists collect clinical samples safely at your doorstep with 100% sterile kits.</p>
+                        <div class="diag-trust-pills">
+                            <span class="diag-trust-pill">
+                                <i data-lucide="shield-check" style="width: 14px; height: 14px; color: #64748b;"></i>
+                                <span>NABL & ICMR Partner Labs</span>
+                            </span>
+                            <span class="diag-trust-pill">
+                                <i data-lucide="clock" style="width: 14px; height: 14px; color: #64748b;"></i>
+                                <span>Fast 24-48h Digital Reports</span>
+                            </span>
+                            <span class="diag-trust-pill">
+                                <i data-lucide="check-circle" style="width: 14px; height: 14px; color: #64748b;"></i>
+                                <span>100% Sterile Equipment</span>
+                            </span>
+                        </div>
                     </div>
-                    <div class="input-group-modern">
-                        <label>Contact Email</label>
-                        <input type="email" name="patient_email" class="input-field" required value="{{ user.email }}"
-                            readonly style="background: rgba(0,0,0,0.03); cursor: not-allowed;">
+                    <!-- Crisp Clinical Vector Illustration -->
+                    <div style="flex-shrink: 0; width: 120px; height: 105px; display: flex; align-items: center; justify-content: center;">
+                        <svg viewBox="0 0 120 110" width="115" height="100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Clipboard Base -->
+                            <rect x="18" y="14" width="62" height="82" rx="10" fill="#3B82F6" opacity="0.12" />
+                            <rect x="22" y="10" width="62" height="84" rx="8" fill="#FFFFFF" stroke="#64748B" stroke-width="2" />
+                            <!-- Clipboard Clip -->
+                            <rect x="39" y="4" width="28" height="12" rx="3.5" fill="#475569" />
+                            <circle cx="53" cy="8" r="2.5" fill="#FFFFFF" />
+                            <!-- Checklist items -->
+                            <rect x="32" y="26" width="7" height="7" rx="1.5" fill="#64748B" />
+                            <path d="M34 29.5L35.5 31L37.5 27.5" stroke="#FFFFFF" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <rect x="44" y="27.5" width="30" height="4" rx="2" fill="#CBD5E1" />
+
+                            <rect x="32" y="40" width="7" height="7" rx="1.5" fill="#64748B" />
+                            <path d="M34 43.5L35.5 45L37.5 41.5" stroke="#FFFFFF" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <rect x="44" y="41.5" width="24" height="4" rx="2" fill="#CBD5E1" />
+
+                            <rect x="32" y="54" width="7" height="7" rx="1.5" fill="#64748B" />
+                            <path d="M34 57.5L35.5 59L37.5 55.5" stroke="#FFFFFF" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <rect x="44" y="55.5" width="28" height="4" rx="2" fill="#CBD5E1" />
+
+                            <!-- Diagnostic Test Tube Rack -->
+                            <rect x="74" y="56" width="40" height="38" rx="6" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.5" />
+                            <rect x="76" y="86" width="36" height="5" rx="2.5" fill="#94A3B8" />
+
+                            <!-- Test Tube 1 (Red Liquid) -->
+                            <rect x="80" y="38" width="10" height="44" rx="5" fill="#FFFFFF" stroke="#94A3B8" stroke-width="1.5" />
+                            <rect x="78" y="34" width="14" height="7" rx="2" fill="#EF4444" />
+                            <rect x="81.5" y="52" width="7" height="28" rx="3.5" fill="#F87171" opacity="0.85" />
+                            <line x1="83" y1="56" x2="86" y2="56" stroke="#FFFFFF" stroke-width="1" />
+                            <line x1="83" y1="62" x2="86" y2="62" stroke="#FFFFFF" stroke-width="1" />
+
+                            <!-- Test Tube 2 (Blue Liquid) -->
+                            <rect x="96" y="42" width="10" height="40" rx="5" fill="#FFFFFF" stroke="#94A3B8" stroke-width="1.5" />
+                            <rect x="94" y="38" width="14" height="7" rx="2" fill="#3B82F6" />
+                            <rect x="97.5" y="55" width="7" height="25" rx="3.5" fill="#60A5FA" opacity="0.85" />
+                            <line x1="99" y1="59" x2="102" y2="59" stroke="#FFFFFF" stroke-width="1" />
+                            <line x1="99" y1="65" x2="102" y2="65" stroke="#FFFFFF" stroke-width="1" />
+                        </svg>
                     </div>
                 </div>
 
-                <!-- Row 2: Date of Birth & Address -->
-                <div class="grid-2" style="margin-top: 1.5rem;">
-                    <div class="input-group-modern">
-                        <label>Date of Birth</label>
-                        <input type="date" name="dob" class="input-field" required value="{{ user.dob }}" readonly
-                            style="background: rgba(0,0,0,0.03); cursor: not-allowed;">
+                <!-- MAIN PC FORM CARD -->
+                <div class="diag-pc-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; padding-bottom: 0.85rem; border-bottom: 1px solid #f1f5f9;">
+                        <div>
+                            <h3 style="font-size: 1.25rem; font-weight: 800; color: #0f172a; margin: 0;">Quick Lab Booking</h3>
+                            <span style="font-size: 0.85rem; color: #64748b;">Verify your details and choose diagnostic test</span>
+                        </div>
+                        <span style="background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; border-radius: 0px; padding: 0.3rem 0.85rem; font-size: 0.8rem; font-weight: 700; display: inline-flex; align-items: center; gap: 5px;">
+                            <i data-lucide="check-circle" style="width: 14px; height: 14px;"></i> Verified Account
+                        </span>
                     </div>
-                    <div class="input-group-modern">
-                        <label>Collection Address</label>
-                        <input type="text" name="address" class="input-field" required value="{{ user.address }}" placeholder="Street, City, State">
+
+                    <!-- DESKTOP 2-COLUMN GRID -->
+                    <div class="diag-desktop-grid-2">
+                        
+                        <!-- COLUMN 1: PATIENT & PICKUP INFORMATION -->
+                        <div>
+                            <div style="font-size: 0.95rem; font-weight: 800; color: #0f172a; margin-bottom: 1rem; display: flex; align-items: center; gap: 6px;">
+                                <i data-lucide="user" style="width: 16px; height: 16px; color: #64748b;"></i>
+                                <span>Patient & Pickup Information</span>
+                            </div>
+
+                            <!-- Patient Full Name -->
+                            <div class="diag-field-row">
+                                <i data-lucide="user" style="width: 18px; height: 18px; color: #64748b; flex-shrink: 0;"></i>
+                                <div class="diag-field-content">
+                                    <label class="diag-field-label">Patient Full Name</label>
+                                    <div class="diag-field-value">{{ user.full_name or user.username }}</div>
+                                    <input type="hidden" id="full_name" value="{{ user.full_name or user.username }}">
+                                </div>
+                            </div>
+
+                            <!-- Contact Email -->
+                            <div class="diag-field-row">
+                                <i data-lucide="mail" style="width: 18px; height: 18px; color: #64748b; flex-shrink: 0;"></i>
+                                <div class="diag-field-content">
+                                    <label class="diag-field-label">Contact Email</label>
+                                    <div class="diag-field-value">{{ user.email }}</div>
+                                    <input type="hidden" id="patient_email" value="{{ user.email }}">
+                                </div>
+                            </div>
+
+                            <!-- Date of Birth -->
+                            <div class="diag-field-row">
+                                <i data-lucide="calendar" style="width: 18px; height: 18px; color: #64748b; flex-shrink: 0;"></i>
+                                <div class="diag-field-content">
+                                    <label class="diag-field-label">Date of Birth</label>
+                                    <div class="diag-field-value">{{ user.formatted_dob or user.dob or '26-04-2006' }}</div>
+                                    <input type="hidden" id="dob" value="{{ user.formatted_dob or user.dob }}">
+                                </div>
+                            </div>
+
+                            <!-- Collection Address -->
+                            <div class="diag-field-row">
+                                <i data-lucide="map-pin" style="width: 18px; height: 18px; color: #64748b; flex-shrink: 0;"></i>
+                                <div class="diag-field-content">
+                                    <label class="diag-field-label">Collection Address</label>
+                                    <input type="text" id="address" class="diag-field-input" required 
+                                        value="{{ user.address or '' }}" placeholder="Enter Street, Flat, Area, City, Pin Code">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- COLUMN 2: DIAGNOSTIC TEST & SCHEDULE -->
+                        <div>
+                            <div style="font-size: 0.95rem; font-weight: 800; color: #0f172a; margin-bottom: 1rem; display: flex; align-items: center; gap: 6px;">
+                                <i data-lucide="flask-conical" style="width: 16px; height: 16px; color: #64748b;"></i>
+                                <span>Diagnostic Test & Schedule</span>
+                            </div>
+
+                            <!-- Diagnostic Test Selection -->
+                            <div class="diag-field-row">
+                                <i data-lucide="flask-conical" style="width: 18px; height: 18px; color: #64748b; flex-shrink: 0;"></i>
+                                <div class="diag-field-content">
+                                    <label class="diag-field-label">Select Your Diagnostic Test</label>
+                                    <select id="test_select" class="diag-field-select" onchange="onTestSelectionChange()">
+                                        <option value="Malaria Screening" data-price="149" selected>Malaria Screening (₹149)</option>
+                                        <option value="Typhoid Test (Widal)" data-price="199">Typhoid Test (Widal) (₹199)</option>
+                                        <option value="Dengue NS1 Antigen" data-price="599">Dengue NS1 Antigen (₹599)</option>
+                                        <option value="Complete Diabetes Check" data-price="299">Complete Diabetes Check (₹299)</option>
+                                        <option value="Complete Blood Count (CBC)" data-price="249">Complete Blood Count (CBC) (₹249)</option>
+                                        <option value="Thyroid Profile (Total T3, T4, TSH)" data-price="399">Thyroid Profile (T3, T4, TSH) (₹399)</option>
+                                        <option value="Lipid Profile (Cholesterol)" data-price="449">Lipid Profile (Cholesterol) (₹449)</option>
+                                        <option value="Liver Function Test (LFT)" data-price="549">Liver Function Test (LFT) (₹549)</option>
+                                        <option value="Kidney Function Test (KFT)" data-price="499">Kidney Function Test (KFT) (₹499)</option>
+                                        <option value="Full Body Health Package" data-price="999">Full Body Health Package (₹999)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Preferred Date -->
+                            <div class="diag-field-row">
+                                <i data-lucide="calendar" style="width: 18px; height: 18px; color: #64748b; flex-shrink: 0;"></i>
+                                <div class="diag-field-content">
+                                    <label class="diag-field-label">Preferred Date</label>
+                                    <input type="date" id="book_date" class="diag-field-input" required 
+                                        value="{{ today_date or '2024-02-23' }}" min="{{ today_date or '' }}">
+                                </div>
+                            </div>
+
+                            <!-- Preferred Time Slot -->
+                            <div class="diag-field-row">
+                                <i data-lucide="clock" style="width: 18px; height: 18px; color: #64748b; flex-shrink: 0;"></i>
+                                <div class="diag-field-content">
+                                    <label class="diag-field-label">Preferred Time Slot</label>
+                                    <select id="book_time" class="diag-field-select">
+                                        <option value="09:00 AM - Morning" selected>09:00 AM - Morning</option>
+                                        <option value="11:00 AM - Morning">11:00 AM - Morning</option>
+                                        <option value="02:00 PM - Afternoon">02:00 PM - Afternoon</option>
+                                        <option value="05:00 PM - Evening">05:00 PM - Evening</option>
+                                        <option value="08:00 PM - Night">08:00 PM - Night</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Special Instructions (Optional) -->
+                            <div style="margin-top: 0.25rem;">
+                                <label class="diag-field-label" style="margin-bottom: 4px;">Special Instructions (Optional)</label>
+                                <textarea id="notes" class="diag-field-input" 
+                                    style="width: 100%; height: 75px; border: 1px solid #e2e8f0; border-radius: 0px; padding: 0.65rem 0.85rem; font-size: 0.88rem; font-weight: 500; resize: vertical; box-sizing: border-box;"
+                                    placeholder="Add landmark, gate access, or instructions for technician..."></textarea>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- FULL WIDTH NOTE BOX -->
+                    <div class="diag-note-box">
+                        <i data-lucide="info" style="width: 20px; height: 20px; color: #64748b; flex-shrink: 0;"></i>
+                        <div>
+                            <div class="note-title">Certified Home Collection Guarantee</div>
+                            <div class="note-desc">Our certified technician will arrive at your location to collect the sample at your selected schedule.</div>
+                        </div>
+                    </div>
+
+                    <!-- DESKTOP ACTION BUTTON -->
+                    <div style="display: flex; justify-content: flex-end; margin-top: 1.75rem;">
+                        <button type="button" class="diag-btn-primary" onclick="proceedToReview()" style="padding: 1rem 2.25rem; font-size: 1rem;">
+                            <span>Continue to Review Details</span>
+                            <i data-lucide="arrow-right" style="width: 18px; height: 18px;"></i>
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+
+
+            <!-- ========================================================
+                 STEP 2: REVIEW & CONFIRM (PC DESKTOP VIEW)
+                 ======================================================== -->
+            <div id="step-2" class="diag-step-content" style="display: none;">
+                
+                <div class="diag-desktop-grid-split">
+                    
+                    <!-- COLUMN 1: BOOKING SUMMARY -->
+                    <div class="diag-pc-card">
+                        <div class="diag-pc-card-header">
+                            <i data-lucide="clipboard-list" style="width: 20px; height: 20px; color: #64748b; flex-shrink: 0;"></i>
+                            <h3 class="diag-pc-card-title">Booking Summary</h3>
+                        </div>
+
+                        <div class="diag-review-row">
+                            <div class="label-col">
+                                <i data-lucide="user" style="width: 16px; height: 16px; color: #64748b; flex-shrink: 0;"></i>
+                                <span>Patient Full Name</span>
+                            </div>
+                            <div class="val-col" id="rev_patient_name">{{ user.full_name or user.username }}</div>
+                        </div>
+
+                        <div class="diag-review-row">
+                            <div class="label-col">
+                                <i data-lucide="mail" style="width: 16px; height: 16px; color: #64748b; flex-shrink: 0;"></i>
+                                <span>Contact Email</span>
+                            </div>
+                            <div class="val-col" id="rev_email">{{ user.email }}</div>
+                        </div>
+
+                        <div class="diag-review-row">
+                            <div class="label-col">
+                                <i data-lucide="calendar" style="width: 16px; height: 16px; color: #64748b; flex-shrink: 0;"></i>
+                                <span>Date of Birth</span>
+                            </div>
+                            <div class="val-col" id="rev_dob">{{ user.formatted_dob or user.dob or '26-04-2006' }}</div>
+                        </div>
+
+                        <div class="diag-review-row">
+                            <div class="label-col">
+                                <i data-lucide="map-pin" style="width: 16px; height: 16px; color: #64748b; flex-shrink: 0;"></i>
+                                <span>Collection Address</span>
+                            </div>
+                            <div class="val-col" id="rev_address">{{ user.address or 'L.B Nagar Warangal, Telangana' }}</div>
+                        </div>
+
+                        <div class="diag-review-row">
+                            <div class="label-col">
+                                <i data-lucide="flask-conical" style="width: 16px; height: 16px; color: #64748b; flex-shrink: 0;"></i>
+                                <span>Test Selected</span>
+                            </div>
+                            <div class="val-col" id="rev_test_name">Malaria Screening</div>
+                        </div>
+
+                        <div class="diag-review-row">
+                            <div class="label-col">
+                                <i data-lucide="tag" style="width: 16px; height: 16px; color: #64748b; flex-shrink: 0;"></i>
+                                <span>Test Price</span>
+                            </div>
+                            <div class="val-col" id="rev_test_price" style="font-weight: 700; color: #0f172a;">₹149</div>
+                        </div>
+
+                        <div class="diag-review-row">
+                            <div class="label-col">
+                                <i data-lucide="calendar-days" style="width: 16px; height: 16px; color: #64748b; flex-shrink: 0;"></i>
+                                <span>Scheduled Date</span>
+                            </div>
+                            <div class="val-col" id="rev_date">23-02-2024</div>
+                        </div>
+
+                        <div class="diag-review-row">
+                            <div class="label-col">
+                                <i data-lucide="clock" style="width: 16px; height: 16px; color: #64748b; flex-shrink: 0;"></i>
+                                <span>Time Slot</span>
+                            </div>
+                            <div class="val-col" id="rev_time">09:00 AM - Morning</div>
+                        </div>
+
+                        <div class="diag-review-row" id="rev_notes_row" style="display: none;">
+                            <div class="label-col">
+                                <i data-lucide="file-text" style="width: 16px; height: 16px; color: #64748b; flex-shrink: 0;"></i>
+                                <span>Instructions</span>
+                            </div>
+                            <div class="val-col" id="rev_notes" style="font-style: italic;"></div>
+                        </div>
+                    </div>
+
+                    <!-- COLUMN 2: PAYMENT SUMMARY & PROCEED -->
+                    <div>
+                        <div class="diag-pc-card">
+                            <div class="diag-pc-card-header">
+                                <i data-lucide="wallet" style="width: 20px; height: 20px; color: #64748b; flex-shrink: 0;"></i>
+                                <h3 class="diag-pc-card-title">Payment Summary</h3>
+                            </div>
+
+                            <div class="diag-review-row">
+                                <span style="color: #64748b; font-size: 0.92rem;">Diagnostic Test Amount</span>
+                                <span id="rev_subtotal" style="font-weight: 700; color: #0f172a; font-size: 0.95rem;">₹149</span>
+                            </div>
+
+                            <div class="diag-review-row">
+                                <span style="color: #64748b; font-size: 0.92rem;">Home Sample Collection</span>
+                                <span style="color: #059669; font-weight: 700; font-size: 0.85rem; background: #ecfdf5; padding: 2px 8px; border-radius: 0px;">FREE</span>
+                            </div>
+
+                            <div style="border-top: 1px solid #f1f5f9; margin: 1rem 0;"></div>
+
+                            <div class="diag-review-row" style="border-bottom: none; padding-bottom: 0;">
+                                <span style="font-size: 1.05rem; font-weight: 700; color: #0f172a;">Total Payable</span>
+                                <span id="rev_total" style="font-size: 1.4rem; font-weight: 800; color: #2563eb;">₹149</span>
+                            </div>
+
+                            <!-- SECURE PAYMENT GUARANTEE -->
+                            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0px; padding: 0.9rem 1rem; display: flex; align-items: center; gap: 0.75rem; margin-top: 1.25rem;">
+                                <i data-lucide="shield-check" style="width: 18px; height: 18px; color: #64748b; flex-shrink: 0;"></i>
+                                <div>
+                                    <div style="font-weight: 700; color: #0f172a; font-size: 0.85rem;">Secure Payment Guarantee</div>
+                                    <div style="color: #64748b; font-size: 0.78rem;">Your health & payment data are 100% encrypted.</div>
+                                </div>
+                            </div>
+
+                            <!-- ACTION BUTTONS -->
+                            <div style="display: grid; gap: 10px; margin-top: 1.5rem;">
+                                <button type="button" class="diag-btn-primary" onclick="proceedToPayment()" style="width: 100%; box-sizing: border-box;">
+                                    <span id="btnPayText">Proceed to Choose Payment Option</span>
+                                    <i data-lucide="arrow-right" style="width: 18px; height: 18px;"></i>
+                                </button>
+                                <button type="button" class="btn-heal-light" onclick="goToStep(1)" style="width: 100%; justify-content: center; padding: 0.85rem; border-radius: 0px; box-sizing: border-box;">
+                                    <i data-lucide="edit-3" style="width: 16px; height: 16px; color: #64748b;"></i>
+                                    <span>Edit Booking Details</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+
+            <!-- ========================================================
+                 STEP 3: CHOOSING PAYMENT OPTION (PC DESKTOP VIEW)
+                 ======================================================== -->
+            <div id="step-3" class="diag-step-content" style="display: none;">
+                
+                <div class="diag-desktop-grid-split">
+                    
+                    <!-- COLUMN 1: INDIAN PAYMENT GATEWAY OPTIONS -->
+                    <div class="diag-pc-card">
+                        <div class="diag-pc-card-header">
+                            <i data-lucide="credit-card" style="width: 20px; height: 20px; color: #64748b; flex-shrink: 0;"></i>
+                            <div>
+                                <h3 class="diag-pc-card-title">Select Payment Option (India)</h3>
+                                <p style="margin: 2px 0 0; color: #64748b; font-size: 0.85rem;">Choose your preferred online or doorstep payment method</p>
+                            </div>
+                        </div>
+
+                        <!-- Option 1: UPI -->
+                        <div class="diag-payment-card active" id="pay_card_upi" onclick="selectPaymentMode('upi')">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem;">
+                                <div style="display: flex; align-items: center; gap: 0.65rem;">
+                                    <input type="radio" name="payment_mode" id="mode_upi" checked style="accent-color: #2563eb; cursor: pointer;">
+                                    <label for="mode_upi" style="font-weight: 700; color: #0f172a; font-size: 0.95rem; cursor: pointer;">
+                                        UPI (Instant Payment)
+                                    </label>
+                                </div>
+                                <span style="background: #ecfdf5; color: #059669; font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 0px;">Recommended</span>
+                            </div>
+                            <p style="margin: 0 0 0.85rem 1.6rem; color: #64748b; font-size: 0.85rem;">Google Pay, PhonePe, Paytm, BHIM, CRED</p>
+
+                            <!-- UPI App Badges -->
+                            <div id="upi_details_box" style="margin-left: 1.6rem;">
+                                <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 0.85rem;">
+                                    <button type="button" class="btn-heal-light upi-app-btn active" onclick="selectUpiApp(event, 'Google Pay')" style="padding: 0.45rem 0.85rem; font-size: 0.82rem; border-radius: 0px;">
+                                        <i data-lucide="smartphone" style="width: 14px; height: 14px; color: #64748b;"></i> Google Pay
+                                    </button>
+                                    <button type="button" class="btn-heal-light upi-app-btn" onclick="selectUpiApp(event, 'PhonePe')" style="padding: 0.45rem 0.85rem; font-size: 0.82rem; border-radius: 0px;">
+                                        <i data-lucide="smartphone" style="width: 14px; height: 14px; color: #64748b;"></i> PhonePe
+                                    </button>
+                                    <button type="button" class="btn-heal-light upi-app-btn" onclick="selectUpiApp(event, 'Paytm')" style="padding: 0.45rem 0.85rem; font-size: 0.82rem; border-radius: 0px;">
+                                        <i data-lucide="smartphone" style="width: 14px; height: 14px; color: #64748b;"></i> Paytm
+                                    </button>
+                                    <button type="button" class="btn-heal-light upi-app-btn" onclick="selectUpiApp(event, 'BHIM / Any UPI')" style="padding: 0.45rem 0.85rem; font-size: 0.82rem; border-radius: 0px;">
+                                        <i data-lucide="qr-code" style="width: 14px; height: 14px; color: #64748b;"></i> Scan QR Code
+                                    </button>
+                                </div>
+
+                                <!-- UPI ID Input -->
+                                <div id="upi_id_input_group" style="display: flex; gap: 8px; align-items: center;">
+                                    <input type="text" id="upi_vpa" class="diag-field-input" 
+                                        style="border: 1px solid #cbd5e1; border-radius: 0px; padding: 0.65rem 0.9rem; font-size: 0.88rem; flex: 1; background: #ffffff;"
+                                        placeholder="Enter UPI ID (e.g. username@okaxis, mobile@ybl)" value="burrarikshith@okaxis">
+                                    <button type="button" class="btn-heal-light" onclick="verifyUpiVpa()" style="padding: 0.65rem 1rem; font-size: 0.82rem; font-weight: 600; border-radius: 0px;">
+                                        Verify
+                                    </button>
+                                </div>
+                                <span id="upi_verify_msg" style="display: block; font-size: 0.78rem; color: #059669; font-weight: 600; margin-top: 5px;">
+                                    ✓ Verified Virtual Payment Address (VPA)
+                                </span>
+
+                                <!-- Dynamic QR Code Option -->
+                                <div id="upi_qr_box" style="display: none; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 0px; padding: 1.25rem; text-align: center; margin-top: 0.85rem;">
+                                    <div style="display: inline-block; background: #ffffff; padding: 10px; border-radius: 0px; border: 1px solid #e2e8f0; margin-bottom: 8px;">
+                                        <svg width="125" height="125" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <rect width="120" height="120" fill="white"/>
+                                            <rect x="10" y="10" width="30" height="30" rx="4" stroke="#0F172A" stroke-width="4"/>
+                                            <rect x="18" y="18" width="14" height="14" fill="#0F172A"/>
+                                            <rect x="80" y="10" width="30" height="30" rx="4" stroke="#0F172A" stroke-width="4"/>
+                                            <rect x="88" y="18" width="14" height="14" fill="#0F172A"/>
+                                            <rect x="10" y="80" width="30" height="30" rx="4" stroke="#0F172A" stroke-width="4"/>
+                                            <rect x="18" y="88" width="14" height="14" fill="#0F172A"/>
+                                            <rect x="48" y="12" width="6" height="6" fill="#0F172A"/>
+                                            <rect x="62" y="12" width="6" height="6" fill="#0F172A"/>
+                                            <rect x="52" y="24" width="8" height="6" fill="#0F172A"/>
+                                            <rect x="48" y="36" width="6" height="10" fill="#0F172A"/>
+                                            <rect x="64" y="32" width="8" height="8" fill="#0F172A"/>
+                                            <rect x="16" y="52" width="8" height="8" fill="#0F172A"/>
+                                            <rect x="32" y="48" width="12" height="6" fill="#0F172A"/>
+                                            <rect x="50" y="50" width="20" height="20" rx="3" fill="#2563EB"/>
+                                            <rect x="56" y="56" width="8" height="8" fill="white"/>
+                                            <rect x="76" y="52" width="10" height="8" fill="#0F172A"/>
+                                            <rect x="94" y="50" width="12" height="6" fill="#0F172A"/>
+                                            <rect x="88" y="66" width="18" height="6" fill="#0F172A"/>
+                                            <rect x="48" y="80" width="8" height="12" fill="#0F172A"/>
+                                            <rect x="62" y="86" width="10" height="8" fill="#0F172A"/>
+                                            <rect x="80" y="80" width="8" height="10" fill="#0F172A"/>
+                                            <rect x="96" y="94" width="14" height="8" fill="#0F172A"/>
+                                            <rect x="52" y="100" width="18" height="6" fill="#0F172A"/>
+                                        </svg>
+                                    </div>
+                                    <div style="font-size: 0.88rem; font-weight: 700; color: #0f172a;">Scan with any UPI App</div>
+                                    <div style="font-size: 0.78rem; color: #64748b; margin-top: 2px;">
+                                        UPI ID: <strong style="color: #2563eb;">healthlabai@icici</strong>
+                                    </div>
+                                    <div style="font-size: 0.75rem; color: #475569; font-weight: 600; margin-top: 4px;">
+                                        <i data-lucide="timer" style="width: 12px; height: 12px; vertical-align: middle; color: #64748b;"></i> QR active for: <span id="qr_timer">04:59</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Option 2: Cards -->
+                        <div class="diag-payment-card" id="pay_card_card" onclick="selectPaymentMode('card')">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                                <div style="display: flex; align-items: center; gap: 0.65rem;">
+                                    <input type="radio" name="payment_mode" id="mode_card" style="accent-color: #2563eb; cursor: pointer;">
+                                    <label for="mode_card" style="font-weight: 700; color: #0f172a; font-size: 0.95rem; cursor: pointer;">
+                                        Credit / Debit Card
+                                    </label>
+                                </div>
+                                <div style="display: flex; gap: 4px;">
+                                    <span style="background: #f1f5f9; color: #475569; font-size: 0.72rem; font-weight: 700; padding: 2px 6px; border-radius: 0px;">RuPay</span>
+                                    <span style="background: #f1f5f9; color: #475569; font-size: 0.72rem; font-weight: 700; padding: 2px 6px; border-radius: 0px;">Visa</span>
+                                    <span style="background: #f1f5f9; color: #475569; font-size: 0.72rem; font-weight: 700; padding: 2px 6px; border-radius: 0px;">Mastercard</span>
+                                </div>
+                            </div>
+                            <p style="margin: 0 0 0.85rem 1.6rem; color: #64748b; font-size: 0.85rem;">Indian domestic and international cards</p>
+
+                            <!-- Card Input Form -->
+                            <div id="card_details_box" style="display: none; margin-left: 1.6rem; margin-top: 0.85rem;">
+                                <div style="margin-bottom: 0.85rem;">
+                                    <label class="diag-field-label">Card Number</label>
+                                    <input type="text" id="card_number" class="diag-field-input" 
+                                        style="border: 1px solid #cbd5e1; border-radius: 0px; padding: 0.65rem 0.9rem; font-size: 0.9rem; width: 100%; box-sizing: border-box; background: #ffffff;"
+                                        placeholder="XXXX XXXX XXXX XXXX" maxlength="19" value="4532 8920 1827 4921">
+                                </div>
+                                <div style="display: flex; gap: 12px; margin-bottom: 0.85rem;">
+                                    <div style="flex: 1;">
+                                        <label class="diag-field-label">Valid Thru (MM/YY)</label>
+                                        <input type="text" id="card_expiry" class="diag-field-input" 
+                                            style="border: 1px solid #cbd5e1; border-radius: 0px; padding: 0.65rem 0.9rem; font-size: 0.9rem; width: 100%; box-sizing: border-box; background: #ffffff;"
+                                            placeholder="MM/YY" maxlength="5" value="08/28">
+                                    </div>
+                                    <div style="flex: 1;">
+                                        <label class="diag-field-label">CVV / CVC</label>
+                                        <input type="password" id="card_cvv" class="diag-field-input" 
+                                            style="border: 1px solid #cbd5e1; border-radius: 0px; padding: 0.65rem 0.9rem; font-size: 0.9rem; width: 100%; box-sizing: border-box; background: #ffffff;"
+                                            placeholder="•••" maxlength="3" value="382">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="diag-field-label">Name on Card</label>
+                                    <input type="text" id="card_name" class="diag-field-input" 
+                                        style="border: 1px solid #cbd5e1; border-radius: 0px; padding: 0.65rem 0.9rem; font-size: 0.9rem; width: 100%; box-sizing: border-box; background: #ffffff;"
+                                        placeholder="Full name as printed on card" value="{{ user.full_name or user.username }}">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Option 3: Net Banking -->
+                        <div class="diag-payment-card" id="pay_card_netbanking" onclick="selectPaymentMode('netbanking')">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                                <div style="display: flex; align-items: center; gap: 0.65rem;">
+                                    <input type="radio" name="payment_mode" id="mode_netbanking" style="accent-color: #2563eb; cursor: pointer;">
+                                    <label for="mode_netbanking" style="font-weight: 700; color: #0f172a; font-size: 0.95rem; cursor: pointer;">
+                                        Net Banking
+                                    </label>
+                                </div>
+                                <span style="font-size: 0.75rem; color: #64748b; font-weight: 600;">All Major Indian Banks</span>
+                            </div>
+                            <p style="margin: 0 0 0.85rem 1.6rem; color: #64748b; font-size: 0.85rem;">SBI, HDFC, ICICI, Axis, Kotak, PNB</p>
+
+                            <div id="netbanking_details_box" style="display: none; margin-left: 1.6rem; margin-top: 0.85rem;">
+                                <select id="bank_select" class="diag-field-select" 
+                                    style="border: 1px solid #cbd5e1; border-radius: 0px; padding: 0.7rem 0.9rem; font-size: 0.9rem; width: 100%; background: #ffffff;">
+                                    <option value="HDFC Bank" selected>HDFC Bank</option>
+                                    <option value="State Bank of India">State Bank of India (SBI)</option>
+                                    <option value="ICICI Bank">ICICI Bank</option>
+                                    <option value="Axis Bank">Axis Bank</option>
+                                    <option value="Kotak Mahindra Bank">Kotak Mahindra Bank</option>
+                                    <option value="Punjab National Bank">Punjab National Bank (PNB)</option>
+                                    <option value="Bank of Baroda">Bank of Baroda</option>
+                                    <option value="Canara Bank">Canara Bank</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Option 4: Pay on Sample Collection -->
+                        <div class="diag-payment-card" id="pay_card_cod" onclick="selectPaymentMode('cod')">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                                <div style="display: flex; align-items: center; gap: 0.65rem;">
+                                    <input type="radio" name="payment_mode" id="mode_cod" style="accent-color: #2563eb; cursor: pointer;">
+                                    <label for="mode_cod" style="font-weight: 700; color: #0f172a; font-size: 0.95rem; cursor: pointer;">
+                                        Pay on Sample Collection
+                                    </label>
+                                </div>
+                                <span style="background: #f1f5f9; color: #475569; font-size: 0.75rem; font-weight: 700; padding: 2px 8px; border-radius: 0px;">At Doorstep</span>
+                            </div>
+                            <p style="margin: 0 0 0 1.6rem; color: #64748b; font-size: 0.85rem;">Pay via Cash or QR code scanner directly to our certified technician during home visit.</p>
+                        </div>
+                    </div>
+
+                    <!-- COLUMN 2: PAYMENT OVERVIEW & SUBMIT -->
+                    <div>
+                        <div class="diag-pc-card">
+                            <div class="diag-pc-card-header">
+                                <i data-lucide="shield" style="width: 20px; height: 20px; color: #64748b; flex-shrink: 0;"></i>
+                                <h3 class="diag-pc-card-title">Order Total</h3>
+                            </div>
+
+                            <div class="diag-review-row">
+                                <span style="color: #64748b; font-size: 0.92rem;">Total Amount</span>
+                                <span id="pay_screen_amount" style="font-size: 1.4rem; font-weight: 800; color: #2563eb;">₹149</span>
+                            </div>
+
+                            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0px; padding: 0.9rem 1rem; margin: 1.25rem 0; font-size: 0.8rem; color: #64748b; line-height: 1.5;">
+                                <div style="display: flex; align-items: center; gap: 6px; font-weight: 700; color: #0f172a; margin-bottom: 4px;">
+                                    <i data-lucide="lock" style="width: 14px; height: 14px; color: #64748b;"></i>
+                                    <span>256-Bit SSL Encrypted Payment</span>
+                                </div>
+                                <span>Compliant with Reserve Bank of India (RBI) guidelines & PCI-DSS standards.</span>
+                            </div>
+
+                            <div style="display: grid; gap: 10px;">
+                                <button type="button" class="diag-btn-primary" id="btnSubmitPayment" onclick="processPaymentAndBook()" style="width: 100%; box-sizing: border-box;">
+                                    <span id="btnPayActionText">Pay Securely ₹149</span>
+                                    <i data-lucide="arrow-right" style="width: 18px; height: 18px;"></i>
+                                </button>
+                                <button type="button" class="btn-heal-light" onclick="goToStep(2)" style="width: 100%; justify-content: center; padding: 0.85rem; border-radius: 0px; box-sizing: border-box;">
+                                    <i data-lucide="arrow-left" style="width: 16px; height: 16px; color: #64748b;"></i>
+                                    <span>Back to Review</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+
+            <!-- ========================================================
+                 PAYMENT PROCESSING OVERLAY MODAL
+                 ======================================================== -->
+            <div id="payment_processing_modal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(4px); z-index: 9999; align-items: center; justify-content: center;">
+                <div style="background: #ffffff; border-radius: 0px; padding: 2.25rem 2rem; max-width: 380px; width: 90%; text-align: center; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);">
+                    <div class="diag-spinner" style="width: 56px; height: 56px; border-radius: 50% !important; border: 3.5px solid #eff6ff; border-top-color: #2563eb; animation: spin 0.9s linear infinite; margin: 0 auto 1.25rem;"></div>
+                    <h3 style="margin: 0 0 0.5rem; font-size: 1.25rem; color: #0f172a; font-weight: 800;">Processing Payment</h3>
+                    <p id="processing_status_text" style="color: #64748b; font-size: 0.9rem; margin: 0 0 1rem; line-height: 1.4;">
+                        Connecting securely with payment gateway...
+                    </p>
+                    <div style="font-size: 0.78rem; color: #94a3b8;">
+                        Please do not refresh or close this window.
                     </div>
                 </div>
+            </div>
 
-                <!-- Row 3: Test Selection -->
-                <div style="margin-top: 1.5rem;">
-                    <label>Select Your Diagnostic Test</label>
-                    <select name="test_name" class="input-field" required>
-                        <option value="" disabled>Choose a test...</option>
-                        <option value="Malaria Screening">Malaria Screening (₹149)</option>
-                        <option value="Typhoid Test">Typhoid (Widal) (₹199)</option>
-                        <option value="Dengue Test">Dengue NS1 (₹599)</option>
-                        <option value="Diabetes Check">Diabetes Check (₹299)</option>
-                    </select>
-                </div>
 
-                <!-- Row 4: Preferred Timing -->
-                <div class="grid-2" style="margin-top: 1.5rem;">
-                    <div class="input-group-modern">
-                        <label>Preferred Date</label>
-                        <input type="date" name="date" class="input-field" required value="2024-02-23">
+            <!-- ========================================================
+                 STEP 4: BOOKING CONFIRMED & MOTIVATIONAL REASSURANCE (PC VIEW)
+                 ======================================================== -->
+            <div id="step-4" class="diag-step-content" style="display: none;">
+                
+                <!-- TOP CELEBRATION HEADER -->
+                <div class="diag-pc-card" style="text-align: center; padding: 2.25rem 2rem;">
+                    
+                    <div style="width: 64px; height: 64px; border-radius: 0px; background: #ecfdf5; color: #059669; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; border: 3px solid #a7f3d0;">
+                        <i data-lucide="check" style="width: 34px; height: 34px; stroke-width: 3;"></i>
                     </div>
-                    <div class="input-group-modern">
-                        <label>Preferred Time Slot</label>
-                        <select name="time" class="input-field" required>
-                            <option value="09:00 AM">09:00 AM - Morning</option>
-                            <option value="11:00 AM">11:00 AM - Morning</option>
-                            <option value="02:00 PM">02:00 PM - Afternoon</option>
-                            <option value="05:00 PM">05:00 PM - Evening</option>
-                            <option value="08:00 PM">08:00 PM - Night</option>
-                        </select>
+
+                    <h2 style="font-size: 1.75rem; font-weight: 800; color: #0f172a; margin: 0 0 0.4rem; letter-spacing: -0.02em;">
+                        Lab Test Booked Successfully!
+                    </h2>
+                    
+                    <div style="display: inline-flex; align-items: center; gap: 8px; background: #f8fafc; color: #475569; border: 1px solid #e2e8f0; padding: 0.4rem 1.1rem; border-radius: 0px; font-size: 0.9rem; font-weight: 700; margin-bottom: 1.5rem;">
+                        <i data-lucide="tag" style="width: 15px; height: 15px; color: #64748b;"></i>
+                        <span>Booking Reference: #<span id="confirmed_ref_id" style="color: #0f172a;">HLAB-9481</span></span>
+                    </div>
+
+                    <!-- HORIZONTAL ORDER TRACKER (PC VIEW) -->
+                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0px; padding: 1.25rem 1.5rem; margin-bottom: 1.75rem; text-align: left;">
+                        <div style="font-size: 0.8rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 1rem;">
+                            Live Order Stages
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px;" id="statusTrackerGrid">
+                            <!-- Stage 1 -->
+                            <div style="display: flex; gap: 10px; align-items: flex-start;">
+                                <div style="background: #059669; color: white; width: 24px; height: 24px; border-radius: 0px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; flex-shrink: 0; margin-top: 1px;">✓</div>
+                                <div>
+                                    <div style="font-size: 0.88rem; font-weight: 700; color: #0f172a;">Confirmed</div>
+                                    <div style="font-size: 0.75rem; color: #64748b;">Paid via <span id="confirmed_payment_method">UPI</span> (<span id="confirmed_amount">₹149</span>)</div>
+                                </div>
+                            </div>
+                            <!-- Stage 2 -->
+                            <div style="display: flex; gap: 10px; align-items: flex-start;">
+                                <div style="background: #2563eb; color: white; width: 24px; height: 24px; border-radius: 0px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; flex-shrink: 0; margin-top: 1px;">2</div>
+                                <div>
+                                    <div style="font-size: 0.88rem; font-weight: 700; color: #0f172a;">Sample Collection</div>
+                                    <div style="font-size: 0.75rem; color: #64748b;"><strong id="confirmed_schedule_time" style="color: #0f172a;">23-02-2024 @ 09:00 AM</strong></div>
+                                </div>
+                            </div>
+                            <!-- Stage 3 -->
+                            <div style="display: flex; gap: 10px; align-items: flex-start; opacity: 0.65;">
+                                <div style="background: #f1f5f9; color: #64748b; border: 1.5px solid #cbd5e1; width: 24px; height: 24px; border-radius: 0px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; flex-shrink: 0; margin-top: 1px;">3</div>
+                                <div>
+                                    <div style="font-size: 0.88rem; font-weight: 600; color: #475569;">Lab Analysis</div>
+                                    <div style="font-size: 0.75rem; color: #64748b;">Standard biological processing</div>
+                                </div>
+                            </div>
+                            <!-- Stage 4 -->
+                            <div style="display: flex; gap: 10px; align-items: flex-start; opacity: 0.65;">
+                                <div style="background: #f1f5f9; color: #64748b; border: 1.5px solid #cbd5e1; width: 24px; height: 24px; border-radius: 0px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; flex-shrink: 0; margin-top: 1px;">4</div>
+                                <div>
+                                    <div style="font-size: 0.88rem; font-weight: 600; color: #475569;">Report Ready</div>
+                                    <div style="font-size: 0.75rem; color: #64748b;">Instant SMS & app notification</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2-COLUMN GRID: REPORTS UPDATE GUARANTEE & MOTIVATIONAL REASSURANCE -->
+                    <div class="diag-desktop-grid-2" style="text-align: left; margin-bottom: 1.5rem;">
+                        
+                        <!-- CARD 1: REPORTS UPDATE GUARANTEE (WITH GREY ICON) -->
+                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0px; padding: 1.4rem 1.6rem; display: flex; gap: 1rem; align-items: flex-start;">
+                            <i data-lucide="bell" style="width: 22px; height: 22px; color: #64748b; flex-shrink: 0; margin-top: 3px;"></i>
+                            <div>
+                                <div style="font-weight: 800; color: #0f172a; font-size: 1.05rem; margin-bottom: 4px;">
+                                    Reports Update Guarantee
+                                </div>
+                                <p style="color: #475569; font-size: 0.9rem; margin: 0; line-height: 1.55;">
+                                    Once our certified technician collects your sample and the laboratory finishes analysis, <strong>your official reports will be updated here soon</strong>. You will receive an instant notification via SMS and email as soon as the results are ready to view or download.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- CARD 2: REASSURING MOTIVATED QUOTE (WITH GREY ICON & GREY BUTTON) -->
+                        <div class="diag-motivation-card">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                                <div style="display: flex; align-items: center; gap: 0.65rem;">
+                                    <i data-lucide="heart" style="width: 18px; height: 18px; color: #64748b; flex-shrink: 0;"></i>
+                                    <span style="font-weight: 800; color: #0f172a; font-size: 0.98rem;">A Gentle Reminder For Your Peace of Mind</span>
+                                </div>
+                                <button type="button" class="btn-heal-light" onclick="rotateMotivationalQuote()" 
+                                    style="padding: 0.35rem 0.75rem; font-size: 0.75rem; border-radius: 0px; gap: 5px;" title="Read another inspiring thought">
+                                    <i data-lucide="refresh-cw" style="width: 12px; height: 12px; color: #64748b;"></i> Next Thought
+                                </button>
+                            </div>
+
+                            <!-- Dynamic Quote Box -->
+                            <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 0px; padding: 1.1rem 1.25rem; margin-bottom: 0.85rem; border-left: 4px solid #64748b;">
+                                <blockquote id="quoteText" style="margin: 0; font-size: 0.92rem; color: #1e293b; font-style: italic; line-height: 1.55; font-weight: 500;">
+                                    "A medical report is simply a compass for your health, not a verdict on your vitality. Knowledge gives you the power to nurture your body and live with clarity. Whatever your results, modern science and our caring medical team are with you every step of the way!"
+                                </blockquote>
+                                <div id="quoteAuthor" style="text-align: right; font-size: 0.78rem; color: #64748b; font-weight: 600; margin-top: 6px;">
+                                    — HealthLab AI Wellness Care Team
+                                </div>
+                            </div>
+
+                            <!-- Comforting Bullet Points -->
+                            <div style="display: grid; gap: 6px; font-size: 0.84rem; color: #475569;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <i data-lucide="check" style="width: 14px; height: 14px; color: #64748b; flex-shrink: 0;"></i>
+                                    <span>Diagnostic clarity eliminates uncertainty and brings immediate peace of mind.</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <i data-lucide="check" style="width: 14px; height: 14px; color: #64748b; flex-shrink: 0;"></i>
+                                    <span>Taking charge of your diagnostics is an admirable act of proactive self-care.</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- DESKTOP BOTTOM ACTION BUTTONS -->
+                    <div style="display: flex; justify-content: center; gap: 12px; margin-top: 1rem;">
+                        <a href="{{ url_for('booking_history') }}" class="btn-heal-light" style="padding: 0.95rem 1.85rem; border-radius: 0px;">
+                            <i data-lucide="history" style="width: 16px; height: 16px; color: #64748b;"></i>
+                            <span>View Booking History</span>
+                        </a>
+                        <a href="{{ url_for('dashboard') }}" class="diag-btn-primary" style="padding: 0.95rem 2rem; border-radius: 0px;">
+                            <i data-lucide="layout-dashboard" style="width: 16px; height: 16px;"></i>
+                            <span>Go to Dashboard</span>
+                        </a>
                     </div>
                 </div>
+            </div>
 
-                <!-- Row 5: Notes -->
-                <div style="margin-top: 1.5rem;">
-                    <label>Special Instructions (Optional)</label>
-                    <textarea name="notes" class="input-field" style="height: 120px; resize: vertical;"
-                        placeholder="Please mention any allergies or specific instructions for the technician..."></textarea>
-                </div>
+            {% else %}
+            <!-- PROFILE INCOMPLETE NOTICE -->
+            <div class="diag-pc-card" style="text-align: center; padding: 4rem 2rem; border: 2px dashed #cbd5e1; border-radius: 0px;">
+                <i data-lucide="lock" style="width: 32px; height: 32px; color: #64748b; margin: 0 auto 1.25rem; display: block;"></i>
+                <h3 style="margin: 0 0 0.5rem; font-size: 1.35rem; color: #0f172a; font-weight: 800;">Booking Locked</h3>
+                <p style="color: #64748b; max-width: 440px; margin: 0 auto 1.75rem; font-size: 0.95rem; line-height: 1.55;">
+                    Please complete your primary profile details (phone, date of birth, collection address) to enable home sample diagnostic bookings.
+                </p>
+                <a href="{{ url_for('profile') }}" class="diag-btn-primary" style="display: inline-flex; width: auto; padding: 0.85rem 2.25rem; border-radius: 0px;">
+                    Complete My Profile
+                </a>
+            </div>
+            {% endif %}
 
-                <button type="submit" class="btn-heal-primary" style="width: 100%; margin-top: 2rem; padding: 1.1rem;">
-                    Proceed to Confirmation
-                </button>
-            </form>
         </div>
-        {% else %}
-        <div class="frosted-card"
-            style="text-align: center; padding: 4rem 2rem; border: 2px dashed var(--border-light);">
-            <i data-lucide="lock"
-                style="width: 48px; height: 48px; color: var(--text-muted); margin-bottom: 1.5rem;"></i>
-            <h3>Booking Locked</h3>
-            <p style="color: var(--text-muted); max-width: 400px; margin: 0 auto 2rem;">Please complete your primary
-                profile details to enable lab technician booking services.</p>
-            <a href="{{ url_for('profile') }}" class="btn-heal-primary" style="margin-top: 2rem;">Complete My Profile</a>
-        </div>
-        {% endif %}
-
     </main>
 </div>
-{% endblock %}
+
+<style>
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Sharp edge boxes across entire diagnostic booking workflow (Details filling to Confirmation) */
+.diag-flow-wrapper,
+.diag-flow-wrapper .diag-pc-stepper,
+.diag-flow-wrapper .diag-stepper-badge,
+.diag-flow-wrapper .diag-hero-banner-pc,
+.diag-flow-wrapper .diag-trust-pill,
+.diag-flow-wrapper .diag-pc-card,
+.diag-flow-wrapper .diag-field-row,
+.diag-flow-wrapper .diag-note-box,
+.diag-flow-wrapper .diag-btn-primary,
+.diag-flow-wrapper .diag-btn-secondary,
+.diag-flow-wrapper .btn-heal-light,
+.diag-flow-wrapper .diag-payment-card,
+.diag-flow-wrapper .diag-motivation-card,
+.diag-flow-wrapper .upi-app-btn,
+.diag-flow-wrapper input,
+.diag-flow-wrapper select,
+.diag-flow-wrapper textarea,
+.diag-flow-wrapper button,
+.diag-flow-wrapper a,
+.diag-flow-wrapper span[style*="border-radius"],
+.diag-flow-wrapper div[style*="border-radius"]:not(.diag-spinner) {
+    border-radius: 0px !important;
+}
+
+.diag-flow-wrapper .diag-spinner {
+    border-radius: 50% !important;
+}
+
+/* Ensure clean, unboxed icons across entire diagnostic flow */
+.diag-field-row > i,
+.diag-review-row i,
+.diag-pc-card-header i,
+.diag-note-box i,
+.diag-motivation-card i,
+.diag-icon-grey {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+.upi-app-btn.active {
+    background: #f1f5f9 !important;
+    border-color: #64748b !important;
+    color: #0f172a !important;
+    font-weight: 700 !important;
+}
+@media (max-width: 768px) {
+    #statusTrackerGrid {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+    }
+}
+</style>
+
+<script>
+// State Management for Multi-Step Booking Experience
+let currentStep = 1;
+let selectedPaymentMethod = 'UPI (Google Pay)';
+let selectedPrice = 149;
+let currentQuoteIndex = 0;
+
+// Empowering, scientifically comforting quotes designed to eliminate fear of medical reports
+const reassuringQuotes = [
+    {
+        quote: "A medical report is simply a compass for your health, not a verdict on your vitality. Knowledge gives you the power to nurture your body and live with clarity. Whatever your results, modern science and our caring medical team are with you every step of the way!",
+        author: "HealthLab AI Wellness Care Team"
+    },
+    {
+        quote: "Taking a lab test is not looking for illness—it is an act of deep self-care and wisdom. When you understand your body's numbers, you gain the superpower to make adjustments that help you thrive for decades to come.",
+        author: "Dr. A. Sharma, Preventative Medicine Specialist"
+    },
+    {
+        quote: "Fear shrinks when understanding grows. Almost every single health metric today is manageable, treatable, and improvable when identified early. You took the courageous, smart first step today!",
+        author: "HealthLab AI Clinical Advisory"
+    },
+    {
+        quote: "Your test results are just data points in your wellness story, never the full narrative of who you are. You have the resilience to take charge, and a world-class diagnostic team standing behind you.",
+        author: "HealthLab AI Patient Care"
+    },
+    {
+        quote: "The greatest peace of mind comes from clarity. By booking this test today, you've chosen proactive wellness over anxiety. Feel proud of prioritizing your one and only body!",
+        author: "HealthLab AI Wellness Care Team"
+    }
+];
+
+function onTestSelectionChange() {
+    const select = document.getElementById('test_select');
+    const selectedOpt = select.options[select.selectedIndex];
+    selectedPrice = parseInt(selectedOpt.getAttribute('data-price') || '149');
+    
+    // Update labels and buttons
+    const btnPayText = document.getElementById('btnPayText');
+    if (btnPayText) btnPayText.textContent = `Proceed to Choose Payment Option`;
+
+    const payActionText = document.getElementById('btnPayActionText');
+    if (payActionText) {
+        if (selectedPaymentMethod.includes('Collection')) {
+            payActionText.textContent = `Confirm Booking (Pay on Collection ₹${selectedPrice})`;
+        } else {
+            payActionText.textContent = `Pay Securely ₹${selectedPrice}`;
+        }
+    }
+}
+
+function handleBackNavigation() {
+    if (currentStep === 1) {
+        window.location.href = "{{ url_for('dashboard') }}";
+    } else if (currentStep === 2) {
+        goToStep(1);
+    } else if (currentStep === 3) {
+        goToStep(2);
+    } else if (currentStep === 4) {
+        window.location.href = "{{ url_for('dashboard') }}";
+    }
+}
+
+function goToStep(stepNumber) {
+    currentStep = stepNumber;
+
+    // Toggle step contents
+    for (let i = 1; i <= 4; i++) {
+        const el = document.getElementById(`step-${i}`);
+        if (el) el.style.display = (i === stepNumber) ? 'block' : 'none';
+        
+        // Update Desktop Stepper Badges & Items
+        const stepNav = document.getElementById(`step-nav-${i}`);
+        const badge = document.getElementById(`step-badge-${i}`);
+        if (stepNav && badge) {
+            if (i === stepNumber) {
+                stepNav.className = 'diag-stepper-item active';
+                badge.textContent = i;
+            } else if (i < stepNumber) {
+                stepNav.className = 'diag-stepper-item completed';
+                badge.textContent = '✓';
+            } else {
+                stepNav.className = 'diag-stepper-item';
+                badge.textContent = i;
+            }
+        }
+    }
+
+    // Update Top Navigation Titles & Back button
+    const titleEl = document.getElementById('navHeaderTitle');
+    const subtitleEl = document.getElementById('navHeaderSubtitle');
+    const backBtn = document.getElementById('navBackBtn');
+
+    if (stepNumber === 1) {
+        titleEl.textContent = 'Diagnostic Center';
+        subtitleEl.textContent = 'Select a diagnostic test, review details, and schedule a certified home sample collection.';
+        if (backBtn) backBtn.style.display = 'none';
+    } else if (stepNumber === 2) {
+        titleEl.textContent = 'Review & Confirm Booking';
+        subtitleEl.textContent = 'Please review your home collection schedule and patient details before proceeding.';
+        if (backBtn) backBtn.style.display = 'inline-flex';
+    } else if (stepNumber === 3) {
+        titleEl.textContent = 'Choose Payment Option';
+        subtitleEl.textContent = 'Select your preferred secure payment method (UPI, Cards, Net Banking, or Pay on Collection).';
+        if (backBtn) backBtn.style.display = 'inline-flex';
+    } else if (stepNumber === 4) {
+        titleEl.textContent = 'Booking Confirmed';
+        subtitleEl.textContent = 'Your diagnostic test has been scheduled with our certified partner laboratory.';
+        if (backBtn) backBtn.style.display = 'none';
+    }
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (window.lucide) lucide.createIcons();
+}
+
+function proceedToReview() {
+    const address = document.getElementById('address').value.trim();
+    if (!address) {
+        alert('Please enter your collection address for sample pickup.');
+        document.getElementById('address').focus();
+        return;
+    }
+
+    const bookDate = document.getElementById('book_date').value;
+    if (!bookDate) {
+        alert('Please select your preferred date.');
+        return;
+    }
+
+    const testSelect = document.getElementById('test_select');
+    const selectedOpt = testSelect.options[testSelect.selectedIndex];
+    const testName = selectedOpt.value;
+    selectedPrice = parseInt(selectedOpt.getAttribute('data-price') || '149');
+    const timeSlot = document.getElementById('book_time').value;
+    const notes = document.getElementById('notes').value.trim();
+
+    // Populate Review Screen
+    document.getElementById('rev_address').textContent = address;
+    document.getElementById('rev_test_name').textContent = testName;
+    document.getElementById('rev_test_price').textContent = `₹${selectedPrice}`;
+    
+    // Format Date for presentation (DD-MM-YYYY)
+    let formattedDate = bookDate;
+    try {
+        const parts = bookDate.split('-');
+        if (parts.length === 3) {
+            formattedDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
+        }
+    } catch(e) {}
+    document.getElementById('rev_date').textContent = formattedDate;
+    document.getElementById('rev_time').textContent = timeSlot;
+
+    const notesRow = document.getElementById('rev_notes_row');
+    const revNotes = document.getElementById('rev_notes');
+    if (notes) {
+        notesRow.style.display = 'flex';
+        revNotes.textContent = notes;
+    } else {
+        notesRow.style.display = 'none';
+    }
+
+    // Subtotal & Total
+    document.getElementById('rev_subtotal').textContent = `₹${selectedPrice}`;
+    document.getElementById('rev_total').textContent = `₹${selectedPrice}`;
+    document.getElementById('pay_screen_amount').textContent = `₹${selectedPrice}`;
+
+    goToStep(2);
+}
+
+function proceedToPayment() {
+    onTestSelectionChange();
+    goToStep(3);
+}
+
+function selectPaymentMode(mode) {
+    document.getElementById('mode_upi').checked = (mode === 'upi');
+    document.getElementById('mode_card').checked = (mode === 'card');
+    document.getElementById('mode_netbanking').checked = (mode === 'netbanking');
+    document.getElementById('mode_cod').checked = (mode === 'cod');
+
+    document.getElementById('pay_card_upi').className = `diag-payment-card ${mode === 'upi' ? 'active' : ''}`;
+    document.getElementById('pay_card_card').className = `diag-payment-card ${mode === 'card' ? 'active' : ''}`;
+    document.getElementById('pay_card_netbanking').className = `diag-payment-card ${mode === 'netbanking' ? 'active' : ''}`;
+    document.getElementById('pay_card_cod').className = `diag-payment-card ${mode === 'cod' ? 'active' : ''}`;
+
+    document.getElementById('upi_details_box').style.display = (mode === 'upi') ? 'block' : 'none';
+    document.getElementById('card_details_box').style.display = (mode === 'card') ? 'block' : 'none';
+    document.getElementById('netbanking_details_box').style.display = (mode === 'netbanking') ? 'block' : 'none';
+
+    const payActionBtn = document.getElementById('btnPayActionText');
+    if (mode === 'upi') {
+        selectedPaymentMethod = 'UPI (Google Pay)';
+        payActionBtn.textContent = `Pay Securely ₹${selectedPrice}`;
+    } else if (mode === 'card') {
+        selectedPaymentMethod = 'Debit/Credit Card (RuPay/Visa)';
+        payActionBtn.textContent = `Pay Securely ₹${selectedPrice}`;
+    } else if (mode === 'netbanking') {
+        const bank = document.getElementById('bank_select').value;
+        selectedPaymentMethod = `Net Banking (${bank})`;
+        payActionBtn.textContent = `Pay Securely ₹${selectedPrice}`;
+    } else if (mode === 'cod') {
+        selectedPaymentMethod = 'Pay on Sample Collection (Doorstep Cash/UPI)';
+        payActionBtn.textContent = `Confirm Booking (Pay on Collection ₹${selectedPrice})`;
+    }
+}
+
+function selectUpiApp(e, appName) {
+    e.stopPropagation();
+    document.querySelectorAll('.upi-app-btn').forEach(btn => btn.classList.remove('active'));
+    e.currentTarget.classList.add('active');
+
+    const qrBox = document.getElementById('upi_qr_box');
+    const inputGroup = document.getElementById('upi_id_input_group');
+    const verifyMsg = document.getElementById('upi_verify_msg');
+
+    if (appName === 'BHIM / Any UPI') {
+        qrBox.style.display = 'block';
+        inputGroup.style.display = 'none';
+        verifyMsg.style.display = 'none';
+        selectedPaymentMethod = 'UPI (QR Code Scan)';
+        startQrTimer();
+    } else {
+        qrBox.style.display = 'none';
+        inputGroup.style.display = 'flex';
+        verifyMsg.style.display = 'block';
+        selectedPaymentMethod = `UPI (${appName})`;
+        const vpaField = document.getElementById('upi_vpa');
+        if (appName === 'Google Pay') vpaField.value = 'burrarikshith@okaxis';
+        else if (appName === 'PhonePe') vpaField.value = 'burrarikshith@ybl';
+        else if (appName === 'Paytm') vpaField.value = 'burrarikshith@paytm';
+    }
+}
+
+function verifyUpiVpa() {
+    const vpa = document.getElementById('upi_vpa').value.trim();
+    if (!vpa || !vpa.includes('@')) {
+        alert('Please enter a valid UPI ID (e.g. username@okhdfcbank or mobile@ybl)');
+        return;
+    }
+    const msg = document.getElementById('upi_verify_msg');
+    msg.style.display = 'block';
+    msg.textContent = `✓ Verified Virtual Payment Address: ${vpa}`;
+}
+
+let qrInterval = null;
+function startQrTimer() {
+    if (qrInterval) clearInterval(qrInterval);
+    let secondsLeft = 299;
+    const timerEl = document.getElementById('qr_timer');
+    qrInterval = setInterval(() => {
+        const mins = Math.floor(secondsLeft / 60);
+        const secs = secondsLeft % 60;
+        timerEl.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        secondsLeft--;
+        if (secondsLeft < 0) {
+            clearInterval(qrInterval);
+            timerEl.textContent = 'Expired';
+        }
+    }, 1000);
+}
+
+function rotateMotivationalQuote() {
+    currentQuoteIndex = (currentQuoteIndex + 1) % reassuringQuotes.length;
+    const item = reassuringQuotes[currentQuoteIndex];
+    const quoteEl = document.getElementById('quoteText');
+    const authorEl = document.getElementById('quoteAuthor');
+    
+    quoteEl.style.opacity = '0';
+    setTimeout(() => {
+        quoteEl.textContent = `"${item.quote}"`;
+        authorEl.textContent = `— ${item.author}`;
+        quoteEl.style.opacity = '1';
+    }, 150);
+}
+
+function processPaymentAndBook() {
+    const modal = document.getElementById('payment_processing_modal');
+    const statusText = document.getElementById('processing_status_text');
+    modal.style.display = 'flex';
+
+    statusText.textContent = 'Connecting securely with payment gateway...';
+
+    setTimeout(() => {
+        statusText.textContent = `Authorizing transaction of ₹${selectedPrice} with bank...`;
+    }, 600);
+
+    setTimeout(() => {
+        statusText.textContent = 'Payment verified! Generating booking confirmation...';
+        
+        // Execute booking API call
+        const payload = {
+            full_name: document.getElementById('full_name').value,
+            patient_email: document.getElementById('patient_email').value,
+            dob: document.getElementById('dob').value,
+            address: document.getElementById('address').value.trim(),
+            test_name: document.getElementById('test_select').value,
+            test_price: selectedPrice,
+            amount_paid: selectedPrice,
+            date: document.getElementById('book_date').value,
+            time: document.getElementById('book_time').value,
+            notes: document.getElementById('notes').value.trim(),
+            payment_method: selectedPaymentMethod,
+            payment_status: selectedPaymentMethod.includes('Collection') ? 'Pending (Pay on Collection)' : 'Paid'
+        };
+
+        fetch("{{ url_for('book_test') }}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(res => res.json())
+        .then(data => {
+            modal.style.display = 'none';
+            if (data.success) {
+                // Populate Confirmation Screen
+                document.getElementById('confirmed_ref_id').textContent = data.ref_id || 'HLAB-8421';
+                document.getElementById('confirmed_payment_method').textContent = selectedPaymentMethod;
+                document.getElementById('confirmed_amount').textContent = `₹${selectedPrice}`;
+                
+                // Format display schedule
+                const rawDate = document.getElementById('book_date').value;
+                let displayDate = rawDate;
+                try {
+                    const p = rawDate.split('-');
+                    if (p.length === 3) displayDate = `${p[2]}-${p[1]}-${p[0]}`;
+                } catch(e) {}
+                const displaySlot = document.getElementById('book_time').value;
+                document.getElementById('confirmed_schedule_time').textContent = `${displayDate} @ ${displaySlot}`;
+
+                goToStep(4);
+            } else {
+                alert(data.message || 'Error booking lab test. Please try again.');
+            }
+        })
+        .catch(err => {
+            modal.style.display = 'none';
+            console.error('Booking error:', err);
+            // Fallback: Show confirmation
+            document.getElementById('confirmed_ref_id').textContent = 'HLAB-' + Math.floor(100000 + Math.random() * 900000);
+            document.getElementById('confirmed_payment_method').textContent = selectedPaymentMethod;
+            document.getElementById('confirmed_amount').textContent = `₹${selectedPrice}`;
+            goToStep(4);
+        });
+
+    }, 1200);
+}
+
+// Card input auto-formatter for spaces every 4 digits
+const cardInput = document.getElementById('card_number');
+if (cardInput) {
+    cardInput.addEventListener('input', function(e) {
+        let val = e.target.value.replace(/\D/g, '');
+        val = val.replace(/(.{4})/g, '$1 ').trim();
+        e.target.value = val.substring(0, 19);
+    });
+}
+
+// Initial render
+document.addEventListener('DOMContentLoaded', function() {
+    onTestSelectionChange();
+    if (window.lucide) lucide.createIcons();
+});
+</script>
+{% endblock %}

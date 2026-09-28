@@ -7,3 +7,5 @@ werkzeug
 certifi
 gunicorn
 requests
+authlib
+pypdf
