@@ -136,6 +136,23 @@
                 <i data-lucide="file-text"></i>
                 <span>Clinical Reports</span>
             </a>
+            <a href="{{ url_for('my_prescriptions') }}"
+                class="nav-link {% if request.endpoint in ['my_prescriptions', 'view_prescription'] %}active{% endif %}">
+                <i data-lucide="file-signature"></i>
+                <span>Prescriptions</span>
+            </a>
+            <a href="{{ url_for('ai_assistant') }}"
+                class="nav-link {% if request.endpoint == 'ai_assistant' %}active{% endif %}">
+                <i data-lucide="sparkles" style="color: #f59e0b;"></i>
+                <span>AI Assistant</span>
+            </a>
+            {% endif %}
+            {% if current_user.role == 'doctor' %}
+            <a href="{{ url_for('ai_assistant') }}"
+                class="nav-link {% if request.endpoint == 'ai_assistant' %}active{% endif %}">
+                <i data-lucide="sparkles" style="color: #f59e0b;"></i>
+                <span>AI Clinical Assistant</span>
+            </a>
             {% endif %}
             <a href="{{ url_for('profile') }}" class="nav-link">
                 <i data-lucide="settings"></i>
@@ -166,24 +183,43 @@
             <div class="chat-container">
                 <div class="chat-header">
                     <div style="display: flex; align-items: center; gap: 0.75rem;">
-                        <i data-lucide="sparkles" style="width: 20px; color: #FFC371;"></i>
-                        <span style="font-weight: 700;">HealthLab AI Assistant</span>
+                        <div style="background: rgba(255, 255, 255, 0.15); width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                            <i data-lucide="sparkles" style="width: 18px; color: #fbbf24;"></i>
+                        </div>
+                        <div>
+                            <span style="font-weight: 700; font-size: 0.98rem; display: block; color: white;">HealthLab AI Assistant</span>
+                            <span style="font-size: 0.72rem; color: #94a3b8; display: flex; align-items: center; gap: 5px;">
+                                <span style="display: inline-block; width: 6px; height: 6px; background: #22c55e; border-radius: 50%;"></span>
+                                Clinical Diagnostics AI
+                            </span>
+                        </div>
                     </div>
-                    <button onclick="toggleChat()"
-                        style="background: none; border: none; color: white; cursor: pointer;">
-                        <i data-lucide="x"></i>
-                    </button>
+                    <div style="display: flex; align-items: center; gap: 0.4rem;">
+                        <a href="{{ url_for('ai_assistant') }}" title="Open Full Screen AI Assistant & Attach Reports"
+                            style="background: rgba(255, 255, 255, 0.1); border: none; color: #cbd5e1; padding: 6px; border-radius: 6px; display: flex; align-items: center; justify-content: center; text-decoration: none; transition: 0.2s;">
+                            <i data-lucide="maximize-2" style="width: 16px; height: 16px;"></i>
+                        </a>
+                        <button onclick="toggleChat()"
+                            style="background: none; border: none; color: white; cursor: pointer; padding: 6px; display: flex; align-items: center; justify-content: center;" title="Close">
+                            <i data-lucide="x" style="width: 18px; height: 18px;"></i>
+                        </button>
+                    </div>
                 </div>
                 <div class="chat-messages" id="chatMessages">
                     <div class="message ai">
-                        Hello! I'm your HealthLab AI Assistant. How can I help you regarding your health or reports
-                        today?
+                        Hello! I'm your HealthLab AI Assistant. Ask any health questions below, or click <a href="{{ url_for('ai_assistant') }}" style="color: #2563eb; font-weight: 600; text-decoration: underline;">Full Screen Assistant</a> to attach and analyze your diagnostic test reports.
                     </div>
                 </div>
+                <!-- Quick Suggestion Chips -->
+                <div class="chat-quick-suggestions" id="chatQuickSuggestions" style="padding: 0.5rem 0.85rem; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none;">
+                    <button type="button" class="quick-chip-btn" onclick="sendQuickChatMessage('What are normal fasting blood sugar levels?')" style="background: white; border: 1px solid #cbd5e1; border-radius: 9999px; padding: 4px 10px; font-size: 0.75rem; color: #334155; white-space: nowrap; cursor: pointer; font-weight: 500;">🩸 Blood Sugar</button>
+                    <button type="button" class="quick-chip-btn" onclick="sendQuickChatMessage('How should I prepare for a fasting blood test?')" style="background: white; border: 1px solid #cbd5e1; border-radius: 9999px; padding: 4px 10px; font-size: 0.75rem; color: #334155; white-space: nowrap; cursor: pointer; font-weight: 500;">🧪 Fasting Prep</button>
+                    <button type="button" class="quick-chip-btn" onclick="sendQuickChatMessage('What are common causes of fatigue and dizziness?')" style="background: white; border: 1px solid #cbd5e1; border-radius: 9999px; padding: 4px 10px; font-size: 0.75rem; color: #334155; white-space: nowrap; cursor: pointer; font-weight: 500;">⚡ Fatigue Causes</button>
+                </div>
                 <div class="chat-input-area">
-                    <input type="text" class="chat-input" placeholder="Type your health concern..." id="chatInput">
-                    <button class="btn-send" onclick="sendMessage()">
-                        <i data-lucide="send" style="width: 20px;"></i>
+                    <input type="text" class="chat-input" placeholder="Type your health concern..." id="chatInput" onkeypress="handleChatKeyPress(event)">
+                    <button class="btn-send" id="btnSendWidget" onclick="sendMessage()" title="Send Message">
+                        <i data-lucide="send" style="width: 18px; height: 18px;"></i>
                     </button>
                 </div>
             </div>
@@ -403,7 +439,7 @@
                 window.location.href = "{{ url_for('login', next=request.path, chat_redirect='true') }}";
                 return;
             }
-            // Open the full page AI Assistant
+            // Navigate to dedicated AI Health Assistant
             window.location.href = "{{ url_for('ai_assistant') }}";
         }
 
@@ -414,15 +450,48 @@
                 return;
             }
             const consultOverlay = document.getElementById('consultOverlay');
-            consultOverlay.style.display = consultOverlay.style.display === 'flex' ? 'none' : 'flex';
+            if (consultOverlay) {
+                consultOverlay.style.display = consultOverlay.style.display === 'flex' ? 'none' : 'flex';
+            }
+        }
+
+        function handleChatKeyPress(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                sendMessage();
+            }
+        }
+
+        function sendQuickChatMessage(query) {
+            const input = document.getElementById('chatInput');
+            if (input) {
+                input.value = query;
+                sendMessage();
+            }
+        }
+
+        function formatAiReply(text) {
+            if (!text) return '';
+            let formatted = text
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+            formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            formatted = formatted.replace(/\*(.*?)\*/g, '<em>$1</em>');
+            formatted = formatted.replace(/^### (.*$)/gim, '<strong style="display:block;margin-top:6px;color:#1e3a8a;">$1</strong>');
+            formatted = formatted.replace(/^\s*[-•]\s+(.*)$/gm, '<li style="margin-left:14px;">$1</li>');
+            formatted = formatted.replace(/(<li.*<\/li>)/s, '<ul style="margin:4px 0;padding:0;">$1</ul>');
+            formatted = formatted.replace(/\n\n/g, '<br><br>').replace(/\n/g, '<br>');
+            return formatted;
         }
 
         async function sendMessage() {
             const input = document.getElementById('chatInput');
             const messages = document.getElementById('chatMessages');
-            if (input.value.trim() === '') return;
+            const sendBtn = document.getElementById('btnSendWidget');
+            if (!input || input.value.trim() === '') return;
 
-            const query = input.value;
+            const query = input.value.trim();
             const userMsg = document.createElement('div');
             userMsg.className = 'message user';
             userMsg.textContent = query;
@@ -431,12 +500,14 @@
             input.value = '';
             messages.scrollTop = messages.scrollHeight;
 
-            // Show loading message
+            // Show loading message with animated icon
             const loadingMsg = document.createElement('div');
             loadingMsg.className = 'message ai';
-            loadingMsg.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Analyzing...';
+            loadingMsg.innerHTML = '<span style="display:inline-flex;align-items:center;gap:6px;"><i data-lucide="loader-2" class="lucide-spin" style="width:16px;height:16px;"></i> HealthLab AI is thinking...</span>';
             messages.appendChild(loadingMsg);
             messages.scrollTop = messages.scrollHeight;
+            if (window.lucide) lucide.createIcons();
+            if (sendBtn) sendBtn.disabled = true;
 
             try {
                 const response = await fetch('/api/chat', {
@@ -446,25 +517,28 @@
                 });
 
                 const data = await response.json();
-                messages.removeChild(loadingMsg);
+                if (loadingMsg.parentNode) messages.removeChild(loadingMsg);
 
                 const aiMsg = document.createElement('div');
                 aiMsg.className = 'message ai';
                 if (response.ok) {
-                    aiMsg.innerHTML = data.reply.replace(/\n/g, '<br>');
+                    aiMsg.innerHTML = formatAiReply(data.reply);
                 } else {
-                    aiMsg.innerHTML = `<span style="color: red;">Error: ${data.error}</span><br><small>${data.details || ''}</small>`;
+                    aiMsg.innerHTML = `<span style="color: #dc2626; font-weight: 600;">Service Notice:</span><br>${data.error || 'Unable to load AI reply.'}`;
                 }
                 messages.appendChild(aiMsg);
                 messages.scrollTop = messages.scrollHeight;
 
             } catch (error) {
-                messages.removeChild(loadingMsg);
+                if (loadingMsg.parentNode) messages.removeChild(loadingMsg);
                 const errorMsg = document.createElement('div');
                 errorMsg.className = 'message ai';
-                errorMsg.innerHTML = `<span style="color: red;">Network Error: Could not connect to AI service.</span>`;
+                errorMsg.innerHTML = `<span style="color: #dc2626;">Network Error: Could not connect to AI service. Please retry.</span>`;
                 messages.appendChild(errorMsg);
                 messages.scrollTop = messages.scrollHeight;
+            } finally {
+                if (sendBtn) sendBtn.disabled = false;
+                if (window.lucide) lucide.createIcons();
             }
         }
 

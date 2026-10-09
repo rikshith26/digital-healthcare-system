@@ -379,89 +379,28 @@
                         </div>
                     </div>
 
-                    <!-- Right Column: Time Slots (Morning, Afternoon, Evening) -->
+                    <!-- Right Column: Time Slots (Doctor Scheduled Only) -->
                     <div>
                         <div class="doc-col-title" style="display: flex; justify-content: space-between; align-items: center;">
                             <div style="display: flex; align-items: center; gap: 8px;">
                                 <i data-lucide="clock" style="width: 17px; color: #64748b;"></i>
-                                Available Time Slots
+                                Doctor Consultation Slots
                             </div>
                             <span id="slotStatusCount" style="font-size: 0.75rem; color: #059669; font-weight: 700;">
-                                Select any slot
+                                Select an open slot
                             </span>
                         </div>
 
-                        <!-- Real Database Slots (If available) -->
-                        <div id="dbSlotsContainer" style="display: none; margin-bottom: 1.25rem;">
-                            <div style="font-size: 0.72rem; font-weight: 800; color: #64748b; text-transform: uppercase; margin-bottom: 6px;">
-                                Doctor Scheduled Open Slots
-                            </div>
-                            <div id="dbSlotsList" class="doc-slots-grid"></div>
-                        </div>
-
-                        <!-- Morning Slots -->
-                        <div style="margin-bottom: 1.25rem;">
-                            <div style="font-size: 0.74rem; font-weight: 800; color: #64748b; text-transform: uppercase; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
-                                <i data-lucide="sun" style="width: 14px; color: #64748b;"></i> Morning Slots (09:00 AM - 12:00 PM)
-                            </div>
-                            <div class="doc-slots-grid">
-                                <div class="doc-slot-btn active" onclick="selectSlotTime('09:30 AM', this, null)">
-                                    <div class="slot-time">09:30 AM</div>
-                                    <div class="slot-status">Available</div>
-                                </div>
-                                <div class="doc-slot-btn" onclick="selectSlotTime('10:15 AM', this, null)">
-                                    <div class="slot-time">10:15 AM</div>
-                                    <div class="slot-status">Available</div>
-                                </div>
-                                <div class="doc-slot-btn" onclick="selectSlotTime('11:00 AM', this, null)">
-                                    <div class="slot-time">11:00 AM</div>
-                                    <div class="slot-status">Available</div>
-                                </div>
-                                <div class="doc-slot-btn" onclick="selectSlotTime('11:45 AM', this, null)">
-                                    <div class="slot-time">11:45 AM</div>
-                                    <div class="slot-status">Available</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Afternoon Slots -->
-                        <div style="margin-bottom: 1.25rem;">
-                            <div style="font-size: 0.74rem; font-weight: 800; color: #64748b; text-transform: uppercase; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
-                                <i data-lucide="compass" style="width: 14px; color: #64748b;"></i> Afternoon Slots (01:00 PM - 04:30 PM)
-                            </div>
-                            <div class="doc-slots-grid">
-                                <div class="doc-slot-btn" onclick="selectSlotTime('01:30 PM', this, null)">
-                                    <div class="slot-time">01:30 PM</div>
-                                    <div class="slot-status">Available</div>
-                                </div>
-                                <div class="doc-slot-btn" onclick="selectSlotTime('02:30 PM', this, null)">
-                                    <div class="slot-time">02:30 PM</div>
-                                    <div class="slot-status">Available</div>
-                                </div>
-                                <div class="doc-slot-btn" onclick="selectSlotTime('03:30 PM', this, null)">
-                                    <div class="slot-time">03:30 PM</div>
-                                    <div class="slot-status">Available</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Evening Slots -->
-                        <div>
-                            <div style="font-size: 0.74rem; font-weight: 800; color: #64748b; text-transform: uppercase; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
-                                <i data-lucide="moon" style="width: 14px; color: #64748b;"></i> Evening Slots (05:00 PM - 08:30 PM)
-                            </div>
-                            <div class="doc-slots-grid">
-                                <div class="doc-slot-btn" onclick="selectSlotTime('05:30 PM', this, null)">
-                                    <div class="slot-time">05:30 PM</div>
-                                    <div class="slot-status">Available</div>
-                                </div>
-                                <div class="doc-slot-btn" onclick="selectSlotTime('06:30 PM', this, null)">
-                                    <div class="slot-time">06:30 PM</div>
-                                    <div class="slot-status">Available</div>
-                                </div>
-                                <div class="doc-slot-btn" onclick="selectSlotTime('07:15 PM', this, null)">
-                                    <div class="slot-time">07:15 PM</div>
-                                    <div class="slot-status">Available</div>
+                        <!-- Doctor Added Slots Dynamic Container -->
+                        <div id="doctorSlotsContainer" style="margin-top: 0.75rem;">
+                            <div id="doctorSlotsGrid" class="doc-slots-grid"></div>
+                            
+                            <!-- Empty State if no slots added for selected date -->
+                            <div id="noDoctorSlotsNotice" style="display: none; padding: 2.25rem 1.5rem; background: #f8fafc; border: 1px dashed #cbd5e1; text-align: center; border-radius: 4px;">
+                                <i data-lucide="calendar-x" style="width: 32px; height: 32px; color: #94a3b8; margin: 0 auto 0.5rem; display: block;"></i>
+                                <div style="font-weight: 700; color: #0f172a; font-size: 0.95rem;">No Slots Scheduled</div>
+                                <div style="font-size: 0.82rem; color: #64748b; margin-top: 0.35rem; line-height: 1.4;">
+                                    The doctor has not scheduled any consultation slots for this date. Please select another date or another doctor.
                                 </div>
                             </div>
                         </div>
@@ -1281,6 +1220,7 @@
     text-align: center;
     cursor: pointer;
     transition: all 0.15s ease;
+    border-radius: 4px;
 }
 
 .doc-slot-btn:hover {
@@ -1297,6 +1237,27 @@
     font-weight: 800;
 }
 
+.doc-slot-btn.booked {
+    background: #f1f5f9;
+    border-color: #e2e8f0;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.doc-slot-btn.booked:hover {
+    border-color: #e2e8f0;
+}
+
+.doc-slot-btn.booked .slot-time {
+    color: #94a3b8;
+    text-decoration: line-through;
+}
+
+.doc-slot-btn.booked .slot-status {
+    color: #ef4444;
+    font-weight: 800;
+}
+
 .slot-time {
     font-size: 0.86rem;
     font-weight: 700;
@@ -1308,6 +1269,8 @@
     color: #059669;
     font-weight: 700;
     margin-top: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
 }
 
 /* REVIEW LIST */
@@ -1401,9 +1364,10 @@ let selectedDocMode = 'virtual';
 let selectedDocPaymentMethod = 'UPI (Google Pay)';
 let selectedDocFee = 500;
 let selectedDocId = '{{ selected_doctor_id }}';
-let selectedSlotTimeVal = '09:30 AM';
+let selectedSlotTimeVal = '';
 let selectedSlotIdVal = '';
 let currentDocQuoteIndex = 0;
+let allDoctorSlots = [];
 
 // Comforting and scientifically reassuring quotes specifically for doctor appointments
 const docReassuringQuotes = [
@@ -1533,6 +1497,10 @@ function validateAndGoToSlotStep() {
 
 // Step 2 Transition to Review
 function goToReviewStep() {
+    if (!selectedSlotTimeVal) {
+        alert('Please select an available consultation slot scheduled by the doctor before proceeding.');
+        return;
+    }
     const docSelect = document.getElementById('doctorSelect');
     const selectedOpt = docSelect?.options[docSelect.selectedIndex];
     const docName = selectedOpt?.getAttribute('data-name') || 'Specialist';
@@ -1678,11 +1646,14 @@ function selectQuickDate(range) {
     if (range === 'today') document.getElementById('chipToday')?.classList.add('active');
     if (range === 'tomorrow') document.getElementById('chipTomorrow')?.classList.add('active');
     if (range === 'dayAfter') document.getElementById('chipDayAfter')?.classList.add('active');
+
+    renderSlotsForSelectedDate();
 }
 
 function onCustomDateChanged(val) {
     document.getElementById('formDate').value = val;
     document.querySelectorAll('.doc-date-chip').forEach(c => c.classList.remove('active'));
+    renderSlotsForSelectedDate();
 }
 
 // Time Slot Selection
@@ -1703,31 +1674,103 @@ function selectSlotTime(timeStr, element, slotId) {
 function fetchDoctorSlotsFromAPI(doctorId) {
     if (!doctorId || doctorId === 'default_doc') return;
 
+    const statusCount = document.getElementById('slotStatusCount');
+    if (statusCount) statusCount.innerText = 'Checking doctor schedule...';
+
     fetch(`/get_doctor_slots/${doctorId}`)
         .then(res => res.json())
         .then(data => {
-            const dbContainer = document.getElementById('dbSlotsContainer');
-            const dbList = document.getElementById('dbSlotsList');
-            if (data && data.slots && data.slots.length > 0) {
-                dbList.innerHTML = '';
-                data.slots.forEach(slot => {
-                    const btn = document.createElement('div');
-                    btn.className = 'doc-slot-btn';
-                    btn.onclick = () => selectSlotTime(slot.time, btn, slot._id);
-                    btn.innerHTML = `
-                        <div class="slot-time">${slot.time}</div>
-                        <div class="slot-status" style="color: #2563eb;">${slot.date}</div>
-                    `;
-                    dbList.appendChild(btn);
-                });
-                dbContainer.style.display = 'block';
-            } else {
-                if (dbContainer) dbContainer.style.display = 'none';
-            }
+            allDoctorSlots = (data && data.slots) ? data.slots : [];
+            renderSlotsForSelectedDate();
         })
         .catch(err => {
             console.log('Slots fetch note:', err);
+            allDoctorSlots = [];
+            renderSlotsForSelectedDate();
         });
+}
+
+// Render Doctor's Slots for the currently chosen consultation date
+function renderSlotsForSelectedDate() {
+    const grid = document.getElementById('doctorSlotsGrid');
+    const notice = document.getElementById('noDoctorSlotsNotice');
+    const statusCount = document.getElementById('slotStatusCount');
+    const dateInput = document.getElementById('consultDateInput');
+    const currentDate = dateInput ? dateInput.value : '';
+
+    if (!grid || !notice) return;
+
+    // Filter slots by selected date
+    const matchingSlots = allDoctorSlots.filter(s => s.date === currentDate);
+    grid.innerHTML = '';
+
+    if (matchingSlots.length === 0) {
+        grid.style.display = 'none';
+        notice.style.display = 'block';
+        if (statusCount) {
+            statusCount.innerText = '0 Slots Available';
+            statusCount.style.color = '#ef4444';
+        }
+        selectedSlotTimeVal = '';
+        selectedSlotIdVal = '';
+        document.getElementById('formTime').value = '';
+        document.getElementById('formSlotId').value = '';
+        return;
+    }
+
+    grid.style.display = 'grid';
+    notice.style.display = 'none';
+
+    let availableCount = 0;
+    let autoSelected = false;
+
+    matchingSlots.forEach(slot => {
+        const isBooked = (slot.status === 'booked');
+        if (!isBooked) availableCount++;
+
+        const btn = document.createElement('div');
+        btn.className = isBooked ? 'doc-slot-btn booked' : 'doc-slot-btn';
+
+        if (isBooked) {
+            btn.title = 'This slot has already been booked';
+            btn.onclick = () => alert('This slot has already been booked. Please choose an available slot.');
+            btn.innerHTML = `
+                <div class="slot-time">${slot.time}</div>
+                <div class="slot-status">Booked</div>
+            `;
+        } else {
+            const isCurrentlySelected = (selectedSlotIdVal && selectedSlotIdVal === slot._id) || 
+                                       (!selectedSlotIdVal && selectedSlotTimeVal === slot.time);
+
+            if (isCurrentlySelected || (!autoSelected && !selectedSlotTimeVal)) {
+                btn.classList.add('active');
+                selectSlotTime(slot.time, btn, slot._id);
+                autoSelected = true;
+            }
+
+            btn.onclick = () => selectSlotTime(slot.time, btn, slot._id);
+            btn.innerHTML = `
+                <div class="slot-time">${slot.time}</div>
+                <div class="slot-status">Available</div>
+            `;
+        }
+
+        grid.appendChild(btn);
+    });
+
+    if (statusCount) {
+        if (availableCount > 0) {
+            statusCount.innerText = `${availableCount} Open Slots`;
+            statusCount.style.color = '#059669';
+        } else {
+            statusCount.innerText = 'All Slots Booked';
+            statusCount.style.color = '#ef4444';
+        }
+    }
+
+    if (window.lucide && typeof lucide.createIcons === 'function') {
+        lucide.createIcons({ root: notice });
+    }
 }
 
 // Payment Gateway Selection

@@ -444,7 +444,7 @@
                     </div>
                     <div class="detail-row">
                         <span class="detail-label">Date</span>
-                        <span class="detail-value">: {{ prescription.date.strftime('%d %b %Y') }}</span>
+                        <span class="detail-value">: {{ prescription.date.strftime('%d %b %Y') if prescription.date and prescription.date.strftime is defined else prescription.date }}</span>
                     </div>
                 </div>
             </div>

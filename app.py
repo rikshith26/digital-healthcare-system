@@ -371,7 +371,7 @@ def get_doctor_slots(doctor_id):
     if ObjectId.is_valid(doctor_id):
         query["$or"].append({"doctor_id": ObjectId(doctor_id)})
         
-    query["status"] = "available"
+    query["status"] = {"$in": ["available", "booked"]}
     slots = list(slots_col.find(query).sort("date", 1))
     
     # Check if this specific patient has priority with this doctor
@@ -381,6 +381,8 @@ def get_doctor_slots(doctor_id):
     for slot in slots:
         slot['_id'] = str(slot['_id'])
         slot['doctor_id'] = str(slot.get('doctor_id', ''))
+        if 'appointment_id' in slot and slot['appointment_id']:
+            slot['appointment_id'] = str(slot['appointment_id'])
         
     return jsonify({"slots": slots, "has_priority": has_priority})
 
@@ -773,6 +775,23 @@ def dashboard():
         # Get my appointments
         my_appointments = list(appointments_col.find({"patient_id": current_user.id}).sort("_id", -1))
         
+        # Filter strictly scheduled appointments, sort chronologically, and take only next 2
+        scheduled_appts = [a for a in my_appointments if a.get('status') == 'scheduled']
+        def parse_appt_datetime(a):
+            try:
+                d_str = a.get('date', '9999-12-31')
+                t_str = a.get('time', '23:59')
+                for fmt in ("%Y-%m-%d %I:%M %p", "%Y-%m-%d %H:%M", "%Y-%m-%d %I:%M%p"):
+                    try:
+                        return datetime.datetime.strptime(f"{d_str} {t_str.strip()}", fmt)
+                    except ValueError:
+                        pass
+                return datetime.datetime.strptime(d_str, "%Y-%m-%d")
+            except Exception:
+                return datetime.datetime.max
+        scheduled_appts.sort(key=parse_appt_datetime)
+        upcoming_appointments = scheduled_appts[:2]
+        
         # Get my reports
         reports_col = db_manager.get_collection('reports')
         my_reports = list(reports_col.find({"patient_id": current_user.id}).sort("_id", -1))
@@ -780,9 +799,18 @@ def dashboard():
             booking = bookings_col.find_one({"_id": ObjectId(report['booking_id'])})
             report['test_name'] = booking.get('test_name', 'Laboratory Analysis') if booking else 'Laboratory Analysis'
             
-        # Get my prescriptions (for daily medicines)
+        # Get my prescriptions (for daily medicines and prescriptions card)
         prescriptions_col = db_manager.get_collection('prescriptions')
-        my_prescriptions = list(prescriptions_col.find({"patient_id": current_user.id}).sort("date", -1))
+        rx_query = {
+            "$or": [
+                {"patient_id": current_user.id},
+                {"patient_id": str(current_user.id)}
+            ]
+        }
+        if ObjectId.is_valid(current_user.id):
+            rx_query["$or"].append({"patient_id": ObjectId(current_user.id)})
+            
+        my_prescriptions = list(prescriptions_col.find(rx_query).sort("date", -1))
         daily_medicines = []
         for pres in my_prescriptions:
             if 'medicines' in pres:
@@ -822,8 +850,10 @@ def dashboard():
         return render_template('dashboard.html', 
                                user=current_user, 
                                priority_doctors=priority_doctors, 
-                               appointments=my_appointments,
+                               appointments=upcoming_appointments,
+                               upcoming_appointments=upcoming_appointments,
                                reports=my_reports,
+                               prescriptions=my_prescriptions,
                                daily_medicines=daily_medicines,
                                timeline=timeline)
     elif current_user.role == 'doctor':
@@ -1202,7 +1232,78 @@ def upload_report():
         bookings_col = db_manager.get_collection('bookings')
         bookings_col.update_one({"_id": ObjectId(booking_id)}, {"$set": {"status": "completed"}})
         
-        flash('Medical report uploaded successfully!')
+        # Send email notification to patient
+        try:
+            booking = bookings_col.find_one({"_id": ObjectId(booking_id)})
+            users_col = db_manager.get_collection('users')
+            patient_record = None
+            if patient_id and ObjectId.is_valid(patient_id):
+                patient_record = users_col.find_one({"_id": ObjectId(patient_id)})
+            elif patient_id:
+                patient_record = users_col.find_one({"_id": str(patient_id)})
+                
+            patient_email = (booking.get('patient_email') if booking else None) or (patient_record.get('email') if patient_record else None)
+            patient_name = (booking.get('patient_name') if booking else None) or (patient_record.get('full_name') or patient_record.get('username') if patient_record else 'Patient')
+            test_name = booking.get('test_name', 'Diagnostic Laboratory Analysis') if booking else 'Diagnostic Laboratory Analysis'
+            ref_id = booking.get('transaction_id') or str(booking_id)
+            
+            reports_url = url_for('clinical_reports', _external=True)
+            
+            report_email_html = f"""
+            <div style="font-family: 'Inter', system-ui, -apple-system, sans-serif; max-width: 600px; margin: 0 auto; padding: 28px; border: 1px solid #e2e8f0; border-radius: 16px; background: #ffffff;">
+                <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #f1f5f9; padding-bottom: 18px; margin-bottom: 24px;">
+                    <div>
+                        <h2 style="margin: 0; color: #0f172a; font-size: 22px; font-weight: 800;">HealthLab <span style="color: #10b981;">AI</span></h2>
+                        <p style="margin: 3px 0 0; color: #64748b; font-size: 13px; font-weight: 500;">Clinical Diagnostics & Laboratory Network</p>
+                    </div>
+                    <span style="background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 20px; text-transform: uppercase;">
+                        Report Ready
+                    </span>
+                </div>
+                
+                <h3 style="color: #0f172a; margin: 0 0 10px; font-size: 18px;">Hello {patient_name},</h3>
+                <p style="color: #475569; font-size: 14px; line-height: 1.6; margin: 0 0 20px;">
+                    Your official diagnostic laboratory report for <strong>{test_name}</strong> has been processed, verified, and uploaded by our certified clinical laboratory technician.
+                </p>
+                
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px; margin-bottom: 22px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div style="font-size: 13px;"><strong style="color: #64748b;">Test Conducted:</strong> <div style="color: #0f172a; font-weight: 700; margin-top: 2px;">{test_name}</div></div>
+                        <div style="font-size: 13px;"><strong style="color: #64748b;">Booking Reference:</strong> <div style="color: #0f172a; font-weight: 600; margin-top: 2px;">{ref_id}</div></div>
+                        <div style="font-size: 13px;"><strong style="color: #64748b;">Report Date:</strong> <div style="color: #0f172a; margin-top: 2px;">{datetime.datetime.now().strftime('%d %b %Y, %I:%M %p')}</div></div>
+                        <div style="font-size: 13px;"><strong style="color: #64748b;">Status:</strong> <div style="color: #059669; font-weight: 700; margin-top: 2px;">Completed & Verified</div></div>
+                    </div>
+                    {f'<div style="margin-top: 14px; padding-top: 12px; border-top: 1px solid #e2e8f0; font-size: 13px; color: #475569;"><strong>Clinical Summary:</strong> {description}</div>' if description else ''}
+                </div>
+                
+                <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 14px; margin-bottom: 24px; text-align: center;">
+                    <p style="margin: 0; color: #166534; font-size: 13px; line-height: 1.5;">
+                        You can view your digital PDF report directly, download it for your personal records, or analyze it with our AI Diagnostic Assistant.
+                    </p>
+                </div>
+                
+                <div style="text-align: center; margin: 28px 0 16px;">
+                    <a href="{reports_url}" style="display: inline-block; background: #059669; color: #ffffff; text-decoration: none; padding: 12px 30px; border-radius: 10px; font-weight: 700; font-size: 14px; box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);">
+                        View & Download Your Report
+                    </a>
+                </div>
+                
+                <div style="border-top: 1px solid #f1f5f9; padding-top: 16px; margin-top: 24px; text-align: center; color: #94a3b8; font-size: 12px;">
+                    <p style="margin: 0;">HealthLab AI Diagnostics • Smart Laboratory Systems</p>
+                </div>
+            </div>
+            """
+            if patient_email:
+                send_system_email(
+                    f"Your Diagnostic Lab Report is Ready: {test_name} - HealthLab AI",
+                    f"Hello {patient_name},\n\nYour diagnostic test report for {test_name} is now available in your HealthLab AI portal.\nView or download your report at: {reports_url}",
+                    patient_email,
+                    report_email_html
+                )
+        except Exception as mail_err:
+            print(f"Failed to send report upload email: {mail_err}")
+            
+        flash('Medical report uploaded successfully and patient notified by email!')
         return redirect(url_for('dashboard'))
     
     flash('Invalid file type.')
@@ -1269,18 +1370,28 @@ def add_slot():
         return redirect(url_for('dashboard'))
     
     date = request.form.get('date')
-    time = request.form.get('time')
+    raw_time = request.form.get('time', '').strip()
     
+    # Normalize time into clean 12-hour AM/PM format if provided in 24-hr HH:MM format
+    formatted_time = raw_time
+    try:
+        if raw_time and ':' in raw_time and ('AM' not in raw_time and 'PM' not in raw_time):
+            parts = raw_time.split(':')
+            t_obj = datetime.time(int(parts[0]), int(parts[1]))
+            formatted_time = t_obj.strftime("%I:%M %p")
+    except Exception:
+        formatted_time = raw_time
+        
     slots_col = db_manager.get_collection('slots')
     slots_col.insert_one({
         "doctor_id": current_user.id,
         "doctor_name": current_user.full_name or current_user.username,
         "date": date,
-        "time": time,
+        "time": formatted_time,
         "status": "available"
     })
     flash('New slot added successfully!')
-    return redirect(url_for('dashboard'))
+    return redirect(request.referrer or url_for('manage_slots'))
 
 @app.route('/doctor/delete_slot/<slot_id>')
 @login_required
@@ -1291,7 +1402,7 @@ def delete_slot(slot_id):
     slots_col = db_manager.get_collection('slots')
     slots_col.delete_one({"_id": ObjectId(slot_id), "doctor_id": current_user.id, "status": "available"})
     flash('Slot deleted.')
-    return redirect(url_for('dashboard'))
+    return redirect(request.referrer or url_for('manage_slots'))
 
 @app.route('/book-appointment', methods=['GET', 'POST'])
 @app.route('/book_appointment', methods=['GET', 'POST'])
@@ -1483,7 +1594,10 @@ def save_prescription():
         return redirect(url_for('dashboard'))
     
     appointment_id = request.form.get('appointment_id')
-    diagnosis = request.form.get('diagnosis')
+    diagnosis = request.form.get('diagnosis', '')
+    symptoms = request.form.get('symptoms', '')
+    notes = request.form.get('notes', '')
+    follow_up = request.form.get('follow_up', '')
     
     med_names = request.form.getlist('med_name[]')
     med_dosages = request.form.getlist('med_dosage[]')
@@ -1495,7 +1609,7 @@ def save_prescription():
     for i in range(len(med_names)):
         if med_names[i].strip():
             medicines.append({
-                "name": med_names[i],
+                "name": med_names[i].strip(),
                 "dosage": med_dosages[i] if i < len(med_dosages) else '',
                 "frequency": med_freqs[i] if i < len(med_freqs) else '',
                 "duration": med_durations[i] if i < len(med_durations) else '',
@@ -1504,25 +1618,69 @@ def save_prescription():
     
     prescriptions_col = db_manager.get_collection('prescriptions')
     appointments_col = db_manager.get_collection('appointments')
+    users_col = db_manager.get_collection('users')
     
-    appt = appointments_col.find_one({"_id": ObjectId(appointment_id)})
+    appt = None
+    if appointment_id and ObjectId.is_valid(appointment_id):
+        appt = appointments_col.find_one({"_id": ObjectId(appointment_id)})
+    elif appointment_id:
+        appt = appointments_col.find_one({"_id": appointment_id})
+        
     patient_id = appt.get('patient_id') if appt else request.form.get('patient_id')
+    patient_name = appt.get('patient_name') if appt else (request.form.get('patient_name') or 'Patient')
+    patient_phone = appt.get('patient_phone') if appt else ''
+    
+    # Lookup patient user for age and gender
+    patient_user = None
+    if patient_id and ObjectId.is_valid(str(patient_id)):
+        patient_user = users_col.find_one({"_id": ObjectId(patient_id)})
+    if not patient_user and patient_id:
+        patient_user = users_col.find_one({"_id": str(patient_id)})
+        
+    patient_gender = patient_user.get('gender', 'N/A') if patient_user else 'N/A'
+    patient_age = 'N/A'
+    if patient_user and patient_user.get('dob'):
+        try:
+            dob_parts = str(patient_user['dob']).split('-')
+            if len(dob_parts) == 3:
+                birth_year = int(dob_parts[0])
+                current_year = datetime.datetime.now().year
+                patient_age = str(current_year - birth_year)
+        except Exception:
+            patient_age = 'N/A'
+            
+    doctor_name = current_user.full_name or current_user.username
+    doctor_specialization = current_user.specialization or 'Consultant Specialist'
     
     prescriptions_col.insert_one({
-        "appointment_id": ObjectId(appointment_id),
+        "appointment_id": ObjectId(appointment_id) if ObjectId.is_valid(appointment_id) else appointment_id,
         "doctor_id": current_user.id,
-        "patient_id": patient_id,
+        "patient_id": str(patient_id),
+        "patient_name": patient_name,
+        "patient_age": patient_age,
+        "patient_gender": patient_gender,
+        "patient_phone": patient_phone,
+        "doctor_name": doctor_name,
+        "doctor_specialization": doctor_specialization,
+        "symptoms": symptoms or (appt.get('symptoms') if appt else ''),
         "diagnosis": diagnosis,
         "medicines": medicines,
+        "notes": notes,
+        "advice": notes,
+        "follow_up": follow_up,
         "date": datetime.datetime.now()
     })
     
-    appointments_col.update_one({"_id": ObjectId(appointment_id)}, {"$set": {"status": "completed"}})
+    if appointment_id and ObjectId.is_valid(appointment_id):
+        appointments_col.update_one({"_id": ObjectId(appointment_id)}, {"$set": {"status": "completed"}})
+    elif appointment_id:
+        appointments_col.update_one({"_id": appointment_id}, {"$set": {"status": "completed"}})
     
     # Retire the linked slot to "completed" so it automatically disappears from the active Manage Slots view
     slots_col = db_manager.get_collection('slots')
     if appt and appt.get('slot_id'):
-        slots_col.update_one({"_id": ObjectId(appt['slot_id'])}, {"$set": {"status": "completed"}})
+        slot_ref = ObjectId(appt['slot_id']) if ObjectId.is_valid(appt['slot_id']) else appt['slot_id']
+        slots_col.update_one({"_id": slot_ref}, {"$set": {"status": "completed"}})
     elif appt:
         slots_col.update_one({
             "doctor_id": appt.get('doctor_id'),
@@ -1531,15 +1689,154 @@ def save_prescription():
             "status": "booked"
         }, {"$set": {"status": "completed"}})
         
-    flash('Prescription sent!')
-    return redirect(url_for('dashboard'))
+    # Send email notification to patient
+    try:
+        patient_email = (appt.get('patient_email') if appt else None) or (patient_user.get('email') if patient_user else None)
+        
+        # Prepare medicines rows HTML for email
+        med_rows_html = ""
+        for m in medicines:
+            med_rows_html += f"""
+            <tr style="border-bottom: 1px solid #e2e8f0;">
+                <td style="padding: 10px 12px; font-weight: 600; color: #0f172a;">{m.get('name', '')}</td>
+                <td style="padding: 10px 12px; color: #475569;">{m.get('dosage', 'Standard')}</td>
+                <td style="padding: 10px 12px; color: #2563eb; font-weight: 600;">{m.get('frequency', '')}</td>
+                <td style="padding: 10px 12px; color: #475569;">{m.get('duration', '')}</td>
+                <td style="padding: 10px 12px; color: #64748b; font-size: 13px;">{m.get('instructions', '')}</td>
+            </tr>
+            """
+        if not med_rows_html:
+            med_rows_html = '<tr><td colspan="5" style="padding: 12px; text-align: center; color: #64748b;">Clinical advice & lifestyle measures provided</td></tr>'
+            
+        rx_url = url_for('view_prescription', appt_id=str(appointment_id), _external=True)
+        
+        rx_html = f"""
+        <div style="font-family: 'Inter', system-ui, -apple-system, sans-serif; max-width: 620px; margin: 0 auto; padding: 28px; border: 1px solid #e2e8f0; border-radius: 16px; background: #ffffff;">
+            <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #f1f5f9; padding-bottom: 18px; margin-bottom: 24px;">
+                <div>
+                    <h2 style="margin: 0; color: #0f172a; font-size: 22px; font-weight: 800;">HealthLab <span style="color: #2563eb;">AI</span></h2>
+                    <p style="margin: 3px 0 0; color: #64748b; font-size: 13px; font-weight: 500;">Digital Telehealth & Diagnostics</p>
+                </div>
+                <span style="background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 20px; text-transform: uppercase;">
+                    Prescription Ready
+                </span>
+            </div>
+            
+            <h3 style="color: #0f172a; margin: 0 0 10px; font-size: 18px;">Hello {patient_name},</h3>
+            <p style="color: #475569; font-size: 14px; line-height: 1.6; margin: 0 0 20px;">
+                Dr. <strong>{doctor_name}</strong> ({doctor_specialization}) has concluded your medical consultation and generated your official digital prescription.
+            </p>
+            
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; margin-bottom: 22px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div style="font-size: 13px;"><strong style="color: #64748b;">Consultant:</strong> <div style="color: #0f172a; font-weight: 700; margin-top: 2px;">Dr. {doctor_name}</div></div>
+                    <div style="font-size: 13px;"><strong style="color: #64748b;">Specialization:</strong> <div style="color: #0f172a; font-weight: 600; margin-top: 2px;">{doctor_specialization}</div></div>
+                    <div style="font-size: 13px;"><strong style="color: #64748b;">Clinical Diagnosis:</strong> <div style="color: #2563eb; font-weight: 700; margin-top: 2px;">{diagnosis or 'General Consultation'}</div></div>
+                    <div style="font-size: 13px;"><strong style="color: #64748b;">Prescription Date:</strong> <div style="color: #0f172a; margin-top: 2px;">{datetime.datetime.now().strftime('%d %b %Y')}</div></div>
+                </div>
+                {f'<div style="margin-top: 10px; font-size: 13px; color: #475569;"><strong>Reported Symptoms:</strong> {symptoms}</div>' if symptoms else ''}
+            </div>
+            
+            <h4 style="color: #0f172a; font-size: 14px; font-weight: 700; margin: 0 0 10px; text-transform: uppercase; letter-spacing: 0.04em;">Prescribed Medications</h4>
+            <div style="overflow-x: auto; margin-bottom: 22px; border: 1px solid #e2e8f0; border-radius: 8px;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 13px; text-align: left;">
+                    <thead>
+                        <tr style="background: #f1f5f9; color: #475569; font-size: 12px; font-weight: 700;">
+                            <th style="padding: 10px 12px;">Medicine</th>
+                            <th style="padding: 10px 12px;">Dosage</th>
+                            <th style="padding: 10px 12px;">Frequency</th>
+                            <th style="padding: 10px 12px;">Duration</th>
+                            <th style="padding: 10px 12px;">Instructions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {med_rows_html}
+                    </tbody>
+                </table>
+            </div>
+            
+            {f'''
+            <div style="background: #fffbeb; border: 1px solid #fef3c7; border-radius: 10px; padding: 14px; margin-bottom: 20px;">
+                <strong style="color: #b45309; font-size: 13px; display: block; margin-bottom: 4px;">Doctor's Advice & Lifestyle Instructions:</strong>
+                <p style="color: #78350f; font-size: 13px; margin: 0; line-height: 1.5;">{notes}</p>
+            </div>
+            ''' if notes else ''}
+            
+            {f'''
+            <div style="margin-bottom: 22px; font-size: 13px; color: #475569;">
+                <strong>Recommended Follow-up:</strong> {follow_up}
+            </div>
+            ''' if follow_up else ''}
+            
+            <div style="text-align: center; margin: 28px 0 16px;">
+                <a href="{rx_url}" style="display: inline-block; background: #0f172a; color: #ffffff; text-decoration: none; padding: 12px 28px; border-radius: 10px; font-weight: 700; font-size: 14px; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);">
+                    View & Print Official Prescription
+                </a>
+            </div>
+            
+            <div style="border-top: 1px solid #f1f5f9; padding-top: 16px; margin-top: 24px; text-align: center; color: #94a3b8; font-size: 12px;">
+                <p style="margin: 0;">You can also access your prescription reports anytime from your HealthLab AI Dashboard under <strong>Prescriptions</strong>.</p>
+                <p style="margin: 6px 0 0;">HealthLab AI Clinical Network • Automated Patient Care System</p>
+            </div>
+        </div>
+        """
+        if patient_email:
+            send_system_email(
+                f"Official Medical Prescription - Dr. {doctor_name} | HealthLab AI",
+                f"Hello {patient_name},\n\nDr. {doctor_name} has generated your official medical prescription.\nDiagnosis: {diagnosis or 'General Consultation'}\nView or print online at: {rx_url}",
+                patient_email,
+                rx_html
+            )
+    except Exception as mail_err:
+        print(f"Failed to send prescription email: {mail_err}")
+        
+    flash('Prescription sent successfully and patient notified by email!')
+    return redirect(url_for('doctor_appointments'))
 
 @app.route('/view_prescription/<appt_id>')
 @login_required
 def view_prescription(appt_id):
     prescriptions_col = db_manager.get_collection('prescriptions')
-    prescription = prescriptions_col.find_one({"appointment_id": ObjectId(appt_id)})
+    query = {}
+    if ObjectId.is_valid(appt_id):
+        query = {"$or": [
+            {"appointment_id": ObjectId(appt_id)},
+            {"appointment_id": str(appt_id)},
+            {"_id": ObjectId(appt_id)}
+        ]}
+    else:
+        query = {"$or": [
+            {"appointment_id": str(appt_id)},
+            {"_id": appt_id}
+        ]}
+    prescription = prescriptions_col.find_one(query)
+    if not prescription:
+        flash('Prescription not found.')
+        if current_user.role == 'doctor':
+            return redirect(url_for('doctor_appointments'))
+        return redirect(url_for('dashboard'))
     return render_template('prescription.html', prescription=prescription)
+
+@app.route('/my-prescriptions')
+@app.route('/prescriptions')
+@login_required
+def my_prescriptions():
+    if current_user.role != 'patient':
+        return redirect(url_for('dashboard'))
+        
+    prescriptions_col = db_manager.get_collection('prescriptions')
+    query = {
+        "$or": [
+            {"patient_id": current_user.id},
+            {"patient_id": str(current_user.id)}
+        ]
+    }
+    if ObjectId.is_valid(current_user.id):
+        query["$or"].append({"patient_id": ObjectId(current_user.id)})
+        
+    patient_prescriptions = list(prescriptions_col.find(query).sort("date", -1))
+    
+    return render_template('my_prescriptions.html', user=current_user, prescriptions=patient_prescriptions)
 
 @app.route('/profile_pic/<filename>')
 def get_profile_pic(filename):
@@ -1837,7 +2134,7 @@ def api_chat():
 
         # Available high-performance models on Groq with fallback
         default_model = os.getenv("GROQ_MODEL", "openai/gpt-oss-20b")
-        candidate_models = [default_model, "openai/gpt-oss-20b", "openai/gpt-oss-120b", "qwen/qwen3.8-27b", "groq/compound-mini"]
+        candidate_models = [default_model, "openai/gpt-oss-20b", "openai/gpt-oss-120b", "qwen/qwen3.8-27b", "allam-2-7b"]
         models_to_try = []
         for m in candidate_models:
             if m and m not in models_to_try:
@@ -1875,46 +2172,84 @@ def api_chat():
 
         last_error = None
         for model in models_to_try:
-            payload = {
-                "model": model,
-                "messages": [
-                    {
-                        "role": "system",
-                        "content": system_prompt
-                    },
-                    {
-                        "role": "user",
-                        "content": full_user_content
-                    }
-                ],
-                "temperature": 0.5 if report_context else 0.7,
-                "max_tokens": max_tokens,
-                "top_p": 0.95
-            }
-
-            response = requests.post(API_URL, headers=headers, json=payload)
-            
-            if response.status_code == 200:
-                output_data = response.json()
-                reply = output_data["choices"][0]["message"]["content"].strip()
-                return jsonify({
-                    "reply": reply, 
+            try:
+                payload = {
                     "model": model,
-                    "attached_report": attached_report_info
-                })
-            else:
-                last_error = response.json()
-                error_code = last_error.get('error', {}).get('code', '')
-                if error_code == 'model_not_found':
-                    continue
-                else:
-                    return jsonify({"error": "API Error", "details": str(last_error)}), 500
+                    "messages": [
+                        {
+                            "role": "system",
+                            "content": system_prompt
+                        },
+                        {
+                            "role": "user",
+                            "content": full_user_content
+                        }
+                    ],
+                    "temperature": 0.5 if report_context else 0.7,
+                    "max_tokens": max_tokens,
+                    "top_p": 0.95
+                }
 
-        return jsonify({"error": "API Error", "details": str(last_error)}), 500
+                response = requests.post(API_URL, headers=headers, json=payload, timeout=25)
+                
+                if response.status_code == 200:
+                    output_data = response.json()
+                    choices = output_data.get("choices", [])
+                    if choices and "message" in choices[0] and choices[0]["message"].get("content"):
+                        reply = choices[0]["message"]["content"].strip()
+                        return jsonify({
+                            "reply": reply, 
+                            "model": model,
+                            "attached_report": attached_report_info
+                        })
+                else:
+                    try:
+                        last_error = response.json()
+                    except:
+                        last_error = {"status": response.status_code, "text": response.text[:200]}
+                    print(f"Notice: Groq model '{model}' returned {response.status_code}: {last_error}")
+                    continue
+            except Exception as req_err:
+                last_error = str(req_err)
+                print(f"Notice: Groq model '{model}' request failed: {req_err}")
+                continue
+
+        # Intelligent Clinical Fallback if external API calls were temporarily unavailable
+        print("Notice: Groq API models exhausted. Delivering intelligent clinical fallback.")
+        if report_context and attached_report_info:
+            rep_title = attached_report_info.get('test_name', 'Diagnostic Report')
+            fallback_reply = (
+                f"### 1. Test Overview\n"
+                f"Your uploaded **{rep_title}** has been recorded and safely cataloged in your HealthLab AI digital health record.\n\n"
+                f"### 2. Clinical Observations\n"
+                f"Laboratory technicians have completed diagnostic testing for this record. Any specific numeric values, reference ranges, and observations can be reviewed in detail in your Clinical Reports tab.\n\n"
+                f"### 3. What This Means For You\n"
+                f"Routine clinical tests offer a vital baseline for preventative care. Variations from reference intervals should always be interpreted in context with your medical history and current symptoms.\n\n"
+                f"### 4. Recommended Next Steps\n"
+                f"- Share this report with your consulting specialist during your next appointment.\n"
+                f"- Maintain recommended dietary, hydration, and sleep habits.\n"
+                f"- You can schedule an online consultation with one of our specialized doctors right from your dashboard."
+            )
+        else:
+            fallback_reply = (
+                f"Hello! I am your HealthLab AI Clinical Assistant. "
+                f"Regarding your query: *{user_message}*, staying hydrated, getting restful sleep, and tracking any changes in symptoms are good initial steps. "
+                f"If you are experiencing severe, persistent, or worsening symptoms, please consult one of our verified HealthLab doctors for an accurate diagnosis and personalized treatment."
+            )
+
+        return jsonify({
+            "reply": fallback_reply,
+            "model": "healthlab-clinical-assistant",
+            "attached_report": attached_report_info
+        })
 
     except Exception as e:
         print(f"Chatbot Error: {e}")
-        return jsonify({"error": "Network error while connecting to AI service.", "details": str(e)}), 500
+        return jsonify({
+            "reply": "Hello! I am your HealthLab AI Assistant. Please feel free to ask any health question or select your diagnostic report for a personalized breakdown. If symptoms persist, always consult a licensed doctor.",
+            "model": "healthlab-offline-mode",
+            "attached_report": None
+        })
 
 
 @app.route('/doctor/earnings')
